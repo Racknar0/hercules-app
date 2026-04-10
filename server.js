@@ -30,6 +30,50 @@ app.use(cors());
 app.use(express.json({limit: '200mb'}));
 app.use(express.urlencoded({extended: true, limit: '200mb'}));
 
+// ========================================
+// HEALTH CHECK / DIAGNÓSTICO
+// ========================================
+app.get('/api/health', (req, res) => {
+    const mem = process.memoryUsage();
+    const tempDocsExists = fs.existsSync(TEMP_DOCS_DIR);
+    const tempDocsCount = tempDocsExists ? fs.readdirSync(TEMP_DOCS_DIR).length : 0;
+    const dbPath = path.join(OUTPUT_DIR, 'master_db.json');
+    const dbExists = fs.existsSync(dbPath);
+    let dbSize = 0;
+    let loteCount = 0;
+    if (dbExists) {
+        dbSize = fs.statSync(dbPath).size;
+        try {
+            const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+            loteCount = db.lotes ? db.lotes.length : 0;
+        } catch(e) {}
+    }
+
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: `${Math.floor(process.uptime())}s`,
+        node: process.version,
+        platform: process.platform,
+        memory: {
+            rss: `${Math.round(mem.rss / 1024 / 1024)}MB`,
+            heap: `${Math.round(mem.heapUsed / 1024 / 1024)}/${Math.round(mem.heapTotal / 1024 / 1024)}MB`
+        },
+        env: {
+            GEMINI_API_KEY: process.env.GEMINI_API_KEY ? '✅ Set' : '❌ Missing',
+            NODE_ENV: process.env.NODE_ENV || 'not set'
+        },
+        data: {
+            tempDocs: tempDocsCount,
+            dbExists,
+            dbSizeKB: Math.round(dbSize / 1024),
+            lotes: loteCount
+        },
+        cors: 'enabled',
+        requestOrigin: req.headers.origin || req.headers.referer || 'direct'
+    });
+});
+
 // FLAG GLOBAL DE CANCELACIÓN
 let cancelFlag = false;
 app.post('/api/cancel', (req, res) => {
