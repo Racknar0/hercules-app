@@ -3,12 +3,14 @@ import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-do
 import MedicalOrganizer from './pages/MedicalOrganizer';
 import MedicalExtractor from './pages/MedicalExtractor';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 function NavBar() {
   const [qaStatus, setQaStatus] = useState({ hasData: false, count: 0, pendientesCount: 0 });
 
   useEffect(() => {
     const check = () => {
-      fetch('http://localhost:3000/api/qa-status')
+      fetch(`${API_BASE}/api/qa-status`)
         .then(res => res.json())
         .then(data => setQaStatus(data))
         .catch(() => {});

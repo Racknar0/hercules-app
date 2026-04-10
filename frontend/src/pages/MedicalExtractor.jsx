@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Select from 'react-select';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 function getQA(field) {
     if (!field) return { answer: '—', source: '' };
     if (typeof field === 'string') return { answer: field, source: '' };
@@ -46,7 +48,7 @@ export default function MedicalExtractor() {
     // Fetch lotes for selector
     const fetchLotes = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/profiles');
+            const res = await fetch(`${API_BASE}/api/profiles`);
             const json = await res.json();
             const opts = (json.profiles || []).map(p => ({
                 value: JSON.stringify({ nombre: p.labelCliente, dol: p.dol }),
@@ -59,11 +61,11 @@ export default function MedicalExtractor() {
     const fetchQAData = async (nombre, dol) => {
         setLoading(true);
         try {
-            let url = 'http://localhost:3000/api/qa-data';
+            let url = `${API_BASE}/api/qa-data`;
             if (nombre && dol) url += `?nombre=${encodeURIComponent(nombre)}&dol=${encodeURIComponent(dol)}`;
             const [dataRes, statusRes] = await Promise.all([
                 fetch(url),
-                fetch('http://localhost:3000/api/qa-status')
+                fetch(`${API_BASE}/api/qa-status`)
             ]);
             const json = await dataRes.json();
             const status = await statusRes.json();
@@ -79,7 +81,7 @@ export default function MedicalExtractor() {
     // Check if files still exist in temp_docs
     const checkFiles = async (nombre, dol) => {
         try {
-            const res = await fetch(`http://localhost:3000/api/check-files?nombre=${encodeURIComponent(nombre)}&dol=${encodeURIComponent(dol)}`);
+            const res = await fetch(`${API_BASE}/api/check-files?nombre=${encodeURIComponent(nombre)}&dol=${encodeURIComponent(dol)}`);
             const json = await res.json();
             setFileCheck(json);
         } catch(e) {
@@ -105,7 +107,7 @@ export default function MedicalExtractor() {
     }, [selectedLote]);
 
     const openDoc = (filename) => {
-        window.open(`http://localhost:3000/api/documents/${filename}`, '_blank');
+        window.open(`${API_BASE}/api/documents/${filename}`, '_blank');
     };
 
     // ===== INICIAR CORRIDA QA =====
@@ -123,7 +125,7 @@ export default function MedicalExtractor() {
         setQaLogs(['[QA] Iniciando corrida de análisis QA...']);
 
         try {
-            const response = await fetch('http://localhost:3000/api/run-qa', {
+            const response = await fetch(`${API_BASE}/api/run-qa`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ aiModel: 'gemini-3-flash-preview', nombre: parsed.nombre, dol: parsed.dol })
@@ -166,7 +168,7 @@ export default function MedicalExtractor() {
 
     const cancelQA = async () => {
         try {
-            await fetch('http://localhost:3000/api/cancel', { method: 'POST' });
+            await fetch(`${API_BASE}/api/cancel`, { method: 'POST' });
             setQaLogs(prev => [...prev, '[SYS] ⛔ Cancelación enviada...']);
         } catch(e) {}
     };
@@ -176,7 +178,7 @@ export default function MedicalExtractor() {
         if (!window.confirm('¿Re-ejecutar? Esto borrará los resultados QA actuales de este lote y correrá nuevamente.')) return;
         const parsed = JSON.parse(selectedLote.value);
         try {
-            await fetch('http://localhost:3000/api/clear-qa', {
+            await fetch(`${API_BASE}/api/clear-qa`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nombre: parsed.nombre, dol: parsed.dol })

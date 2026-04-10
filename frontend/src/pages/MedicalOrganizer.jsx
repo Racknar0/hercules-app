@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Select from 'react-select';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 const customSelectStyles = {
     control: (base, state) => ({
         ...base,
@@ -95,7 +97,7 @@ export default function MedicalOrganizer() {
     // FETCH DATA
     // ===========================
     const fetchProfiles = () => {
-        fetch('http://localhost:3000/api/profiles')
+        fetch(`${API_BASE}/api/profiles`)
             .then(res => res.json())
             .then(data => {
                 if (data.profiles) {
@@ -110,7 +112,7 @@ export default function MedicalOrganizer() {
     };
 
     const fetchPendientes = () => {
-        fetch('http://localhost:3000/api/pendientes')
+        fetch(`${API_BASE}/api/pendientes`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) setPendientes(data.data);
@@ -119,7 +121,7 @@ export default function MedicalOrganizer() {
     };
 
     const fetchTrash = () => {
-        fetch('http://localhost:3000/api/deleted-records')
+        fetch(`${API_BASE}/api/deleted-records`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) setTrashData(data.list);
@@ -128,7 +130,7 @@ export default function MedicalOrganizer() {
     };
 
     const fetchLoteDocuments = (nombre, dol) => {
-        fetch(`http://localhost:3000/api/lote-documents?nombre=${encodeURIComponent(nombre)}&dol=${encodeURIComponent(dol)}`)
+        fetch(`${API_BASE}/api/lote-documents?nombre=${encodeURIComponent(nombre)}&dol=${encodeURIComponent(dol)}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) setLoteDocuments(data.data);
@@ -231,7 +233,7 @@ export default function MedicalOrganizer() {
         formData.append('enableQC', enableQC);
 
         try {
-            const response = await fetch('http://localhost:3000/api/upload', { method: 'POST', body: formData });
+            const response = await fetch(`${API_BASE}/api/upload`, { method: 'POST', body: formData });
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let buffer = '';
@@ -274,7 +276,7 @@ export default function MedicalOrganizer() {
     // ===========================
     const cancelProcess = async () => {
         try {
-            await fetch('http://localhost:3000/api/cancel', { method: 'POST' });
+            await fetch(`${API_BASE}/api/cancel`, { method: 'POST' });
             setStreamLogs(prev => [...prev, '[SYS] ⛔ Cancelación enviada...']);
         } catch(e) {}
     };
@@ -306,7 +308,7 @@ export default function MedicalOrganizer() {
         }
         setStreamLogs(['[SYS] Inyectando Dummy...']);
         try {
-            const res = await fetch('http://localhost:3000/api/upload-dummy', {
+            const res = await fetch(`${API_BASE}/api/upload-dummy`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ officialClientName: mockName, officialDol: mockDol })
@@ -328,7 +330,7 @@ export default function MedicalOrganizer() {
         }
         const parsed = JSON.parse(selectedLote.value);
         try {
-            const res = await fetch('http://localhost:3000/api/assign-pendiente', {
+            const res = await fetch(`${API_BASE}/api/assign-pendiente`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ pendienteIndex: idx, nombre: parsed.nombre, dol: parsed.dol, selectedRun })
@@ -341,7 +343,7 @@ export default function MedicalOrganizer() {
     const handleDeletePendiente = async (idx) => {
         if (!window.confirm('¿Eliminar este documento permanentemente?')) return;
         try {
-            const res = await fetch(`http://localhost:3000/api/pendiente?index=${idx}`, { method: 'DELETE' });
+            const res = await fetch(`${API_BASE}/api/pendiente?index=${idx}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) fetchAll();
         } catch(e) { alert("Fallo eliminando"); }
@@ -355,7 +357,7 @@ export default function MedicalOrganizer() {
         if (!window.confirm(`¿Eliminar ${archivoOrigen} del lote?`)) return;
         const parsed = JSON.parse(selectedLote.value);
         try {
-            const res = await fetch(`http://localhost:3000/api/records?archivoOrigen=${encodeURIComponent(archivoOrigen)}&nombre=${encodeURIComponent(parsed.nombre)}&dol=${encodeURIComponent(parsed.dol)}`, { method: 'DELETE' });
+            const res = await fetch(`${API_BASE}/api/records?archivoOrigen=${encodeURIComponent(archivoOrigen)}&nombre=${encodeURIComponent(parsed.nombre)}&dol=${encodeURIComponent(parsed.dol)}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) fetchAll();
         } catch(e) { alert("Fallo eliminando"); }
@@ -376,7 +378,7 @@ export default function MedicalOrganizer() {
         try {
             const body = { archivoOrigen, nombre: parsed.nombre, dol: parsed.dol };
             if (pages) body.pages = pages;
-            const res = await fetch('http://localhost:3000/api/rescan-document', {
+            const res = await fetch(`${API_BASE}/api/rescan-document`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -407,7 +409,7 @@ export default function MedicalOrganizer() {
         const targetDol = entry.doc._fromDol || (selectedLote ? JSON.parse(selectedLote.value).dol : null);
         if (!targetNombre || !targetDol) return alert('Selecciona un lote destino.');
         try {
-            const res = await fetch('http://localhost:3000/api/restore-record', {
+            const res = await fetch(`${API_BASE}/api/restore-record`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ trashIndex, nombre: targetNombre, dol: targetDol })
@@ -421,7 +423,7 @@ export default function MedicalOrganizer() {
     // PDF VIEWER
     // ===========================
     const openDocumentLocal = (filename) => {
-        window.open(`http://localhost:3000/api/documents/${filename}`, '_blank');
+        window.open(`${API_BASE}/api/documents/${filename}`, '_blank');
     };
 
     // ===========================
@@ -431,7 +433,7 @@ export default function MedicalOrganizer() {
         if (pendientes.length > 0) {
             return alert(`⛔ No puedes descargar el Excel mientras haya ${pendientes.length} documento(s) pendientes de revisión. Asígnalos o elimínalos primero.`);
         }
-        let url = 'http://localhost:3000/api/download';
+        let url = `${API_BASE}/api/download`;
         if (selectedLote) {
             const parsed = JSON.parse(selectedLote.value);
             url += `?nombre=${encodeURIComponent(parsed.nombre)}&dol=${encodeURIComponent(parsed.dol)}`;
@@ -445,7 +447,7 @@ export default function MedicalOrganizer() {
     const handleResetDB = async () => {
         if (!window.confirm('¿BORRAR toda la base de datos permanentemente?')) return;
         try {
-            await fetch('http://localhost:3000/api/reset-db', { method: 'DELETE' });
+            await fetch(`${API_BASE}/api/reset-db`, { method: 'DELETE' });
             setLoteDocuments([]);
             setLoteOptions([]);
             setSelectedLote(null);
