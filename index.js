@@ -1,3 +1,8 @@
+/**
+ * ⚠️ DEPRECATED: Este es un script CLI legacy para procesamiento batch local.
+ * En producción usa: node server.js  (o PM2: pm2 start server.js --name api-hercules)
+ * NO uses este archivo con PM2, se ejecuta y termina inmediatamente causando loops de reinicio.
+ */
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
