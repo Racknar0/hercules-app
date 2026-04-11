@@ -715,9 +715,14 @@ export default function MedicalOrganizer() {
                 }
             });
         });
-        // Ordenar items dentro de cada provider cronológicamente
+        // Ordenar items dentro de cada provider por documento y luego cronológicamente.
+        // Esto evita desfases visuales cuando usamos rowSpan en tablas.
         Object.values(providerMap).forEach((group) => {
             group.items.sort((a, b) => {
+                const docA = a._parentDoc?.archivoOrigen || '';
+                const docB = b._parentDoc?.archivoOrigen || '';
+                if (docA !== docB) return docA.localeCompare(docB);
+
                 const da = a.fecha ? new Date(a.fecha) : new Date(0);
                 const db = b.fecha ? new Date(b.fecha) : new Date(0);
                 return da - db;

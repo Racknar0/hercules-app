@@ -227,9 +227,10 @@ header p {
 /* Split Tables */
 .results-split {
   display: flex;
+  flex-direction: column;
   gap: 2rem;
   margin-top: 1rem;
-  align-items: stretch; /* vital para que igualen alturas */
+  align-items: stretch;
 }
 
 /* Date Grouping Styles */
