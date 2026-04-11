@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Hexagon } from 'lucide-react';
 import { useDashboardStore } from '@/store/useDashboardStore';
 import HttpService from '@/services/HttpService';
 import styles from './PrivateNavbar.module.scss';
@@ -79,7 +80,7 @@ export default function PrivateNavbar() {
     return (
         <nav className={styles.navbar}>
             <div className={styles.logo}>
-                <span style={{ color: '#FF5C00', fontSize: '1.2rem' }}>⬡</span>
+                <Hexagon size={18} color="#FF5C00" strokeWidth={2.2} />
                 HERCULES{' '}
                 <span style={{
                     background: 'linear-gradient(135deg, #FF5C00, #FF8C42)',

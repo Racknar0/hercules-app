@@ -20,7 +20,7 @@ export default function ProvidersResultsSection({ data, openDoc }) {
  {records.map((record, index) =>(
  <div key={index} className="qa-card">
  <div className="qa-card-header">
- <h3 style={{ cursor: 'pointer' }} onClick={() =>openDoc(record.archivo)}>{record.archivo}</h3>
+ <h3 className="doc-link" style={{ display: 'inline-block' }} onClick={() =>openDoc(record.archivo)}>{record.archivo}</h3>
  <div style={{ display: 'flex', gap: '6px', marginTop: '5px', flexWrap: 'wrap' }}>
  <span style={{ fontSize: '0.65rem', background: 'rgba(0,230,118,0.2)', padding: '2px 8px', borderRadius: '4px', color: '#22C55E' }}>
  Muestra #{record.sampleOrder}

@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { CheckCircle2, Eye, Trash2 } from 'lucide-react';
 import { formatDateMMDDYYYY } from '@/helpers/dateFormat';
 
 export default function PendingConflictsSection({
@@ -64,8 +65,8 @@ export default function PendingConflictsSection({
  const r1 = doc._qc.run1;
  const r2 = doc._qc.run2;
  const diffStyle = {
- background: 'rgba(255,0,68,0.15)',
- color: '#ff6b6b',
+ background: 'rgba(248,113,113,0.12)',
+ color: '#fecaca',
  fontWeight: 'bold',
  };
  const normalStyle = {};
@@ -194,8 +195,9 @@ export default function PendingConflictsSection({
  <button
  className="btn-sm btn-open"
  onClick={() =>openDocumentLocal(doc.archivoOrigen)}
- style={{ fontSize: '0.7rem', padding: '3px 6px' }}
+ style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
+ <Eye size={12} />
  Ver Doc
  </button>
  <button
@@ -210,8 +212,13 @@ export default function PendingConflictsSection({
  border: '1px solid rgba(34,197,94,0.32)',
  borderRadius: '4px',
  cursor: 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '4px',
  }}
  >
+ <CheckCircle2 size={12} />
  Aprobar R1
  </button>
  <button
@@ -226,15 +233,21 @@ export default function PendingConflictsSection({
  border: '1px solid rgba(34,197,94,0.32)',
  borderRadius: '4px',
  cursor: 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '4px',
  }}
  >
+ <CheckCircle2 size={12} />
  Aprobar R2
  </button>
  <button
  className="btn-sm btn-reject"
  onClick={() =>handleDeletePendiente(idx)}
- style={{ fontSize: '0.7rem', padding: '3px 6px' }}
+ style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
+ <Trash2 size={12} />
  Eliminar
  </button>
  </div>
@@ -380,8 +393,9 @@ export default function PendingConflictsSection({
  <button
  className="btn-sm btn-open"
  onClick={() =>openDocumentLocal(doc.archivoOrigen)}
- style={{ fontSize: '0.7rem', padding: '3px 6px' }}
+ style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
+ <Eye size={12} />
  Ver
  </button>
  <button
@@ -393,15 +407,17 @@ export default function PendingConflictsSection({
  ? `Asignar a ${selectedLoteData.nombre}`
  : 'Selecciona un lote'
  }
- style={{ fontSize: '0.7rem', padding: '3px 6px' }}
+ style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
+ <CheckCircle2 size={12} />
  Asignar
  </button>
  <button
  className="btn-sm btn-reject"
  onClick={() =>handleDeletePendiente(idx)}
- style={{ fontSize: '0.7rem', padding: '3px 6px' }}
+ style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
+ <Trash2 size={12} />
  Eliminar
  </button>
  </div>

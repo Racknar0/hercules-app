@@ -1641,8 +1641,8 @@ export default function MedicalOrganizer() {
  const r1 = doc._qc.run1;
  const r2 = doc._qc.run2;
  const diffStyle = {
- background: 'rgba(255,0,68,0.15)',
- color: '#ff6b6b',
+ background: 'rgba(248,113,113,0.12)',
+ color: '#fecaca',
  fontWeight: 'bold',
  };
  const normalStyle = {};
@@ -1668,12 +1668,7 @@ export default function MedicalOrganizer() {
  title={doc.archivoOrigen}
  >
  <small
- style={{
- cursor: 'pointer',
- color: '#FF5C00',
- textDecoration:
- 'underline',
- }}
+ className="doc-link"
  onClick={() =>
  openDocumentLocal(
  doc.archivoOrigen,
@@ -1769,7 +1764,7 @@ export default function MedicalOrganizer() {
  <td
  rowSpan={2}
  style={{
- color: '#ff3333',
+ color: '#d1d5db',
  fontSize: '0.7rem',
  wordBreak: 'break-word',
  whiteSpace: 'normal',
@@ -1786,7 +1781,8 @@ export default function MedicalOrganizer() {
  padding:
  '2px 4px',
  background:
- 'rgba(255,0,0,0.08)',
+ 'rgba(148,163,184,0.10)',
+ border: '1px solid rgba(148,163,184,0.18)',
  borderRadius:
  '3px',
  }}
@@ -2094,13 +2090,13 @@ export default function MedicalOrganizer() {
  </td>
  <td
  style={{
- color: '#ff3333',
+ color: '#d1d5db',
  fontSize: '0.75rem',
  wordBreak: 'break-word',
  whiteSpace: 'normal',
  }}
  >
- {doc._pendienteMotivo}
+ <div className="reason-chip" style={{ marginBottom: 0 }}>{doc._pendienteMotivo}</div>
  </td>
  <td
  style={{
@@ -2284,7 +2280,7 @@ export default function MedicalOrganizer() {
  />
  </strong>
  <br />
- <small style={{cursor: 'pointer', color: '#FF5C00', textDecoration: 'underline'}} onClick={() =>openDocumentLocal(doc.archivoOrigen)}>
+ <small className="doc-link" onClick={() =>openDocumentLocal(doc.archivoOrigen)}>
  {doc.archivoOrigen}
  </small>
  {doc._dolMissing && (
@@ -2506,7 +2502,7 @@ export default function MedicalOrganizer() {
  )
  </strong>
  <br />
- <small style={{cursor: 'pointer', color: '#FF5C00', textDecoration: 'underline'}} onClick={() =>openDocumentLocal(doc.archivoOrigen)}>
+ <small className="doc-link" onClick={() =>openDocumentLocal(doc.archivoOrigen)}>
  {doc.archivoOrigen}
  </small>
  {doc._dolMissing && (
