@@ -1,6 +1,7 @@
 "use client";
 
 import { formatDateMMDDYYYY } from '@/helpers/dateFormat';
+import { Trash2, RotateCcw } from 'lucide-react';
 
 export default function TrashSection({ trashData, handleRestoreRecord }) {
  if (trashData.length === 0) return null;
@@ -16,7 +17,10 @@ export default function TrashSection({ trashData, handleRestoreRecord }) {
  background: 'rgba(255,0,0,0.05)',
  }}
  >
- <h2 style={{ color: '#ff3333', marginBottom: '1rem' }}>Papelera de Reciclaje</h2>
+ <h2 style={{ color: '#ff3333', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+ <Trash2 size={20} />
+ Papelera de Reciclaje
+ </h2>
  <ul style={{ listStyle: 'none', padding: 0 }}>
  {trashData.map((t, idx) =>(
  <li
@@ -40,9 +44,10 @@ export default function TrashSection({ trashData, handleRestoreRecord }) {
  </div>
  <button
  className="btn-sm"
- style={{ background: '#FF5C00', color: 'black' }}
+ style={{ background: '#FF5C00', color: 'black', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
  onClick={() =>handleRestoreRecord(idx)}
  >
+ <RotateCcw size={14} />
  Restaurar
  </button>
  </li>

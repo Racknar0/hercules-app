@@ -317,6 +317,7 @@ export default function LoteDocumentsSection({
  <td>
  <EditablePencil
  value={item.fecha || ''}
+ isDateField
  displayValue={item.fecha ? formatDateMMDDYYYY(item.fecha) : undefined}
  onSave={(nextValue) =>
  updateLineItemField(
@@ -696,6 +697,7 @@ export default function LoteDocumentsSection({
  <td>
  <EditablePencil
  value={item.fecha || ''}
+ isDateField
  displayValue={item.fecha ? formatDateMMDDYYYY(item.fecha) : undefined}
  onSave={(nextValue) =>
  updateLineItemField(

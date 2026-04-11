@@ -2016,12 +2016,7 @@ export default function MedicalOrganizer() {
  title={doc.archivoOrigen}
  >
  <small
- style={{
- cursor: 'pointer',
- color: '#FF5C00',
- textDecoration:
- 'underline',
- }}
+ className="doc-link"
  onClick={() =>
  openDocumentLocal(
  doc.archivoOrigen,
@@ -2328,6 +2323,7 @@ export default function MedicalOrganizer() {
  <td>
  <EditablePencil
  value={item.fecha || ''}
+ isDateField
  displayValue={item.fecha ? formatDateMMDDYYYY(item.fecha) : undefined}
  onSave={(nextValue) =>
  updateLineItemField(
@@ -2550,6 +2546,7 @@ export default function MedicalOrganizer() {
  <td>
  <EditablePencil
  value={item.fecha || ''}
+ isDateField
  displayValue={item.fecha ? formatDateMMDDYYYY(item.fecha) : undefined}
  onSave={(nextValue) =>
  updateLineItemField(

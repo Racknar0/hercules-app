@@ -2,11 +2,42 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { FiCheck, FiEdit2, FiX } from 'react-icons/fi';
+import { DATE_FORMAT_HINT, formatDateMMDDYYYY } from '@/helpers/dateFormat';
+
+const DATE_INPUT_REGEX = /^(\d{2})-(\d{2})-(\d{4})$/;
+
+function isStrictMMDDYYYY(value) {
+ const match = value.match(DATE_INPUT_REGEX);
+ if (!match) return false;
+
+ const mm = Number(match[1]);
+ const dd = Number(match[2]);
+ const yyyy = Number(match[3]);
+ if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || yyyy < 1000 || yyyy > 9999) {
+ return false;
+ }
+
+ const date = new Date(yyyy, mm - 1, dd);
+ return (
+ date.getFullYear() === yyyy &&
+ date.getMonth() === mm - 1 &&
+ date.getDate() === dd
+ );
+}
+
+function normalizeDateDraft(value) {
+ if (value === null || value === undefined) return '';
+ const raw = String(value).trim();
+ if (!raw) return '';
+ const normalized = formatDateMMDDYYYY(raw);
+ return normalized || raw;
+}
 
 export default function EditablePencil({
  value,
  onSave,
  type = 'text',
+ isDateField = false,
  placeholder = '--',
  displayValue,
  inputWidth = '150px',
@@ -29,10 +60,24 @@ export default function EditablePencil({
 
  const handleSave = async () =>{
  if (isSaving) return;
+
+ let valueToSave = draft;
+ if (isDateField) {
+ const normalized = normalizeDateDraft(draft);
+ if (normalized && !isStrictMMDDYYYY(normalized)) {
+ alert(`Formato de fecha invalido. Usa ${DATE_FORMAT_HINT}.`);
+ return;
+ }
+ valueToSave = normalized;
+ }
+
  setIsSaving(true);
- const ok = await onSave(draft);
+ const ok = await onSave(valueToSave);
  setIsSaving(false);
- if (ok !== false) setIsOpen(false);
+ if (ok !== false) {
+ setDraft(valueToSave);
+ setIsOpen(false);
+ }
  };
 
  const shownValue =
@@ -55,7 +100,7 @@ export default function EditablePencil({
  type="button"
  onClick={(e) =>{
  e.stopPropagation();
- setDraft(value ?? '');
+ setDraft(isDateField ? normalizeDateDraft(value) : value ?? '');
  setIsOpen((prev) =>!prev);
  }}
  title="Editar"
@@ -99,6 +144,7 @@ export default function EditablePencil({
  value={draft}
  autoFocus
  onChange={(e) =>setDraft(e.target.value)}
+ placeholder={isDateField ? DATE_FORMAT_HINT : placeholder}
  onKeyDown={(e) =>{
  if (e.key === 'Enter') handleSave();
  if (e.key === 'Escape') setIsOpen(false);

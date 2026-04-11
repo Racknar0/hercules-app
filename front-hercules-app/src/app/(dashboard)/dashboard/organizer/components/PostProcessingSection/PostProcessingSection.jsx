@@ -1,5 +1,7 @@
 "use client";
 
+import { Sparkles, FileSpreadsheet, Archive } from 'lucide-react';
+
 export default function PostProcessingSection({
  selectedLote,
  loteDocuments,
@@ -26,7 +28,7 @@ export default function PostProcessingSection({
  marginBottom: '1rem',
  }}
  >
- <span style={{ fontSize: '1.4rem' }}>POST</span>
+ <Sparkles size={22} color="#FF5C00" />
  <span
  style={{
  color: '#FF5C00',
@@ -61,6 +63,7 @@ export default function PostProcessingSection({
  }}
  onClick={downloadFilteredExcel}
  >
+ <FileSpreadsheet size={16} />
  Download File (Excel)
  </button>
  <button
@@ -76,6 +79,7 @@ export default function PostProcessingSection({
  }}
  onClick={downloadNormalizedPack}
  >
+ <Archive size={16} />
  Download Normalized Pack
  </button>
  </div>

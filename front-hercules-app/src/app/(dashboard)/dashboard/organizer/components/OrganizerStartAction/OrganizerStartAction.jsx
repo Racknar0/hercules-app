@@ -1,5 +1,7 @@
 "use client";
 
+import { PlayCircle } from 'lucide-react';
+
 export default function OrganizerStartAction({
  files,
  isUploading,
@@ -13,7 +15,8 @@ export default function OrganizerStartAction({
 
  return (
  <section className="actions-bar" style={{ justifyContent: 'center' }}>
- <button className="btn" onClick={evalFilesForDuplicates} disabled={isDisabled}>
+ <button className="btn" onClick={evalFilesForDuplicates} disabled={isDisabled} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+ <PlayCircle size={16} />
  {isDisabled
  ? 'Llena Cliente y DOL para desbloquear'
  : 'Iniciar evaluacion IA de todos los documentos'}

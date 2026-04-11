@@ -1,6 +1,7 @@
 "use client";
 
 import Select from 'react-select';
+import { FlaskConical, PlusCircle, RotateCcw, Trash2, XCircle } from 'lucide-react';
 
 export default function OrganizerHeader({
  loteOptions,
@@ -49,10 +50,14 @@ export default function OrganizerHeader({
  background: 'linear-gradient(135deg, #ff9800, #ff5722)',
  padding: '8px 14px',
  fontSize: '0.85rem',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
  }}
  onClick={handleNewProcess}
  title="Limpiar batch actual y empezar nuevo"
  >
+ <PlusCircle size={14} />
  Nuevo Proceso
  </button>
  <button
@@ -62,10 +67,14 @@ export default function OrganizerHeader({
  color: 'black',
  padding: '8px 14px',
  fontSize: '0.85rem',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
  }}
  onClick={handleInjectDummy}
  title="Simula inyeccion de data sin IA"
  >
+ <FlaskConical size={14} />
  Mock
  </button>
  {selectedLote && (
@@ -75,10 +84,14 @@ export default function OrganizerHeader({
  background: 'rgba(255, 100, 0, 0.8)',
  padding: '8px 14px',
  fontSize: '0.85rem',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
  }}
  onClick={handleDeleteLote}
  title="Elimina el caso seleccionado"
  >
+ <Trash2 size={14} />
  Eliminar Caso
  </button>
  )}
@@ -88,10 +101,14 @@ export default function OrganizerHeader({
  background: 'rgba(255, 0, 0, 0.7)',
  padding: '8px 14px',
  fontSize: '0.85rem',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
  }}
  onClick={handleResetDB}
  title="Borra toda la DB"
  >
+ <RotateCcw size={14} />
  Reset DB
  </button>
  {isUploading && (
@@ -102,9 +119,13 @@ export default function OrganizerHeader({
  padding: '8px 14px',
  fontSize: '0.85rem',
  animation: 'pulseBadge 1s infinite',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
  }}
  onClick={cancelProcess}
  >
+ <XCircle size={14} />
  Cancelar
  </button>
  )}

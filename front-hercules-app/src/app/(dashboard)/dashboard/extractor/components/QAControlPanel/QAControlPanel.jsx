@@ -1,3 +1,5 @@
+import { AlertTriangle, PlayCircle, XCircle, RotateCcw } from 'lucide-react';
+
 export default function QAControlPanel({
  hasPendientes,
  qaStatus,
@@ -22,7 +24,8 @@ export default function QAControlPanel({
  >
  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
  <div>
- <h3 style={{ color: hasPendientes ? '#ff4d4d' : '#22C55E', marginBottom: '0.3rem' }}>
+ <h3 style={{ color: hasPendientes ? '#ff4d4d' : '#22C55E', marginBottom: '0.3rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+ {hasPendientes && <AlertTriangle size={18} />}
  {hasPendientes
  ? `Hay ${qaStatus.pendientesCount} Pendiente(s) sin resolver`
  : filesUnavailable
@@ -44,7 +47,11 @@ export default function QAControlPanel({
  background: hasPendientes ? '#333' : 'linear-gradient(135deg, #22C55E 0%, #FF5C00 100%)',
  color: hasPendientes ? '#888' : 'black',
  fontWeight: 'bold',
- minWidth: '220px'
+ minWidth: '220px',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '8px'
  }}
  >
  {isRunning ? (
@@ -52,15 +59,22 @@ export default function QAControlPanel({
  <span className="spinner" style={{ width: 16, height: 16, marginRight: 8, display: 'inline-block' }}></span>
  Analizando...
  </>
- ) : 'Iniciar Analisis QA'}
+ ) : (
+ <>
+ <PlayCircle size={16} />
+ Iniciar Analisis QA
+ </>
+ )}
  </button>
  {isRunning && (
- <button className="btn" style={{ background: '#ff0044', fontWeight: 'bold', animation: 'pulseBadge 1s infinite' }} onClick={onCancel}>
+ <button className="btn" style={{ background: '#ff0044', fontWeight: 'bold', animation: 'pulseBadge 1s infinite', display: 'inline-flex', alignItems: 'center', gap: '8px' }} onClick={onCancel}>
+ <XCircle size={16} />
  Cancelar
  </button>
  )}
  {hasResults && !isRunning && (
- <button className="btn" style={{ background: 'linear-gradient(135deg, #ff9800, #ff5722)', color: 'black', fontWeight: 'bold' }} onClick={onReRun}>
+ <button className="btn" style={{ background: 'linear-gradient(135deg, #ff9800, #ff5722)', color: 'black', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '8px' }} onClick={onReRun}>
+ <RotateCcw size={16} />
  Re-ejecutar
  </button>
  )}
