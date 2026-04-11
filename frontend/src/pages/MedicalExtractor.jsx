@@ -37,7 +37,7 @@ const selectStyles = {
 export default function MedicalExtractor() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [qaStatus, setQaStatus] = useState({ hasData: false, count: 0, pendientesCount: 999 });
+    const [qaStatus, setQaStatus] = useState({ hasData: false, count: 0, pendientesCount: 0 });
     const [isRunning, setIsRunning] = useState(false);
     const [qaLogs, setQaLogs] = useState([]);
     const [loteOptions, setLoteOptions] = useState([]);
@@ -52,7 +52,7 @@ export default function MedicalExtractor() {
             const json = await res.json();
             const opts = (json.profiles || []).map(p => ({
                 value: JSON.stringify({ nombre: p.labelCliente, dol: p.dol }),
-                label: `🧑‍⚕️ ${p.labelCliente} | 🚗 DOL: ${p.dol} (${p.documentCount} docs)`
+                label: `🧑‍⚕️ ${p.labelCliente} | 🚗 DOL: ${p.dol} (${p.documentCount} docs${p.pendientesCount > 0 ? ` · ⚠️${p.pendientesCount} pend.` : ''})`
             }));
             setLoteOptions(opts);
         } catch(e) {}
@@ -63,9 +63,11 @@ export default function MedicalExtractor() {
         try {
             let url = `${API_BASE}/api/qa-data`;
             if (nombre && dol) url += `?nombre=${encodeURIComponent(nombre)}&dol=${encodeURIComponent(dol)}`;
+            let statusUrl = `${API_BASE}/api/qa-status`;
+            if (nombre && dol) statusUrl += `?nombre=${encodeURIComponent(nombre)}&dol=${encodeURIComponent(dol)}`;
             const [dataRes, statusRes] = await Promise.all([
                 fetch(url),
-                fetch(`${API_BASE}/api/qa-status`)
+                fetch(statusUrl)
             ]);
             const json = await dataRes.json();
             const status = await statusRes.json();

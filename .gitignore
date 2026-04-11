@@ -6,8 +6,8 @@ node_modules/
 .env.local
 
 # Output / Data
-output/*.json
-temp-docs/
+backend/output/*.json
+backend/output/temp_docs/
 
 # Build
 frontend/dist/

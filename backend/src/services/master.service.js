@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * ESTRUCTURA DEL JSON MAESTRO:
+ * ESTRUCTURA DEL JSON MAESTRO (v2 — pendientes por lote):
  * {
  *   lotes: [
  *     {
@@ -15,11 +15,11 @@ const __dirname = path.dirname(__filename);
  *       documents: [                // documentos CRUDOS sin tocar
  *         { nombreCliente: "juan pelaez", archivoOrigen: "...", ... },
  *         { nombreCliente: "juan pelaez p", archivoOrigen: "...", ... }
+ *       ],
+ *       pendientes: [               // pendientes SOLO de este caso
+ *         { nombreCliente: "julian narvaez", _pendienteMotivo: "...", ... }
  *       ]
  *     }
- *   ],
- *   pendientes: [
- *     { nombreCliente: "julian narvaez", motivo: "Nombre distinto al lote", loteKey: "PEPE MARTINEZ|04-16-2026", ... }
  *   ]
  * }
  */
@@ -30,17 +30,52 @@ export class MasterService {
     // LECTURA / ESCRITURA BASE
     // ===========================
     static _readDB() {
-        if (!fs.existsSync(this.dbPath)) return { lotes: [], pendientes: [] };
+        if (!fs.existsSync(this.dbPath)) return { lotes: [] };
         try {
             const raw = JSON.parse(fs.readFileSync(this.dbPath, 'utf8'));
             // Migración: si es un array viejo, convertir
             if (Array.isArray(raw)) {
-                return { lotes: [], pendientes: [] };
+                return { lotes: [] };
             }
-            return { lotes: raw.lotes || [], pendientes: raw.pendientes || [] };
+            const db = { lotes: raw.lotes || [] };
+
+            // Asegurar que cada lote tenga su array de pendientes
+            db.lotes.forEach(l => { if (!l.pendientes) l.pendientes = []; });
+
+            // ═══ MIGRACIÓN v1→v2: mover pendientes globales a sus lotes ═══
+            if (raw.pendientes && raw.pendientes.length > 0) {
+                console.log(`[MIGRACIÓN] Migrando ${raw.pendientes.length} pendientes globales a sus lotes...`);
+                raw.pendientes.forEach(pend => {
+                    // Extraer nombre y dol del _loteKey (formato "NOMBRE|DOL")
+                    let targetNombre = null;
+                    let targetDol = null;
+                    if (pend._loteKey) {
+                        const parts = pend._loteKey.split('|');
+                        targetNombre = parts[0] || null;
+                        targetDol = parts[1] || null;
+                    }
+                    if (!targetNombre || !targetDol) {
+                        // Si no tiene loteKey, intentar usar los datos del pendiente
+                        targetNombre = (pend.nombreCliente || 'SIN_NOMBRE').toUpperCase().trim();
+                        targetDol = (pend.dol || 'SIN_DOL').trim();
+                    }
+                    // Buscar o crear lote destino
+                    let lote = db.lotes.find(l => l.nombre === targetNombre && l.dol === targetDol);
+                    if (!lote) {
+                        lote = { nombre: targetNombre, dol: targetDol, documents: [], pendientes: [] };
+                        db.lotes.push(lote);
+                    }
+                    lote.pendientes.push(pend);
+                });
+                // Guardar la DB migrada (sin pendientes globales)
+                this._writeDB(db);
+                console.log(`[MIGRACIÓN] ✅ Pendientes migrados a sus lotes.`);
+            }
+
+            return db;
         } catch (e) {
             console.error("Error reading JSON DB", e);
-            return { lotes: [], pendientes: [] };
+            return { lotes: [] };
         }
     }
 
@@ -60,7 +95,8 @@ export class MasterService {
         return db.lotes.map(l => ({
             nombre: l.nombre,
             dol: l.dol,
-            documentCount: l.documents.length
+            documentCount: l.documents.length,
+            pendientesCount: (l.pendientes || []).length
         }));
     }
 
@@ -117,28 +153,49 @@ export class MasterService {
     }
 
     // ===========================
-    // PENDIENTES (ALERTAS)
+    // PENDIENTES (ALERTAS) — POR LOTE
     // ===========================
 
-    /** Obtener todos los pendientes */
-    static getPendientes() {
+    /** Obtener pendientes de un lote específico */
+    static getPendientes(nombre, dol) {
         const db = this._readDB();
-        return db.pendientes;
+        if (!nombre || !dol) return [];
+        const lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        return lote ? (lote.pendientes || []) : [];
     }
 
-    /** Agregar documentos a pendientes */
-    static addPendientes(docs) {
+    /** Contar pendientes de un lote específico */
+    static getPendientesCount(nombre, dol) {
+        return this.getPendientes(nombre, dol).length;
+    }
+
+    /** Contar total de pendientes en TODOS los lotes */
+    static getAllPendientesCount() {
         const db = this._readDB();
-        db.pendientes.push(...docs);
+        return db.lotes.reduce((sum, l) => sum + (l.pendientes || []).length, 0);
+    }
+
+    /** Agregar documentos a pendientes de un lote específico */
+    static addPendientes(nombre, dol, docs) {
+        const db = this._readDB();
+        let lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        if (!lote) {
+            lote = { nombre, dol, documents: [], pendientes: [] };
+            db.lotes.push(lote);
+        }
+        if (!lote.pendientes) lote.pendientes = [];
+        lote.pendientes.push(...docs);
         this._writeDB(db);
     }
 
-    /** Asignar un pendiente a un lote existente (moverlo de pendientes → lote) */
-    static assignPendienteToLote(pendienteIndex, nombre, dol) {
+    /** Asignar un pendiente a los documentos limpios del mismo lote */
+    static assignPendienteToLote(nombre, dol, pendienteIndex) {
         const db = this._readDB();
-        if (pendienteIndex < 0 || pendienteIndex >= db.pendientes.length) return false;
+        const lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        if (!lote || !lote.pendientes) return false;
+        if (pendienteIndex < 0 || pendienteIndex >= lote.pendientes.length) return false;
 
-        const [doc] = db.pendientes.splice(pendienteIndex, 1);
+        const [doc] = lote.pendientes.splice(pendienteIndex, 1);
         // Limpiar metadatos de pendiente
         delete doc.motivo;
         delete doc.loteKey;
@@ -150,22 +207,23 @@ export class MasterService {
         // ESTAMPAR el DOL oficial del lote al documento
         doc.dol = dol;
 
-        let lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
-        if (!lote) {
-            lote = { nombre, dol, documents: [] };
-            db.lotes.push(lote);
-        }
         lote.documents.push(doc);
 
         this._writeDB(db);
         return true;
     }
 
-    /** Eliminar un pendiente permanentemente */
-    static deletePendiente(pendienteIndex) {
+    /** Eliminar un pendiente permanentemente de un lote */
+    static deletePendiente(nombre, dol, pendienteIndex) {
         const db = this._readDB();
-        if (pendienteIndex < 0 || pendienteIndex >= db.pendientes.length) return null;
-        const [removed] = db.pendientes.splice(pendienteIndex, 1);
+        const lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        if (!lote || !lote.pendientes) return null;
+        if (pendienteIndex < 0 || pendienteIndex >= lote.pendientes.length) return null;
+        const [removed] = lote.pendientes.splice(pendienteIndex, 1);
+        // Si el lote quedó sin documentos ni pendientes, eliminarlo
+        if (lote.documents.length === 0 && lote.pendientes.length === 0) {
+            db.lotes = db.lotes.filter(l => !(l.nombre === nombre && l.dol === dol));
+        }
         this._writeDB(db);
         return removed;
     }
@@ -218,8 +276,58 @@ export class MasterService {
             labelCliente: l.nombre,
             dol: l.dol,
             documentCount: l.documents.length,
+            pendientesCount: (l.pendientes || []).length,
             key: `${l.nombre}|${l.dol}`
         }));
+    }
+
+    /** Guardar un razonamiento IA en el historial del lote */
+    static addThinking(nombre, dol, thinkingEntry) {
+        const db = this._readDB();
+        let lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        if (!lote) {
+            lote = { nombre, dol, documents: [], pendientes: [], thinkingHistory: [] };
+            db.lotes.push(lote);
+        }
+        if (!lote.thinkingHistory) lote.thinkingHistory = [];
+        lote.thinkingHistory.push({
+            ...thinkingEntry,
+            timestamp: new Date().toISOString()
+        });
+        this._writeDB(db);
+    }
+
+    /** Obtener historial de razonamiento de un lote */
+    static getThinking(nombre, dol) {
+        const db = this._readDB();
+        const lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        return lote ? (lote.thinkingHistory || []) : [];
+    }
+
+    /** Eliminar un caso/lote completo (documentos + pendientes + papelera asociada) */
+    static deleteLote(nombre, dol) {
+        const db = this._readDB();
+        const lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        if (!lote) return { success: false, reason: 'Lote no encontrado' };
+
+        const docsRemoved = lote.documents.length;
+        const pendRemoved = (lote.pendientes || []).length;
+
+        // Eliminar el lote de la DB
+        db.lotes = db.lotes.filter(l => !(l.nombre === nombre && l.dol === dol));
+        this._writeDB(db);
+
+        // Limpiar entradas de papelera asociadas a este caso
+        const trash = this._readTrash();
+        const filteredTrash = trash.filter(t => {
+            const fromLote = t.doc && t.doc._fromLote;
+            const fromDol = t.doc && t.doc._fromDol;
+            return !(fromLote === nombre && fromDol === dol);
+        });
+        const trashRemoved = trash.length - filteredTrash.length;
+        this._writeTrash(filteredTrash);
+
+        return { success: true, docsRemoved, pendRemoved, trashRemoved };
     }
 
     /** Limpiar toda la DB (modo dev) */

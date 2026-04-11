@@ -21,6 +21,15 @@ const TEMP_DOCS_DIR = path.join(OUTPUT_DIR, 'temp_docs');
 if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR);
 if (!fs.existsSync(TEMP_DOCS_DIR)) fs.mkdirSync(TEMP_DOCS_DIR);
 
+/** Genera la ruta del subdirectorio temporal para un caso específico */
+function getCaseTempDir(nombre, dol) {
+    const safeName = (nombre || 'UNKNOWN').replace(/[^a-zA-Z0-9_.-]/g, '_').substring(0, 60);
+    const safeDol = (dol || 'NO-DOL').replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const dir = path.join(TEMP_DOCS_DIR, `${safeName}__${safeDol}`);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    return dir;
+}
+
 // Configurar multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -97,21 +106,32 @@ app.post('/api/clear-qa', (req, res) => {
     }
 });
 
-// Servir PDFs estáticamente
+// Servir PDFs estáticamente (soporta subcarpetas por caso)
 app.use('/api/documents', express.static(TEMP_DOCS_DIR));
 
-// Cron: Limpiar PDFs > 72 horas
+// Cron: Limpiar PDFs > 72 horas (recorre subcarpetas)
 setInterval(() => {
     try {
         const now = Date.now();
-        const files = fs.readdirSync(TEMP_DOCS_DIR);
-        files.forEach(file => {
-            const filePath = path.join(TEMP_DOCS_DIR, file);
-            const stats = fs.statSync(filePath);
-            const diffHours = (now - stats.mtimeMs) / (1000 * 60 * 60);
-            if (diffHours > 72) {
-                fs.unlinkSync(filePath);
-                console.log(`[SYS Limpieza] Archivo caducado eliminado: ${file}`);
+        const caseDirs = fs.readdirSync(TEMP_DOCS_DIR);
+        caseDirs.forEach(caseDir => {
+            const casePath = path.join(TEMP_DOCS_DIR, caseDir);
+            if (!fs.statSync(casePath).isDirectory()) {
+                // Archivos sueltos legacy
+                const diffH = (now - fs.statSync(casePath).mtimeMs) / (1000*60*60);
+                if (diffH > 72) { fs.unlinkSync(casePath); console.log(`[Limpieza] Legacy caducado: ${caseDir}`); }
+                return;
+            }
+            const files = fs.readdirSync(casePath);
+            files.forEach(file => {
+                const fp = path.join(casePath, file);
+                const diffH = (now - fs.statSync(fp).mtimeMs) / (1000*60*60);
+                if (diffH > 72) { fs.unlinkSync(fp); console.log(`[Limpieza] Caducado: ${caseDir}/${file}`); }
+            });
+            // Si la carpeta quedó vacía, eliminarla
+            if (fs.readdirSync(casePath).length === 0) {
+                fs.rmdirSync(casePath);
+                console.log(`[Limpieza] Carpeta vacía eliminada: ${caseDir}`);
             }
         });
     } catch (e) {
@@ -172,17 +192,19 @@ app.get('/api/all-records', (req, res) => {
 // PENDIENTES (ALERTAS)
 // ========================================
 
-/** Obtener pendientes */
+/** Obtener pendientes de un lote específico */
 app.get('/api/pendientes', (req, res) => {
     try {
-        const pendientes = MasterService.getPendientes();
+        const { nombre, dol } = req.query;
+        if (!nombre || !dol) return res.json({ success: true, data: [] });
+        const pendientes = MasterService.getPendientes(nombre, dol);
         res.json({ success: true, data: pendientes });
     } catch(err) {
         res.status(500).json({ error: "Error fetching pendientes" });
     }
 });
 
-/** Asignar un pendiente a un lote */
+/** Asignar un pendiente a los documentos limpios de su lote */
 app.post('/api/assign-pendiente', (req, res) => {
     try {
         const { pendienteIndex, nombre, dol, selectedRun } = req.body;
@@ -192,7 +214,7 @@ app.post('/api/assign-pendiente', (req, res) => {
 
         // Si es un documento QC con run seleccionado, resolver antes de asignar
         if (selectedRun) {
-            const pendientes = MasterService.getPendientes();
+            const pendientes = MasterService.getPendientes(nombre, dol);
             const doc = pendientes[pendienteIndex];
             if (doc && doc._qc) {
                 const chosen = doc._qc[selectedRun]; // run1 o run2
@@ -210,22 +232,35 @@ app.post('/api/assign-pendiente', (req, res) => {
             }
         }
 
-        const success = MasterService.assignPendienteToLote(pendienteIndex, nombre, dol);
+        const success = MasterService.assignPendienteToLote(nombre, dol, pendienteIndex);
         res.json({ success });
     } catch(err) {
         res.status(500).json({ error: "Error asignando pendiente" });
     }
 });
 
-/** Eliminar un pendiente permanentemente */
+/** Eliminar un pendiente permanentemente de un lote */
 app.delete('/api/pendiente', (req, res) => {
     try {
         const idx = parseInt(req.query.index);
-        if (isNaN(idx)) return res.status(400).json({ error: "Index inválido" });
-        const removed = MasterService.deletePendiente(idx);
+        const { nombre, dol } = req.query;
+        if (isNaN(idx) || !nombre || !dol) return res.status(400).json({ error: "Faltan parámetros (index, nombre, dol)" });
+        const removed = MasterService.deletePendiente(nombre, dol, idx);
         res.json({ success: !!removed });
     } catch(err) {
         res.status(500).json({ error: "Error eliminando pendiente" });
+    }
+});
+
+/** Obtener historial de razonamiento IA de un lote */
+app.get('/api/thinking', (req, res) => {
+    try {
+        const { nombre, dol } = req.query;
+        if (!nombre || !dol) return res.json({ success: true, data: [] });
+        const history = MasterService.getThinking(nombre, dol);
+        res.json({ success: true, data: history });
+    } catch(err) {
+        res.status(500).json({ error: "Error fetching thinking history" });
     }
 });
 
@@ -237,7 +272,10 @@ app.post('/api/rescan-document', async (req, res) => {
         const { archivoOrigen, nombre, dol, aiModel, pages } = req.body;
         if (!archivoOrigen || !nombre || !dol) return res.status(400).json({ error: 'Faltan parámetros' });
 
-        const filePath = path.join(TEMP_DOCS_DIR, archivoOrigen);
+        const caseTempDir = getCaseTempDir(nombre, dol);
+        let filePath = path.join(caseTempDir, archivoOrigen);
+        // Fallback: buscar en carpeta plana legacy
+        if (!fs.existsSync(filePath)) filePath = path.join(TEMP_DOCS_DIR, archivoOrigen);
         if (!fs.existsSync(filePath)) {
             return res.status(404).json({ error: 'Archivo no disponible en caché (expiró después de 72h). Re-sube el documento.' });
         }
@@ -330,8 +368,9 @@ app.post('/api/upload', upload.array('files'), async (req, res) => {
                  continue;
             }
             
-            // Persistencia temporal (72H)
-            const savePath = path.join(TEMP_DOCS_DIR, file.originalname);
+            // Persistencia temporal (72H) — en subcarpeta del caso
+            const caseTempDir = getCaseTempDir(officialClientName, officialDol);
+            const savePath = path.join(caseTempDir, file.originalname);
             fs.writeFileSync(savePath, file.buffer);
 
             // ═══ RUN 1 ═══
@@ -346,6 +385,23 @@ app.post('/api/upload', upload.array('files'), async (req, res) => {
                 const abortMsg = `[SISTEMA ABORTADO] 🛑 Fallo definitivo: ${file.originalname} (Límite de reintentos). Lote rechazado.`;
                 console.error(abortMsg);
                 return sendResultError(abortMsg);
+            }
+
+            // Enviar el razonamiento de la IA al frontend y persistirlo
+            if (rawData1._reasoning) {
+                const thinkingEntry = { filename: file.originalname, reasoning: rawData1._reasoning, summary: {
+                    tipo: rawData1.tipoDocumento || '?',
+                    cliente: rawData1.nombreCliente || '?',
+                    dol: rawData1.dol || '?',
+                    provider: rawData1.quienEnvia || '?',
+                    intruso: rawData1.alertaIntruso || false,
+                    items: (rawData1.lineItems || []).length
+                }};
+                res.write(JSON.stringify({ type: 'thinking', ...thinkingEntry }) + '\n');
+                // Persistir en la DB del lote
+                const loteNombre = (officialClientName || '').toUpperCase().trim();
+                const loteDol = (officialDol || '').trim();
+                if (loteNombre && loteDol) MasterService.addThinking(loteNombre, loteDol, thinkingEntry);
             }
 
             const validated1 = ValidationService.validate(rawData1, officialClientName, officialDol);
@@ -475,10 +531,10 @@ app.post('/api/upload', upload.array('files'), async (req, res) => {
             sendProgress(`[MASTER] ✅ ${clean.length} documentos guardados en lote: ${loteNombre} | ${loteDol}`);
         }
 
-        // Guardar pendientes
+        // Guardar pendientes en el lote correspondiente
         if (pendientesNew.length > 0) {
-            MasterService.addPendientes(pendientesNew);
-            sendProgress(`[MASTER] ⚠️ ${pendientesNew.length} documentos enviados a zona de alertas.`);
+            MasterService.addPendientes(loteNombre, loteDol, pendientesNew);
+            sendProgress(`[MASTER] ⚠️ ${pendientesNew.length} documentos enviados a zona de alertas del lote.`);
         }
 
         res.write(JSON.stringify({ type: 'result', data: { success: true, savedCount: clean.length, pendientesCount: pendientesNew.length } }) + '\n');
@@ -614,10 +670,14 @@ app.get('/api/check-files', (req, res) => {
         if (!nombre || !dol) return res.json({ available: 0, unavailable: 0, medicalCount: 0, totalMedical: 0 });
         const docs = MasterService.getLoteDocuments(nombre, dol);
         let available = 0, unavailable = 0, medicalCount = 0;
+        const caseTempDir = getCaseTempDir(nombre, dol);
         docs.forEach(doc => {
             const isMedical = doc.tipoDocumento && doc.tipoDocumento.toLowerCase().includes('medical');
             if (isMedical) medicalCount++;
-            if (fs.existsSync(path.join(TEMP_DOCS_DIR, doc.archivoOrigen))) available++;
+            // Buscar primero en carpeta del caso, luego legacy
+            const inCase = fs.existsSync(path.join(caseTempDir, doc.archivoOrigen));
+            const inLegacy = !inCase && fs.existsSync(path.join(TEMP_DOCS_DIR, doc.archivoOrigen));
+            if (inCase || inLegacy) available++;
             else unavailable++;
         });
         res.json({ available, unavailable, medicalCount, totalMedical: medicalCount, totalDocs: docs.length });
@@ -626,11 +686,15 @@ app.get('/api/check-files', (req, res) => {
 
 app.get('/api/qa-status', (req, res) => {
     try {
-        const allDocs = MasterService.getAllDocumentsFlat();
+        const { nombre, dol } = req.query;
+        let allDocs = MasterService.getAllDocumentsFlat();
+        if (nombre && dol) {
+            allDocs = allDocs.filter(d => d._loteNombre === nombre && d._loteDol === dol);
+        }
         const medicalWithQA = allDocs.filter(doc => doc.qa && typeof doc.qa === 'object' && doc.tipoDocumento && doc.tipoDocumento.toLowerCase().includes('medical')).length;
-        const pendientes = MasterService.getPendientes();
-        res.json({ hasData: medicalWithQA > 0, count: medicalWithQA, pendientesCount: pendientes.length });
-    } catch(err) { res.json({ hasData: false, count: 0, pendientesCount: 999 }); }
+        const pendientesCount = (nombre && dol) ? MasterService.getPendientesCount(nombre, dol) : MasterService.getAllPendientesCount();
+        res.json({ hasData: medicalWithQA > 0, count: medicalWithQA, pendientesCount });
+    } catch(err) { res.json({ hasData: false, count: 0, pendientesCount: 0 }); }
 });
 
 /** CORRIDA 2: QA sobre Medical Records de un LOTE ESPECÍFICO */
@@ -639,11 +703,11 @@ app.post('/api/run-qa', async (req, res) => {
     res.setHeader('Transfer-Encoding', 'chunked');
     const sendProgress = (msg) => { console.log(`[QA] ${msg}`); res.write(JSON.stringify({ type: 'progress', msg }) + '\n'); };
     try {
-        const pendientes = MasterService.getPendientes();
-        if (pendientes.length > 0) { res.write(JSON.stringify({ type: 'result', data: { error: `Hay ${pendientes.length} pendiente(s). Resuelve todos primero.` } }) + '\n'); return res.end(); }
         const { aiModel, nombre, dol } = req.body;
         const targetModel = aiModel || 'gemini-3-flash-preview';
         if (!nombre || !dol) { res.write(JSON.stringify({ type: 'result', data: { error: 'Selecciona un batch/lote primero.' } }) + '\n'); return res.end(); }
+        const pendientesCount = MasterService.getPendientesCount(nombre, dol);
+        if (pendientesCount > 0) { res.write(JSON.stringify({ type: 'result', data: { error: `Hay ${pendientesCount} pendiente(s) en este lote. Resuelve todos primero.` } }) + '\n'); return res.end(); }
         const loteDocs = MasterService.getLoteDocuments(nombre, dol);
         const medRecords = loteDocs.filter(d => d.tipoDocumento && d.tipoDocumento.toLowerCase().includes('medical'));
         if (medRecords.length === 0) { res.write(JSON.stringify({ type: 'result', data: { error: `No hay Medical Records en el lote ${nombre}.` } }) + '\n'); return res.end(); }
@@ -656,7 +720,10 @@ app.post('/api/run-qa', async (req, res) => {
             if (cancelFlag) { sendProgress('⛔ CANCELADO'); res.write(JSON.stringify({ type: 'result', data: { error: 'Cancelado' } }) + '\n'); return res.end(); }
             const doc = toProcess[i];
             const filename = doc.archivoOrigen;
-            const filePath = path.join(TEMP_DOCS_DIR, filename);
+            const caseTempDir = getCaseTempDir(nombre, dol);
+            let filePath = path.join(caseTempDir, filename);
+            // Fallback legacy
+            if (!fs.existsSync(filePath)) filePath = path.join(TEMP_DOCS_DIR, filename);
             if (!fs.existsSync(filePath)) { sendProgress(`⚠️ No en caché: ${filename}`); fail++; continue; }
             sendProgress(`Analizando [${i + 1}/${toProcess.length}]: ${filename}...`);
             const fileBuffer = fs.readFileSync(filePath);
@@ -701,7 +768,7 @@ app.post('/api/upload-dummy', (req, res) => {
         });
 
         if (clean.length > 0) MasterService.saveToLote(loteNombre, loteDol, clean);
-        if (pendientesNew.length > 0) MasterService.addPendientes(pendientesNew);
+        if (pendientesNew.length > 0) MasterService.addPendientes(loteNombre, loteDol, pendientesNew);
         
         res.json({ success: true, savedCount: clean.length, pendientesCount: pendientesNew.length });
     } catch(err) {
@@ -739,12 +806,49 @@ app.get('/api/download', async (req, res) => {
 });
 
 // ========================================
+// ELIMINAR CASO/LOTE COMPLETO
+// ========================================
+app.delete('/api/lote', (req, res) => {
+    try {
+        const { nombre, dol } = req.query;
+        if (!nombre || !dol) {
+            return res.status(400).json({ error: "Faltan parámetros (nombre, dol)" });
+        }
+        const result = MasterService.deleteLote(nombre, dol);
+        if (result.success) {
+            // Limpiar archivos temporales de este caso
+            let tempFilesRemoved = 0;
+            const caseTempDir = getCaseTempDir(nombre, dol);
+            if (fs.existsSync(caseTempDir)) {
+                const files = fs.readdirSync(caseTempDir);
+                files.forEach(f => fs.unlinkSync(path.join(caseTempDir, f)));
+                tempFilesRemoved = files.length;
+                fs.rmdirSync(caseTempDir);
+            }
+            console.log(`[SYS] 🗑️ Caso eliminado: ${nombre} | ${dol} — ${result.docsRemoved} docs, ${result.pendRemoved} pend., ${result.trashRemoved} papelera, ${tempFilesRemoved} archivos temp`);
+            res.json({ success: true, ...result, tempFilesRemoved });
+        } else {
+            res.status(404).json({ error: result.reason });
+        }
+    } catch(err) {
+        console.error("Error eliminando caso:", err);
+        res.status(500).json({ error: "Fallo eliminando caso" });
+    }
+});
+
+// ========================================
 // RESET DB (dev)
 // ========================================
 app.delete('/api/reset-db', (req, res) => {
     try {
         MasterService.resetAll();
-        res.json({ success: true, message: "DB reseteada" });
+        // Limpiar TODOS los archivos temporales
+        if (fs.existsSync(TEMP_DOCS_DIR)) {
+            fs.rmSync(TEMP_DOCS_DIR, { recursive: true, force: true });
+            fs.mkdirSync(TEMP_DOCS_DIR);
+        }
+        console.log('[SYS] DB + temporales eliminados completamente');
+        res.json({ success: true, message: "DB y temporales reseteados" });
     } catch(err) {
         console.error("Error fatal borrando DB:", err);
         res.status(500).json({ error: "Fallo borrando DB" });

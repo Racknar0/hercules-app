@@ -480,8 +480,6 @@ tr:hover td {
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 210, 255, 0.1);
   text-align: left;
-  max-width: 800px;
-  margin: 0 auto;
 }
 
 .terminal-container::before {
@@ -555,5 +553,10 @@ tr:hover td {
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
