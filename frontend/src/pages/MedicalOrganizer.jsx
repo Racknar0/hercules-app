@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Select from 'react-select';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// API Base: en dev usa .env (VITE_API_URL=http://localhost:3000), en prod usa mismo origin via nginx proxy
+const API_BASE = import.meta.env.VITE_API_URL ?? '';
 
 const customSelectStyles = {
     control: (base, state) => ({

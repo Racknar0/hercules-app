@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Select from 'react-select';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE = import.meta.env.VITE_API_URL ?? '';
 
 function getQA(field) {
     if (!field) return { answer: '—', source: '' };
