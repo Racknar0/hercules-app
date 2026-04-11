@@ -1,0 +1,98 @@
+.barcode-scanner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: white;
+
+    .scanner-header {
+        text-align: center;
+        margin-bottom: 15px;
+
+        h5 {
+            margin: 0;
+            font-weight: 600;
+            color: white;
+        }
+
+        p {
+            margin: 5px 0 0 0;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    }
+
+    .scanner-form {
+        .input-group {
+            input {
+                border: none;
+                border-radius: 5px 0 0 5px;
+                padding: 12px 15px;
+                font-size: 16px;
+                
+                &:focus {
+                    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+                    border-color: transparent;
+                }
+            }
+
+            .btn {
+                border-radius: 0 5px 5px 0;
+                padding: 12px 20px;
+                border: none;
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                font-weight: 600;
+                
+                &:hover:not(:disabled) {
+                    background: rgba(255, 255, 255, 0.3);
+                    color: white;
+                }
+
+                &:disabled {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: rgba(255, 255, 255, 0.6);
+                }
+            }
+        }
+    }
+
+    .scanner-tips {
+        text-align: center;
+        margin-top: 10px;
+        
+        small {
+            color: rgba(255, 255, 255, 0.7);
+        }
+    }
+}
+
+// Animación para cuando se encuentra un producto
+.barcode-scanner.success {
+    animation: pulse-success 0.6s ease-in-out;
+}
+
+@keyframes pulse-success {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .barcode-scanner {
+        padding: 15px;
+        margin-bottom: 15px;
+
+        .scanner-header h5 {
+            font-size: 1.1rem;
+        }
+
+        .scanner-form .input-group {
+            input, .btn {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+        }
+    }
+}

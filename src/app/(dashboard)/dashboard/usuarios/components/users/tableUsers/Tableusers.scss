@@ -1,0 +1,43 @@
+.table_container{
+    overflow-x: auto;
+    width: 100%;
+    min-height: 150px;
+    margin-top: 10px;
+    // max-width: 800px;
+
+    // @media only screen and (min-width: 768px){
+    //     max-width: 490px;
+    //  }
+
+    // @media only screen and (min-width: 992px){
+    //     max-width: 680px;
+    //  }
+
+    // @media only screen and (min-width: 1200px){
+    //     max-width: 870px;
+    //  }
+
+    // @media only screen and (min-width: 1350px){
+    //     max-width: 1000px;
+    //  }
+
+    // @media only screen and (min-width: 1500px){
+    //     max-width: 1150px;
+    //  }
+
+    .table{
+        min-width: 1150px;
+
+        td,
+        th {
+            vertical-align: middle;
+        }
+    
+
+        .spinner_container{
+            height: 100px;
+            width: 100px;
+            margin: 0 auto;
+        }
+    }
+}

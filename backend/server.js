@@ -293,7 +293,6 @@ app.post('/api/rescan-document', async (req, res) => {
         const rawData = await GeminiService.extractDataFromDocument(
             fileBuffer, mimeType, archivoOrigen, targetModel, nombre, dol, null, pages || null
         );
-
         if (!rawData) {
             return res.status(500).json({ error: 'La IA no pudo re-analizar el documento después de múltiples intentos.' });
         }
@@ -322,6 +321,109 @@ app.post('/api/rescan-document', async (req, res) => {
     } catch(e) {
         console.error('[RESCAN] Error:', e);
         res.status(500).json({ error: e.message });
+    }
+});
+
+// ========================================
+// INLINE EDIT: DOCUMENTOS / LINE ITEMS / REMITENTE
+// ========================================
+app.post('/api/update-document-field', (req, res) => {
+    try {
+        const { nombre, dol, archivoOrigen, field, value } = req.body;
+        const allowedFields = ['nombreCliente', 'nombrePaciente', 'quienEnvia'];
+
+        if (!nombre || !dol || !archivoOrigen || !field) {
+            return res.status(400).json({ error: 'Faltan parámetros' });
+        }
+        if (!allowedFields.includes(field)) {
+            return res.status(400).json({ error: `Campo no permitido: ${field}` });
+        }
+
+        const success = MasterService.updateDocumentField(
+            nombre,
+            dol,
+            archivoOrigen,
+            field,
+            String(value ?? '').trim(),
+        );
+
+        if (!success) return res.status(404).json({ error: 'Documento no encontrado' });
+        return res.json({ success: true });
+    } catch (err) {
+        console.error('Inline update document field error:', err);
+        return res.status(500).json({ error: 'Error actualizando documento' });
+    }
+});
+
+app.post('/api/update-lineitem-field', (req, res) => {
+    try {
+        const { nombre, dol, archivoOrigen, lineItemIndex, field, value } = req.body;
+        const allowedFields = ['fecha', 'nombreDoctor', 'procedimientoEjecutado', 'monto'];
+
+        if (!nombre || !dol || !archivoOrigen || lineItemIndex === undefined || !field) {
+            return res.status(400).json({ error: 'Faltan parámetros' });
+        }
+        if (!allowedFields.includes(field)) {
+            return res.status(400).json({ error: `Campo no permitido: ${field}` });
+        }
+
+        const idx = Number(lineItemIndex);
+        if (!Number.isInteger(idx) || idx < 0) {
+            return res.status(400).json({ error: 'lineItemIndex inválido' });
+        }
+
+        let normalizedValue = value;
+        if (field === 'monto') {
+            const asNumber = Number(value);
+            normalizedValue = Number.isFinite(asNumber) ? asNumber : null;
+        } else {
+            normalizedValue = String(value ?? '').trim();
+        }
+
+        const success = MasterService.updateLineItemField(
+            nombre,
+            dol,
+            archivoOrigen,
+            idx,
+            field,
+            normalizedValue,
+        );
+
+        if (!success) return res.status(404).json({ error: 'Line item no encontrado' });
+        return res.json({ success: true });
+    } catch (err) {
+        console.error('Inline update line item error:', err);
+        return res.status(500).json({ error: 'Error actualizando line item' });
+    }
+});
+
+app.post('/api/update-sender-group', (req, res) => {
+    try {
+        const { nombre, dol, oldSender, newSender } = req.body;
+        if (!nombre || !dol || oldSender === undefined || newSender === undefined) {
+            return res.status(400).json({ error: 'Faltan parámetros' });
+        }
+
+        const cleanNewSender = String(newSender ?? '').trim();
+        if (!cleanNewSender) {
+            return res.status(400).json({ error: 'El remitente no puede estar vacío' });
+        }
+
+        const updatedCount = MasterService.updateSenderForLote(
+            nombre,
+            dol,
+            String(oldSender ?? ''),
+            cleanNewSender,
+        );
+
+        if (updatedCount <= 0) {
+            return res.status(404).json({ error: 'No se encontraron documentos para ese remitente' });
+        }
+
+        return res.json({ success: true, updatedCount });
+    } catch (err) {
+        console.error('Inline update sender group error:', err);
+        return res.status(500).json({ error: 'Error actualizando remitente' });
     }
 });
 

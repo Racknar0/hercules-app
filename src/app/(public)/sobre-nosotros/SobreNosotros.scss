@@ -1,0 +1,180 @@
+$dark-plum: #4932a5;
+$soft-pink: #EF98C1;
+$warm-yellow: #FFBA30;
+$cream: #FDF8F1;
+$deep-accent: #5C1A3A;
+
+.about {
+  background: $cream;
+  min-height: 100vh;
+
+  &__hero {
+    background: $dark-plum;
+    padding: 4rem 2rem 5rem;
+    text-align: center;
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: $cream;
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    }
+  }
+
+  &__eyebrow { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: $warm-yellow; margin-bottom: 0.75rem; }
+  &__title { font-family: var(--font-luckiest-guy), cursive; font-size: 3rem; color: $cream; margin: 0 0 1rem; }
+  &__subtitle { color: rgba(#fff, 0.65); font-size: 0.95rem; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+
+  &__container { max-width: 1100px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+
+  &__section-title {
+    font-family: var(--font-luckiest-guy), cursive;
+    font-size: 2rem;
+    color: $dark-plum;
+    text-align: center;
+    margin: 0 0 2.5rem;
+  }
+
+  /* ─── Story ─── */
+  &__story {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
+    align-items: center;
+    margin-bottom: 4rem;
+  }
+
+  &__story-img {
+    width: 100%;
+    height: 360px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, $soft-pink 0%, $deep-accent 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(#fff, 0.7);
+    font-weight: 500;
+  }
+
+  &__story-content {
+    h2 {
+      font-family: var(--font-luckiest-guy), cursive;
+      font-size: 1.8rem;
+      color: $dark-plum;
+      margin: 0 0 1rem;
+    }
+    p {
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.8;
+      margin: 0 0 1rem;
+    }
+  }
+
+  /* ─── Stats ─── */
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  &__stat {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+    &:hover { transform: translateY(-4px); }
+  }
+
+  &__stat-number {
+    display: block;
+    font-family: var(--font-luckiest-guy), cursive;
+    font-size: 2.2rem;
+    color: $warm-yellow;
+    margin-bottom: 0.25rem;
+  }
+
+  &__stat-label {
+    font-size: 0.82rem;
+    color: #888;
+    font-weight: 500;
+  }
+
+  /* ─── Values ─── */
+  &__values-section { margin-bottom: 4rem; }
+
+  &__values {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  &__value-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    &:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba($dark-plum, 0.06); }
+  }
+
+  &__value-icon { font-size: 2rem; display: block; margin-bottom: 1rem; }
+  &__value-title { font-weight: 700; font-size: 1rem; color: $dark-plum; margin-bottom: 0.5rem; }
+  &__value-text { font-size: 0.82rem; color: #888; line-height: 1.6; }
+
+  /* ─── Team ─── */
+  &__team-section { margin-bottom: 3rem; }
+
+  &__team {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  &__team-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    &:hover { transform: translateY(-4px); }
+  }
+
+  &__team-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $soft-pink 0%, $warm-yellow 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: $dark-plum;
+  }
+
+  &__team-name { font-weight: 700; font-size: 0.95rem; color: $dark-plum; margin-bottom: 0.25rem; }
+  &__team-role { font-size: 0.8rem; color: #999; }
+}
+
+@media (max-width: 1024px) {
+  .about {
+    &__stats, &__values, &__team { grid-template-columns: repeat(2, 1fr); }
+  }
+}
+
+@media (max-width: 768px) {
+  .about {
+    &__story { grid-template-columns: 1fr; }
+    &__story-img { height: 240px; }
+    &__stats, &__values, &__team { grid-template-columns: 1fr; }
+    &__title { font-size: 2.2rem; }
+  }
+}

@@ -1,0 +1,41 @@
+<!-- BEGIN:nextjs-agent-rules -->
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+<!-- END:nextjs-agent-rules -->
+
+
+# PROMPT MAESTRO: Arquitectura Next.js, UI y Reglas de Código
+
+Actúa como un Ingeniero Frontend Senior y Arquitecto de Software. Tu objetivo es escribir, mantener y escalar código respetando estrictamente la arquitectura definida a continuación, priorizando la mantenibilidad y sin romper funcionalidades existentes.
+
+## 1. 🗺️ Mapa Arquitectónico (Stack y Estructura)
+Este proyecto utiliza **Next.js (App Router)** y sigue una arquitectura modular orientada a dominios.
+
+Debes respetar estrictamente este mapa de directorios:
+- `src/app/`: Exclusivo para el enrutamiento. Está dividido usando **Route Groups** para separar contextos y layouts:
+  - `src/app/(public)/`: Rutas de libre acceso (ej. Login, Landing).
+  - `src/app/(dashboard)/`: Rutas privadas/autenticadas del panel de control.
+- `src/.../components/`: Capa de UI. Sigue una estructura modular.
+- `src/services/`: Capa de red centralizada. Absolutamente TODAS las llamadas API deben pasar por aquí (ej. `HttpService`, interceptores). Evita el `fetch` directo desde la UI.
+- `src/helpers/`: Funciones puras de utilidad, formateo y validación.
+- `src/store/`: Manejo de estado global.
+- `src/assets/` y `src/styles/`: Archivos estáticos y configuraciones de estilos globales.
+
+## 2. 🧩 Reglas de Modularidad y Estilos
+- **1 Carpeta = 1 Componente:** Todo subcomponente complejo o módulo reutilizable debe vivir en su propia carpeta dentro de la ruta que le corresponda.
+- **Acoplamiento de Estilos:** El archivo de estilos (`.scss`, `.css` o `.module.css`) debe estar SIEMPRE dentro de la misma carpeta que su archivo lógico (`.jsx`, `.tsx`). Ejemplo: `components/Boton/Boton.jsx` y `components/Boton/Boton.scss`.
+- **Separación de Responsabilidades:** El contenedor principal (ej. la `page.jsx` de una ruta) solo orquesta, maneja estado y hace llamadas. La UI pesada se delega a los subcomponentes.
+
+## 3. 🚧 Reglas de Ejecución (Guardarraíles)
+- **Control de Carpetas Flexibles:** Tienes libertad para crear nuevas carpetas dentro de la jerarquía actual para organizar tu código. SIN EMBARGO, si vas a crear una carpeta raíz nueva, o implementar un cambio que altere el flujo entre `(public)` y `(dashboard)`, **DETENTE Y PREGÚNTAME PRIMERO**.
+- **Refactorización Bajo Demanda:** Limítate a resolver el problema o agregar la feature solicitada con el menor impacto posible. SOLO si el prompt dice explícitamente "refactoriza", debes tomar la iniciativa de separar vistas grandes en subcomponentes.
+- **Cero Daño Colateral:** No rompas comportamiento existente ni contratos públicos. No modifiques código que no esté directamente relacionado con mi solicitud.
+- **Consistencia:** Mantén las convenciones de nombres existentes (ej. PascalCase para componentes, camelCase para funciones/archivos de servicio).
+
+## 4. 📋 Formato de Respuesta
+Cuando te asigne una tarea, tu respuesta debe seguir esta estructura:
+1. **Resumen de Acción:** Qué hiciste y cómo interactúa con el sistema de rutas o servicios.
+2. **Archivos Creados/Modificados:** Lista clara de rutas y carpetas afectadas.
+3. **Código Generado:** Bloques de código limpios, comentando solo la lógica compleja.
+4. **Advertencias:** Menciona si el cambio afecta dependencias, interceptores HTTP, o requiere cambios en el layout.

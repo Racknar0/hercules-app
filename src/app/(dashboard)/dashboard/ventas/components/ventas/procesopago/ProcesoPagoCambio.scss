@@ -1,0 +1,246 @@
+.proceso_pago_cambio_container {
+
+
+    .original_sale_container{
+        background-color: #cad33d;
+        max-width: 510px;
+        margin: 0 auto;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        margin-top: 30px;
+        border-radius: 5px;
+
+
+        h5 {
+            margin: 0;
+            padding: 0;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+            font-size: 3rem;
+            text-align: center;
+            font-weight: 600;
+            color: black;
+        }
+    }
+
+
+    .new_sale_container{
+        max-width: 510px;
+        margin: 0 auto;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        margin-top: 30px;
+        border-radius: 5px;
+
+        &.success {
+            background-color: #00fd3bd6;
+        }
+
+
+        &.error {
+            background-color: #ed505d;
+        }
+
+        h5 {
+            margin: 0;
+            padding: 0;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+            font-size: 3rem;
+            text-align: center;
+            font-weight: 600;
+            color: black;
+        }
+    }
+
+
+    .btns_container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        flex-wrap: wrap;
+        // margin-top: 30px;
+
+        .btn_card {
+            width: 100%;
+            max-width: 150px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: rgb(0, 0, 0);
+            background-color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid #e2e6ea;
+            transition: background-color 0.3s ease, transform 0.3s ease,
+                box-shadow 0.3s ease;
+            &:hover {
+                background-color: #f1f1f1;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            }
+
+            &.active {
+                background-color: #6564d8;
+                color: white;
+                border: 1px solid #6564d8;
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
+        }
+    }
+
+
+    .efectivo_cambio_container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        border-radius: 5px;
+        padding: 5px 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-width: 510px;
+        width: 100%;
+        margin: 0 auto;
+        // margin-top: 30px;
+
+        .efectivo_container {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 10px;
+
+            label {
+                font-size: 1.6rem;
+                font-weight: 600;
+                color: rgb(0, 0, 0);
+                margin-bottom: 5px;
+                margin-top: 10px;
+            }
+
+            input {
+                width: 80%;
+                height: 50px;
+                font-size: 1.6rem;
+                font-weight: 600;
+                color: rgb(0, 0, 0);
+                background-color: #f8f9fa;
+                border: none;
+                outline: none;
+                border-bottom: 1px solid #6564d8;
+            }
+
+            .efectivo_value {
+                font-size: 4rem;
+                text-align: center;
+                color: black;
+                font-weight: 600;
+                margin: 0;
+            }
+        }
+
+        .cambio_container {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 10px;
+
+            label {
+                font-size: 1.6rem;
+                font-weight: 600;
+                color: rgb(0, 0, 0);
+                margin-bottom: 5px;
+                margin-top: 10px;
+            }
+
+            input {
+                width: 80%;
+                height: 50px;
+                font-size: 3rem;
+                font-weight: 600;
+                color: rgb(0, 0, 0);
+                background-color: #f8f9fa;
+                border: none;
+                outline: none;
+                border-bottom: 1px solid #6564d8;
+            }
+
+            .cambio_value {
+                font-size: 4rem;
+                text-align: center;
+                color: black;
+                font-weight: 600;
+                margin: 0;
+            }
+        }
+    }
+
+
+    .finish_sale_container{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        .btn_finalizar_venta{
+            width: 100%;
+            max-width: 510px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: rgb(0, 0, 0);
+            background-color: #cad33d;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: none;
+            transition: background-color 0.3s ease, transform 0.3s ease,
+                box-shadow 0.3s ease;
+    
+            &:hover {
+                background-color: #5a5b9d;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+                color: white;
+                
+                p {
+                    color: white;
+                }
+    
+                .icon_finalizar_venta{
+                    color: white;
+                }
+            }
+    
+            p {
+                margin: 0;
+                font-size: 2rem;
+                color: rgb(0, 0, 0);
+            }
+        }
+    }
+
+}

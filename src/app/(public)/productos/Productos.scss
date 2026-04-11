@@ -1,0 +1,297 @@
+@use 'sass:color';
+
+$dark-plum: #4932a5;
+$soft-pink: #EF98C1;
+$warm-yellow: #FFBA30;
+$cream: #FDF8F1;
+$deep-accent: #5C1A3A;
+
+.prod {
+  background: $cream;
+  min-height: 100vh;
+
+  /* ─── Hero Banner ─── */
+  &__hero {
+    background: $dark-plum;
+    padding: 4rem 2rem 5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: $cream;
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    }
+  }
+
+  &__hero-content {
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  &__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: $warm-yellow;
+    margin-bottom: 0.75rem;
+  }
+
+  &__title {
+    font-family: var(--font-luckiest-guy), cursive;
+    font-size: 3rem;
+    color: $cream;
+    margin: 0 0 1rem;
+  }
+
+  &__subtitle {
+    color: rgba(#fff, 0.65);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* ─── Container ─── */
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+  }
+
+  /* ─── Filters ─── */
+  &__filters {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__search-wrapper {
+    position: relative;
+    max-width: 400px;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    pointer-events: none;
+  }
+
+  &__search {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    border: 2px solid #e8e0d8;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #fff;
+    color: $dark-plum;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $soft-pink;
+    }
+
+    &::placeholder {
+      color: #bbb;
+    }
+  }
+
+  &__categories {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__cat-btn {
+    background: #fff;
+    border: 2px solid #e8e0d8;
+    color: $dark-plum;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+
+    &:hover {
+      border-color: $dark-plum;
+    }
+
+    &--active {
+      background: $dark-plum;
+      color: $cream;
+      border-color: $dark-plum;
+    }
+  }
+
+  &__results-count {
+    font-size: 0.82rem;
+    color: #999;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ─── Empty State ─── */
+  &__empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #999;
+
+    span {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 1rem;
+    }
+  }
+
+  /* ─── Grid ─── */
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* ─── Card ─── */
+  &__card {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba($dark-plum, 0.1);
+      border-color: rgba($soft-pink, 0.2);
+    }
+  }
+
+  &__card-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, color.adjust($cream, $lightness: 2%) 0%, $cream 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    position: relative;
+  }
+
+  &__card-discount {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 50px;
+  }
+
+  &__card-body {
+    padding: 1.25rem;
+  }
+
+  &__card-rating {
+    display: flex;
+    gap: 1px;
+    margin-bottom: 0.5rem;
+  }
+
+  &__star {
+    color: $warm-yellow;
+    font-size: 0.8rem;
+
+    &--empty { color: #ddd; }
+  }
+
+  &__card-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: $dark-plum;
+    margin: 0 0 0.35rem;
+    line-height: 1.3;
+  }
+
+  &__card-weight {
+    display: inline-block;
+    font-size: 0.7rem;
+    color: #999;
+    background: $cream;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+  &__card-prices {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  &__card-price {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: $dark-plum;
+  }
+
+  &__card-original {
+    font-size: 0.82rem;
+    color: #bbb;
+    text-decoration: line-through;
+  }
+
+  &__card-btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 12px;
+    background: $dark-plum;
+    color: $cream;
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+
+    &:hover {
+      background: $deep-accent;
+      transform: scale(1.02);
+    }
+  }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1024px) {
+  .prod__grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .prod {
+    &__grid { grid-template-columns: repeat(2, 1fr); }
+    &__title { font-size: 2.2rem; }
+  }
+}
+
+@media (max-width: 480px) {
+  .prod {
+    &__grid { grid-template-columns: 1fr; }
+    &__title { font-size: 1.8rem; }
+  }
+}

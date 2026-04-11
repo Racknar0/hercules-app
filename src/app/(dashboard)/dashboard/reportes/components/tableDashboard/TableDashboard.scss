@@ -1,0 +1,61 @@
+/* src/components/TableRecibos/TableRecibos.scss */
+
+.TableDashboard {
+    .date-picker-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+  
+    .calendar-popover {
+      position: absolute;
+      top: 2.5rem;
+      z-index: 1000;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 4px;
+    }
+  
+    .btn-range {
+      background-color: #6564d8;
+      border: 1px solid #6564d8;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+      width: 50%;
+      max-width: 300px;
+      font-size: 1.6rem;
+
+      &:hover,
+      &:focus {
+        background-color: #4337e0; // un tono más oscuro al pasar el ratón
+        border-color:   #5750b8;
+        outline: none;
+        color: #fff;
+      }
+  
+      &:active {
+        background-color: #4c47a3;
+        border-color:   #4c47a3;
+      }
+  
+      &:disabled {
+        background-color: #a5a0d8;
+        border-color:   #a5a0d8;
+        cursor: not-allowed;
+      }
+    }
+  
+    .modal {
+      .chip {
+        font-size: 1.6rem;
+        padding: 5px 10px;
+        margin-bottom: 10px;
+        background-color: #e2e6ea;
+        border-radius: 5px;
+        color: #343a40;
+      }
+    }
+  }
+  

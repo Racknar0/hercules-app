@@ -367,6 +367,56 @@ export class MasterService {
         return true;
     }
 
+    /** Actualizar un campo puntual del documento en un lote */
+    static updateDocumentField(nombre, dol, archivoOrigen, field, value) {
+        const db = this._readDB();
+        const lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        if (!lote) return false;
+
+        const doc = lote.documents.find(d => d.archivoOrigen === archivoOrigen);
+        if (!doc) return false;
+
+        doc[field] = value;
+        this._writeDB(db);
+        return true;
+    }
+
+    /** Actualizar un campo de un lineItem dentro de un documento */
+    static updateLineItemField(nombre, dol, archivoOrigen, lineItemIndex, field, value) {
+        const db = this._readDB();
+        const lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        if (!lote) return false;
+
+        const doc = lote.documents.find(d => d.archivoOrigen === archivoOrigen);
+        if (!doc || !Array.isArray(doc.lineItems)) return false;
+        if (lineItemIndex < 0 || lineItemIndex >= doc.lineItems.length) return false;
+
+        doc.lineItems[lineItemIndex][field] = value;
+        this._writeDB(db);
+        return true;
+    }
+
+    /** Actualizar remitente para todos los documentos del lote que coincidan */
+    static updateSenderForLote(nombre, dol, oldSender, newSender) {
+        const db = this._readDB();
+        const lote = db.lotes.find(l => l.nombre === nombre && l.dol === dol);
+        if (!lote) return 0;
+
+        const oldNormalized = (oldSender || '').trim();
+        let updatedCount = 0;
+
+        lote.documents.forEach(doc => {
+            const currentSender = (doc.quienEnvia || '').trim();
+            if (currentSender === oldNormalized) {
+                doc.quienEnvia = newSender;
+                updatedCount++;
+            }
+        });
+
+        if (updatedCount > 0) this._writeDB(db);
+        return updatedCount;
+    }
+
     /** Limpiar TODA la data QA de todos los documentos (para re-run) */
     static clearAllQA() {
         const db = this._readDB();

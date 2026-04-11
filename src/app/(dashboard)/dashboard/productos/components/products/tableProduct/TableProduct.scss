@@ -1,0 +1,208 @@
+.table_container{
+    overflow-x: auto;
+    width: 100%;
+    min-height: 150px;
+    margin-top: 10px;
+
+    .products-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .products-search-wrap {
+        flex: 1 1 420px;
+        min-width: 260px;
+    }
+
+    .products-export-wrap {
+        margin-left: auto;
+    }
+
+    .products-virtualization-hint {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: #6a7388;
+    }
+
+    .form_buscador{
+        font-size: 1.35rem;
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px;
+        border: 1px solid #d7dbe7;
+        border-radius: 12px;
+        box-shadow: none;
+    }
+
+    .btn-exportar{
+        border: none;
+        color: #ffffff;
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 12px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        cursor: pointer;
+        background: #5a3ec8;
+        transition: background-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            background: #4932a5;
+            color: #eeff00;
+            box-shadow: 0 4px 12px rgba(90, 62, 200, 0.3);
+        }
+
+        &:disabled {
+            background: #a7d3aa;
+            cursor: not-allowed;
+            color: #ffffff;
+            box-shadow: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .products-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .products-search-wrap,
+        .products-export-wrap {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .products-export-wrap {
+            margin-left: 0;
+        }
+
+        .btn-exportar {
+            width: 100%;
+        }
+    }
+
+    // @media only screen and (min-width: 768px){
+    //     max-width: 490px;
+    //  }
+
+    // @media only screen and (min-width: 992px){
+    //     max-width: 680px;
+    //  }
+
+    // @media only screen and (min-width: 1200px){
+    //     max-width: 870px;
+    //  }
+
+    // @media only screen and (min-width: 1350px){
+    //     max-width: 1000px;
+    //  }
+
+    // @media only screen and (min-width: 1500px){
+    //     max-width: 1150px;
+    //  }
+
+    .table{
+        min-width: 1150px;
+        font-size: 1.3rem;
+
+        td,
+        th {
+            vertical-align: middle;
+            font-size: 1.3rem;
+            padding: 0.8rem 0.7rem;
+        }
+
+        thead th {
+            font-size: 1.18rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .sort-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .sort-chevron-group {
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 0.75;
+            transform: translateY(-1px);
+        }
+
+        .sort-chevron {
+            font-size: 0.7rem;
+            color: #aab2c5;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .sort-chevron.active {
+            color: #4932a5;
+            transform: scale(1.08);
+        }
+
+        tbody td {
+            line-height: 1.35;
+        }
+
+        .table-loading-cell {
+            padding: 0;
+        }
+
+        .table-loading-spinner {
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-virtual-loader {
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #6a7388;
+        }
+
+        .table-load-more-btn {
+            border: 1px solid #d7dbe7;
+            background: #ffffff;
+            color: #4932a5;
+            border-radius: 999px;
+            min-height: 38px;
+            padding: 0 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+            &:hover {
+                background: #4932a5;
+                color: #ffffff;
+                border-color: #4932a5;
+            }
+        }
+
+        .spinner_container{
+            height: 100px;
+            width: 100px;
+            margin: 0 auto;
+        }
+
+        
+    }
+}

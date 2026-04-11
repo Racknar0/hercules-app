@@ -1,0 +1,193 @@
+.sale_panel_container {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    max-width: none !important;
+    padding: 16px 18px 24px;
+
+    > h5 {
+        font-size: 2.6rem !important;
+        font-weight: 700;
+    }
+
+    .coupon_table_wrapper {
+        margin-left: 0;
+    }
+
+    .coupon_table {
+        width: 100%;
+
+        thead th {
+            font-size: 1.6rem;
+            font-weight: 700;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        tbody td {
+            font-size: 1.35rem;
+            vertical-align: middle;
+        }
+
+        .form-control {
+            min-height: 40px;
+            font-size: 1.2rem;
+        }
+
+        .coupon-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .form-control {
+                min-width: 0;
+            }
+
+            .coupon-picker-btn {
+                width: 34px;
+                height: 34px;
+                border: 1px solid #d7d5e7;
+                border-radius: 8px;
+                background: #f3f2fb;
+                color: #5b52c4;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    background: #e9e7fa;
+                    border-color: #b6b1e3;
+                    transform: translateY(-1px);
+                }
+            }
+        }
+
+        thead {
+
+            tr {
+
+                .th_coupon_body{
+                    display: flex !important;
+                    justify-content: center;
+                }
+            }
+        }
+
+        tbody {
+            tr {
+                &.table_row {
+                    &.highlight{
+
+                        --bs-table-accent-bg: #6564d8;
+                        --bs-table-accent-bg-hover: #6564d8;
+                        color: white;
+                    }
+                }
+            }
+
+            td {
+                .delete_icon{
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    cursor: pointer;
+                    font-size: 2rem;
+                    color: #ff0000;
+                    transition: color 0.3s ease;
+
+                    &:hover {
+                        color: #5a5b9d;
+                        transform: scale(1.1);
+                    }
+                     
+                
+                    
+                }
+            }
+        }
+    }
+
+    hr {
+        margin-left: 0 !important;
+    }
+
+    .coupon-picker-modal-list {
+        display: grid;
+        gap: 10px;
+        max-height: 50vh;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .coupon-picker-modal-item {
+        width: 100%;
+        border: 1px solid #e3e1f3;
+        border-left: 4px solid #6564d8;
+        border-radius: 8px;
+        background: #fff;
+        padding: 10px 12px;
+        text-align: left;
+        display: grid;
+        gap: 2px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: #f6f5ff;
+            border-color: #cfcaf2;
+            transform: translateY(-1px);
+        }
+
+        .coupon-code {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #45408a;
+        }
+
+        .coupon-description {
+            font-size: 0.98rem;
+            color: #4c4d63;
+        }
+
+        .coupon-discount {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1f8b3d;
+        }
+    }
+
+    .coupon-picker-modal-actions {
+        margin-top: 14px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 992px) {
+    .sale_panel_container {
+        padding: 14px 12px 20px;
+
+        .coupon_table {
+            thead th {
+                font-size: 1.3rem;
+            }
+
+            tbody td {
+                font-size: 1.15rem;
+            }
+        }
+    }
+}
+
+.before_coupon {
+    font-size: 1.6rem;
+    color: #ff0000;
+    margin-right: 5px;
+    font-weight: 600;
+    text-decoration: line-through;
+    margin-right: 5px;
+}

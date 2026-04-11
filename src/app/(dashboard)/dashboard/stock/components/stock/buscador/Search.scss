@@ -1,0 +1,185 @@
+.buscador_container{
+    
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    min-height: 100vh;
+
+    .spinner_container_btn{
+        height: 50px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn_modificar_stock{
+        font-size: 1.3rem;
+        width: 100%;
+        height: 40px;
+        background-color: #6564d8;
+        border-radius: 5px;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-bottom: 1rem;
+        font-weight: 600;
+
+        &:hover{
+            background-color: #5452ad;
+            color: white;
+        }
+    }
+
+    h5 {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .form_buscador{
+        font-size: 1.6rem;
+    }
+
+    .list-status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .list-status {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: #6a7388;
+    }
+
+    .list-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+
+    .list-action-btn {
+        border: 1px solid #d7dbe7;
+        background: #ffffff;
+        color: #4932a5;
+        border-radius: 999px;
+        min-height: 34px;
+        padding: 0 12px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover,
+        &.active {
+            background: #4932a5;
+            color: #ffffff;
+            border-color: #4932a5;
+            box-shadow: 0 4px 12px rgba(73, 50, 165, 0.18);
+        }
+    }
+
+    .list-group{
+        
+        margin-top: 10px;
+        max-height: 7cqb;
+        overflow-y: auto;
+
+        max-height: 700px;
+
+        .spinner_container{
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .list-group-item{
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            padding: 0;
+            padding-left: .5rem;
+            padding-top: .5rem;
+            padding-bottom: .5rem;
+            display: flex;
+
+            &:hover{
+                background-color: #e2e6ea;
+            }
+
+            &.active{
+                background-color: #6564d8;
+                color: white;
+                border: 1px solid #6564d8;
+            }
+
+            p {
+                margin: 0;
+                font-size: 1.3rem;
+            }
+
+            .left{
+                width: 90%;
+            }
+            
+            .right {
+                width: 10%;
+
+                .color_stock{
+                    width: 10px;
+                    height: 10px;
+                    margin-left: auto;
+                    border-radius: 50%;
+                    margin-right: 3px;
+
+                    &.high{
+                        background-color: #28a745;
+                        color: white;
+                    }
+                    &.medium{
+                        background-color: #ffc107;
+                        color: black;
+                    }
+                    &.low{
+                        background-color: #dc3545;
+                        color: white;
+                    }
+                }
+            }
+        }
+
+        .list-group-item-loader {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 0 0;
+        }
+
+        .list-loader-wrap {
+            display: flex;
+            justify-content: center;
+        }
+
+        .list-load-more-btn {
+            border: 1px solid #d7dbe7;
+            background: #ffffff;
+            color: #4932a5;
+            border-radius: 999px;
+            min-height: 38px;
+            padding: 0 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+            &:hover {
+                background: #4932a5;
+                color: #ffffff;
+                border-color: #4932a5;
+            }
+        }
+    }
+}

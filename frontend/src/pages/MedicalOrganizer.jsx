@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Select from 'react-select';
+import { FiCheck, FiEdit2, FiX } from 'react-icons/fi';
 
 // API Base: en dev usa .env (VITE_API_URL=http://localhost:3000), en prod usa mismo origin via nginx proxy
 const API_BASE = import.meta.env.VITE_API_URL ?? '';
@@ -35,6 +36,166 @@ const customSelectStyles = {
     input: (base) => ({ ...base, color: 'white' }),
     placeholder: (base) => ({ ...base, color: '#8b8d99' }),
 };
+
+function EditablePencil({
+    value,
+    onSave,
+    type = 'text',
+    placeholder = '--',
+    displayValue,
+    inputWidth = '150px',
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [draft, setDraft] = useState(value ?? '');
+    const [isSaving, setIsSaving] = useState(false);
+    const wrapperRef = useRef(null);
+
+    useEffect(() => {
+        setDraft(value ?? '');
+    }, [value]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleOutsideClick = (event) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => document.removeEventListener('mousedown', handleOutsideClick);
+    }, [isOpen]);
+
+    const handleSave = async () => {
+        if (isSaving) return;
+        setIsSaving(true);
+        const ok = await onSave(draft);
+        setIsSaving(false);
+        if (ok !== false) setIsOpen(false);
+    };
+
+    const shownValue =
+        displayValue !== undefined
+            ? displayValue
+            : String(value ?? '').trim() || placeholder;
+
+    return (
+        <span
+            ref={wrapperRef}
+            style={{
+                position: 'relative',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+            }}
+        >
+            <span>{shownValue}</span>
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setIsOpen((prev) => !prev);
+                }}
+                title="Editar"
+                style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    color: '#cbd5e1',
+                    borderRadius: '4px',
+                    width: '16px',
+                    height: '16px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    padding: 0,
+                }}
+            >
+                <FiEdit2 size={10} />
+            </button>
+            {isOpen && (
+                <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                        position: 'absolute',
+                        top: 'calc(100% + 4px)',
+                        left: 0,
+                        zIndex: 100,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: 'rgba(15, 23, 42, 0.96)',
+                        border: '1px solid rgba(0,210,255,0.4)',
+                        borderRadius: '8px',
+                        padding: '4px',
+                        boxShadow: '0 8px 20px rgba(0,0,0,0.35)',
+                        minWidth: inputWidth,
+                    }}
+                >
+                    <input
+                        type={type}
+                        value={draft}
+                        autoFocus
+                        onChange={(e) => setDraft(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSave();
+                            if (e.key === 'Escape') setIsOpen(false);
+                        }}
+                        style={{
+                            width: '100%',
+                            minWidth: type === 'number' ? '90px' : '130px',
+                            padding: '4px 6px',
+                            borderRadius: '6px',
+                            border: '1px solid rgba(255,255,255,0.25)',
+                            background: 'rgba(255,255,255,0.08)',
+                            color: 'white',
+                            fontSize: '0.75rem',
+                            outline: 'none',
+                        }}
+                    />
+                    <button
+                        type="button"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        style={{
+                            background: 'rgba(0,200,83,0.25)',
+                            border: '1px solid rgba(0,200,83,0.6)',
+                            color: '#00c853',
+                            borderRadius: '5px',
+                            width: '20px',
+                            height: '20px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            padding: 0,
+                        }}
+                    >
+                        <FiCheck size={11} />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setIsOpen(false)}
+                        style={{
+                            background: 'rgba(255,0,68,0.25)',
+                            border: '1px solid rgba(255,0,68,0.6)',
+                            color: '#ff4d4d',
+                            borderRadius: '5px',
+                            width: '20px',
+                            height: '20px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            padding: 0,
+                        }}
+                    >
+                        <FiX size={11} />
+                    </button>
+                </div>
+            )}
+        </span>
+    );
+}
 
 export default function MedicalOrganizer() {
     const [files, setFiles] = useState([]);
@@ -683,6 +844,114 @@ export default function MedicalOrganizer() {
         }
     };
 
+    const getCurrentLoteParams = () => {
+        if (!selectedLote) return null;
+        try {
+            return JSON.parse(selectedLote.value);
+        } catch {
+            return null;
+        }
+    };
+
+    const refreshCurrentLote = () => {
+        const lote = getCurrentLoteParams();
+        if (!lote) return;
+        fetchLoteDocuments(lote.nombre, lote.dol);
+        fetchProfiles();
+    };
+
+    const updateDocumentField = async (archivoOrigen, field, value) => {
+        const lote = getCurrentLoteParams();
+        if (!lote) return false;
+
+        try {
+            const res = await fetch(`${API_BASE}/api/update-document-field`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nombre: lote.nombre,
+                    dol: lote.dol,
+                    archivoOrigen,
+                    field,
+                    value,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                alert(data.error || 'No se pudo actualizar el campo.');
+                return false;
+            }
+            refreshCurrentLote();
+            return true;
+        } catch (e) {
+            alert(`Error actualizando campo: ${e.message}`);
+            return false;
+        }
+    };
+
+    const updateLineItemField = async (
+        archivoOrigen,
+        lineItemIndex,
+        field,
+        value,
+    ) => {
+        const lote = getCurrentLoteParams();
+        if (!lote) return false;
+
+        try {
+            const res = await fetch(`${API_BASE}/api/update-lineitem-field`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nombre: lote.nombre,
+                    dol: lote.dol,
+                    archivoOrigen,
+                    lineItemIndex,
+                    field,
+                    value,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                alert(data.error || 'No se pudo actualizar el line item.');
+                return false;
+            }
+            refreshCurrentLote();
+            return true;
+        } catch (e) {
+            alert(`Error actualizando line item: ${e.message}`);
+            return false;
+        }
+    };
+
+    const updateSenderGroup = async (oldSender, newSender) => {
+        const lote = getCurrentLoteParams();
+        if (!lote) return false;
+
+        try {
+            const res = await fetch(`${API_BASE}/api/update-sender-group`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nombre: lote.nombre,
+                    dol: lote.dol,
+                    oldSender,
+                    newSender,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                alert(data.error || 'No se pudo actualizar el remitente.');
+                return false;
+            }
+            refreshCurrentLote();
+            return true;
+        } catch (e) {
+            alert(`Error actualizando remitente: ${e.message}`);
+            return false;
+        }
+    };
+
     // ===========================
     // AGRUPAR DOCS DEL LOTE POR TIPO
     // ===========================
@@ -699,25 +968,29 @@ export default function MedicalOrganizer() {
     );
 
     // ===========================
-    // AGRUPAR POR MEDICAL PROVIDER
+    // AGRUPAR POR REMITENTE (SENDER)
     // ===========================
-    const groupByProvider = (docs) => {
-        const providerMap = {};
+    const groupBySender = (docs) => {
+        const senderMap = {};
         docs.forEach((doc) => {
-            (doc.lineItems || []).forEach((item) => {
-                const provider = (item.nombreDoctor || 'Unknown Provider').trim();
-                if (!providerMap[provider]) {
-                    providerMap[provider] = { items: [], totalCost: 0 };
+            (doc.lineItems || []).forEach((item, lineItemIndex) => {
+                const sender = (doc.quienEnvia || 'Unknown Sender').trim() || 'Unknown Sender';
+                if (!senderMap[sender]) {
+                    senderMap[sender] = { items: [], totalCost: 0 };
                 }
-                providerMap[provider].items.push({ ...item, _parentDoc: doc });
+                senderMap[sender].items.push({
+                    ...item,
+                    _parentDoc: doc,
+                    _lineItemIndex: lineItemIndex,
+                });
                 if (item.monto != null && !isNaN(Number(item.monto))) {
-                    providerMap[provider].totalCost += Number(item.monto);
+                    senderMap[sender].totalCost += Number(item.monto);
                 }
             });
         });
-        // Ordenar items dentro de cada provider por documento y luego cronológicamente.
+        // Ordenar items dentro de cada remitente por documento y luego cronológicamente.
         // Esto evita desfases visuales cuando usamos rowSpan en tablas.
-        Object.values(providerMap).forEach((group) => {
+        Object.values(senderMap).forEach((group) => {
             group.items.sort((a, b) => {
                 const docA = a._parentDoc?.archivoOrigen || '';
                 const docB = b._parentDoc?.archivoOrigen || '';
@@ -728,13 +1001,13 @@ export default function MedicalOrganizer() {
                 return da - db;
             });
         });
-        // Ordenar providers alfabéticamente
-        const sorted = Object.entries(providerMap).sort(([a], [b]) => a.localeCompare(b));
-        return sorted; // [[providerName, {items, totalCost}], ...]
+        // Ordenar remitentes alfabéticamente
+        const sorted = Object.entries(senderMap).sort(([a], [b]) => a.localeCompare(b));
+        return sorted; // [[senderName, {items, totalCost}], ...]
     };
 
-    const medicalByProvider = groupByProvider(groupedByType.medical);
-    const billsByProvider = groupByProvider(groupedByType.bills);
+    const medicalBySender = groupBySender(groupedByType.medical);
+    const billsBySender = groupBySender(groupedByType.bills);
 
     // ===========================
     // RENDER
@@ -2080,7 +2353,7 @@ export default function MedicalOrganizer() {
                             {loteDocuments.length} documentos
                         </h2>
                         <section className="results-split">
-                            {/* MEDICAL RECORDS - GROUPED BY PROVIDER */}
+                            {/* MEDICAL RECORDS - GROUPED BY SENDER */}
                             <div className="results-half">
                                 <h2 style={{ borderBottom: 'none' }}>
                                     Medical Records{' '}
@@ -2092,32 +2365,45 @@ export default function MedicalOrganizer() {
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th>Client / Doc</th>
+                                                <th>Client / Document</th>
                                                 <th>Score</th>
                                                 <th>Fecha Servicio</th>
+                                                <th>Doctor</th>
                                                 <th>Procedimiento</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {medicalByProvider.length === 0 && (
-                                                <tr><td colSpan="4" style={{textAlign: 'center'}}>Vacío</td></tr>
+                                            {medicalBySender.length === 0 && (
+                                                <tr><td colSpan="5" style={{textAlign: 'center'}}>Vacío</td></tr>
                                             )}
-                                            {medicalByProvider.map(([providerName, group]) => {
+                                            {medicalBySender.map(([senderName, group]) => {
                                                 const seenDocs = new Set();
                                                 return (
-                                                    <React.Fragment key={`mp-${providerName}`}>
-                                                        {/* Provider separator row */}
+                                                    <React.Fragment key={`mp-${senderName}`}>
+                                                        {/* Sender separator row */}
                                                         <tr style={{
                                                             background: 'linear-gradient(90deg, rgba(138,43,226,0.25), rgba(0,210,255,0.1))',
                                                             borderLeft: '4px solid #8a2be2',
                                                         }}>
-                                                            <td colSpan="4" style={{
+                                                            <td colSpan="5" style={{
                                                                 padding: '10px 14px',
                                                                 fontWeight: '700',
                                                                 fontSize: '0.95rem',
                                                                 letterSpacing: '0.5px',
                                                             }}>
-                                                                <span style={{color: '#cba6f7'}}>🩺 {providerName}</span>
+                                                                <span style={{color: '#cba6f7'}}>
+                                                                    📨{' '}
+                                                                    <EditablePencil
+                                                                        value={senderName}
+                                                                        onSave={(nextValue) =>
+                                                                            updateSenderGroup(
+                                                                                senderName,
+                                                                                nextValue,
+                                                                            )
+                                                                        }
+                                                                        inputWidth="220px"
+                                                                    />
+                                                                </span>
                                                                 <span style={{
                                                                     marginLeft: '12px',
                                                                     fontSize: '0.8rem',
@@ -2133,12 +2419,31 @@ export default function MedicalOrganizer() {
                                                             if (isFirstForDoc) seenDocs.add(doc.archivoOrigen);
                                                             const docItemsInGroup = group.items.filter(i => i._parentDoc.archivoOrigen === doc.archivoOrigen);
                                                             const docRowSpan = docItemsInGroup.length;
+                                                            const editableNameField = doc.nombrePaciente?.trim()
+                                                                ? 'nombrePaciente'
+                                                                : 'nombreCliente';
+                                                            const displayPersonName =
+                                                                doc.nombrePaciente?.trim() ||
+                                                                doc.nombreCliente ||
+                                                                '--';
 
                                                             return (
-                                                                <tr key={`mp-${providerName}-${iIdx}`}>
+                                                                <tr key={`mp-${senderName}-${iIdx}`}>
                                                                     {isFirstForDoc && (
                                                                         <td rowSpan={docRowSpan}>
-                                                                            <strong style={{ color: 'var(--accent)' }}>{doc.nombreCliente || '-'}</strong>
+                                                                            <strong style={{ color: 'var(--accent)' }}>
+                                                                                <EditablePencil
+                                                                                    value={displayPersonName}
+                                                                                    onSave={(nextValue) =>
+                                                                                        updateDocumentField(
+                                                                                            doc.archivoOrigen,
+                                                                                            editableNameField,
+                                                                                            nextValue,
+                                                                                        )
+                                                                                    }
+                                                                                    inputWidth="220px"
+                                                                                />
+                                                                            </strong>
                                                                             <br />
                                                                             <small style={{cursor: 'pointer', color: '#00d2ff', textDecoration: 'underline'}} onClick={() => openDocumentLocal(doc.archivoOrigen)}>
                                                                                 {doc.archivoOrigen}
@@ -2185,9 +2490,52 @@ export default function MedicalOrganizer() {
                                                                             )}
                                                                         </td>
                                                                     )}
-                                                                    <td>{item.fecha || '-'}</td>
                                                                     <td>
-                                                                        <small style={{ color: 'var(--text-muted)' }}>{item.procedimientoEjecutado || '-'}</small>
+                                                                        <EditablePencil
+                                                                            value={item.fecha || ''}
+                                                                            onSave={(nextValue) =>
+                                                                                updateLineItemField(
+                                                                                    doc.archivoOrigen,
+                                                                                    item._lineItemIndex,
+                                                                                    'fecha',
+                                                                                    nextValue,
+                                                                                )
+                                                                            }
+                                                                            placeholder="--"
+                                                                            inputWidth="160px"
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        <EditablePencil
+                                                                            value={item.nombreDoctor?.trim() || ''}
+                                                                            onSave={(nextValue) =>
+                                                                                updateLineItemField(
+                                                                                    doc.archivoOrigen,
+                                                                                    item._lineItemIndex,
+                                                                                    'nombreDoctor',
+                                                                                    nextValue,
+                                                                                )
+                                                                            }
+                                                                            placeholder="--"
+                                                                            inputWidth="190px"
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        <small style={{ color: 'var(--text-muted)' }}>
+                                                                            <EditablePencil
+                                                                                value={item.procedimientoEjecutado || ''}
+                                                                                onSave={(nextValue) =>
+                                                                                    updateLineItemField(
+                                                                                        doc.archivoOrigen,
+                                                                                        item._lineItemIndex,
+                                                                                        'procedimientoEjecutado',
+                                                                                        nextValue,
+                                                                                    )
+                                                                                }
+                                                                                placeholder="--"
+                                                                                inputWidth="260px"
+                                                                            />
+                                                                        </small>
                                                                     </td>
                                                                 </tr>
                                                             );
@@ -2200,7 +2548,7 @@ export default function MedicalOrganizer() {
                                 </div>
                             </div>
 
-                            {/* FINANCIAL BILLS - GROUPED BY PROVIDER */}
+                            {/* FINANCIAL BILLS - GROUPED BY SENDER */}
                             <div className="results-half">
                                 <h2 style={{ borderBottom: 'none' }}>
                                     Financial Bills{' '}
@@ -2215,29 +2563,42 @@ export default function MedicalOrganizer() {
                                                 <th>Doc Cliente / Sender</th>
                                                 <th>Score</th>
                                                 <th>Fecha</th>
+                                                <th>Doctor</th>
                                                 <th>Monto</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {billsByProvider.length === 0 && (
-                                                <tr><td colSpan="4" style={{textAlign: 'center'}}>Vacío</td></tr>
+                                            {billsBySender.length === 0 && (
+                                                <tr><td colSpan="5" style={{textAlign: 'center'}}>Vacío</td></tr>
                                             )}
-                                            {billsByProvider.map(([providerName, group]) => {
+                                            {billsBySender.map(([senderName, group]) => {
                                                 const seenDocs = new Set();
                                                 return (
-                                                    <React.Fragment key={`bp-${providerName}`}>
-                                                        {/* Provider separator row */}
+                                                    <React.Fragment key={`bp-${senderName}`}>
+                                                        {/* Sender separator row */}
                                                         <tr style={{
                                                             background: 'linear-gradient(90deg, rgba(0,210,255,0.2), rgba(59,130,246,0.1))',
                                                             borderLeft: '4px solid #00d2ff',
                                                         }}>
-                                                            <td colSpan="3" style={{
+                                                            <td colSpan="4" style={{
                                                                 padding: '10px 14px',
                                                                 fontWeight: '700',
                                                                 fontSize: '0.95rem',
                                                                 letterSpacing: '0.5px',
                                                             }}>
-                                                                <span style={{color: '#00d2ff'}}>🏥 {providerName}</span>
+                                                                <span style={{color: '#00d2ff'}}>
+                                                                    📨{' '}
+                                                                    <EditablePencil
+                                                                        value={senderName}
+                                                                        onSave={(nextValue) =>
+                                                                            updateSenderGroup(
+                                                                                senderName,
+                                                                                nextValue,
+                                                                            )
+                                                                        }
+                                                                        inputWidth="220px"
+                                                                    />
+                                                                </span>
                                                                 <span style={{
                                                                     marginLeft: '12px',
                                                                     fontSize: '0.8rem',
@@ -2262,14 +2623,48 @@ export default function MedicalOrganizer() {
                                                             if (isFirstForDoc) seenDocs.add(doc.archivoOrigen);
                                                             const docItemsInGroup = group.items.filter(i => i._parentDoc.archivoOrigen === doc.archivoOrigen);
                                                             const docRowSpan = docItemsInGroup.length;
+                                                            const editableNameField = doc.nombrePaciente?.trim()
+                                                                ? 'nombrePaciente'
+                                                                : 'nombreCliente';
+                                                            const displayPersonName =
+                                                                doc.nombrePaciente?.trim() ||
+                                                                doc.nombreCliente ||
+                                                                '--';
 
                                                             return (
-                                                                <tr key={`bp-${providerName}-${iIdx}`}>
+                                                                <tr key={`bp-${senderName}-${iIdx}`}>
                                                                     {isFirstForDoc && (
                                                                         <td rowSpan={docRowSpan}>
-                                                                            <strong style={{ color: 'var(--accent)' }}>{doc.nombreCliente || '-'}</strong>
+                                                                            <strong style={{ color: 'var(--accent)' }}>
+                                                                                <EditablePencil
+                                                                                    value={displayPersonName}
+                                                                                    onSave={(nextValue) =>
+                                                                                        updateDocumentField(
+                                                                                            doc.archivoOrigen,
+                                                                                            editableNameField,
+                                                                                            nextValue,
+                                                                                        )
+                                                                                    }
+                                                                                    inputWidth="220px"
+                                                                                />
+                                                                            </strong>
                                                                             <br />
-                                                                            <strong style={{ color: 'var(--text-muted)', fontSize: '0.85em' }}>({doc.quienEnvia || '-'})</strong>
+                                                                            <strong style={{ color: 'var(--text-muted)', fontSize: '0.85em' }}>
+                                                                                (
+                                                                                <EditablePencil
+                                                                                    value={doc.quienEnvia || ''}
+                                                                                    onSave={(nextValue) =>
+                                                                                        updateDocumentField(
+                                                                                            doc.archivoOrigen,
+                                                                                            'quienEnvia',
+                                                                                            nextValue,
+                                                                                        )
+                                                                                    }
+                                                                                    placeholder="--"
+                                                                                    inputWidth="220px"
+                                                                                />
+                                                                                )
+                                                                            </strong>
                                                                             <br />
                                                                             <small style={{cursor: 'pointer', color: '#00d2ff', textDecoration: 'underline'}} onClick={() => openDocumentLocal(doc.archivoOrigen)}>
                                                                                 {doc.archivoOrigen}
@@ -2316,9 +2711,55 @@ export default function MedicalOrganizer() {
                                                                             )}
                                                                         </td>
                                                                     )}
-                                                                    <td>{item.fecha || '-'}</td>
+                                                                    <td>
+                                                                        <EditablePencil
+                                                                            value={item.fecha || ''}
+                                                                            onSave={(nextValue) =>
+                                                                                updateLineItemField(
+                                                                                    doc.archivoOrigen,
+                                                                                    item._lineItemIndex,
+                                                                                    'fecha',
+                                                                                    nextValue,
+                                                                                )
+                                                                            }
+                                                                            placeholder="--"
+                                                                            inputWidth="160px"
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        <EditablePencil
+                                                                            value={item.nombreDoctor?.trim() || ''}
+                                                                            onSave={(nextValue) =>
+                                                                                updateLineItemField(
+                                                                                    doc.archivoOrigen,
+                                                                                    item._lineItemIndex,
+                                                                                    'nombreDoctor',
+                                                                                    nextValue,
+                                                                                )
+                                                                            }
+                                                                            placeholder="--"
+                                                                            inputWidth="190px"
+                                                                        />
+                                                                    </td>
                                                                     <td style={{ color: '#00d2ff', fontWeight: 'bold' }}>
-                                                                        {item.monto != null ? `$${Number(item.monto).toLocaleString('en-US', {minimumFractionDigits: 2})}` : '-'}
+                                                                        <EditablePencil
+                                                                            value={item.monto ?? ''}
+                                                                            displayValue={
+                                                                                item.monto != null
+                                                                                    ? `$${Number(item.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                                                                                    : '--'
+                                                                            }
+                                                                            type="number"
+                                                                            onSave={(nextValue) =>
+                                                                                updateLineItemField(
+                                                                                    doc.archivoOrigen,
+                                                                                    item._lineItemIndex,
+                                                                                    'monto',
+                                                                                    nextValue,
+                                                                                )
+                                                                            }
+                                                                            inputWidth="130px"
+                                                                        />
                                                                     </td>
                                                                 </tr>
                                                             );

@@ -1,0 +1,18 @@
+// StockTable.scss
+
+/* Aumenta el padding en los th y td para mayor separación */
+.table th,
+.table td {
+  padding-left: 1rem; // ajusta el valor según lo necesites
+  padding-right: 1rem;
+}
+
+// /* Separa la tabla del resto del contenido en el modal */
+// .modal-body {
+//   padding: 1.5rem;
+// }
+
+// /* Opcional: agrega margen inferior a la tabla */
+// .table {
+//   margin-bottom: 1.5rem;
+// }

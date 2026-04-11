@@ -1,0 +1,90 @@
+.detalle_producto_container{
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+
+    h5 {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+
+    }
+
+    .detalle_producto{
+        
+        .chip {
+            font-size: 1.6rem;
+            padding: 5px 10px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            background-color: #e2e6ea;
+            border-radius: 5px;
+            color: #343a40;
+        }
+
+        .chip_stock{
+            color: white;
+        }
+
+        .high{
+            background-color: #28a745;
+            color: white;
+        }
+        .medium{
+            background-color: #ffc107;
+            color: black;
+        }
+        .low{
+            background-color: #dc3545;
+            color: white;
+        }
+
+
+
+        .quantity_container{
+            
+            button {
+                font-size: 1.6rem;
+                width: 40px;
+                height: 40px;
+                background-color: #6564d8;
+                border-radius: 5px;
+                color: #ffffff;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+
+                &:hover{
+                    background-color: #5452ad;
+                    color: white;
+                }
+            }
+
+            .input_quantity{
+                font-size: 1.6rem;
+                width: 100px;
+                height: 40px;
+                text-align: center;
+                border-radius: 5px;
+                border: 1px solid #343a40;
+                max-width: 100% !important;
+            }
+
+        }
+
+        .button_send{
+            font-size: 1.6rem;
+            padding: 7px 20px;
+            background-color: #6564d8;
+            border-radius: 5px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover{
+                background-color: #5452ad;
+                color: white;
+            }
+        }
+    }
+
+
+}

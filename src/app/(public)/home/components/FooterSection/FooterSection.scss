@@ -1,0 +1,112 @@
+$dark-plum: #4932a5;
+$soft-pink: #EF98C1;
+$warm-yellow: #FFBA30;
+$cream: #FDF8F1;
+
+.footer {
+  background: $dark-plum;
+  color: $cream;
+  padding: 4rem 2rem 2rem;
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(#fff, 0.1);
+  }
+
+  &__brand-name {
+    font-family: var(--font-luckiest-guy), cursive;
+    font-size: 1.8rem;
+    color: $soft-pink;
+    margin-bottom: 1rem;
+  }
+
+  &__brand-desc {
+    font-size: 0.85rem;
+    color: rgba(#fff, 0.67);
+    line-height: 1.7;
+    max-width: 280px;
+  }
+
+  &__col-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+    color: $warm-yellow;
+  }
+
+  &__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    a {
+      color: rgba(#fff, 0.67);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s ease;
+
+      &:hover { color: #fff; }
+    }
+  }
+
+  &__bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__copyright {
+    font-size: 0.8rem;
+    color: rgba(#fff, 0.4);
+  }
+
+  &__socials {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  &__social-link {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(#fff, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(#fff, 0.67);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: $warm-yellow;
+      color: $dark-plum;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .footer__container { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .footer {
+    &__container { grid-template-columns: 1fr; }
+    &__bottom {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+  }
+}
