@@ -3,9 +3,10 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Hexagon } from 'lucide-react';
+import { Hexagon, Palette } from 'lucide-react';
 import { useDashboardStore } from '@/store/useDashboardStore';
 import HttpService from '@/services/HttpService';
+import { DASHBOARD_THEMES } from '@/helpers/dashboardThemes';
 import styles from './PrivateNavbar.module.scss';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -16,7 +17,7 @@ function navClass(pathname, href) {
     return styles.link;
 }
 
-export default function PrivateNavbar() {
+export default function PrivateNavbar({ theme, onThemeChange }) {
     const pathname = usePathname();
     const { qaStatus, connStatus, setQaStatus, setConnStatus } =
         useDashboardStore();
@@ -59,34 +60,30 @@ export default function PrivateNavbar() {
     const apiButtonStyle = {
         background:
             connStatus === 'ok'
-                ? 'rgba(34,197,94,0.15)'
+                                ? 'rgba(var(--h-success-rgb), 0.15)'
                 : connStatus === 'error'
-                  ? 'rgba(239,68,68,0.15)'
-                  : 'rgba(255,255,255,0.05)',
+                                    ? 'rgba(var(--h-danger-rgb), 0.15)'
+                                    : 'var(--h-glass)',
         color:
             connStatus === 'ok'
-                ? '#22C55E'
+                                ? 'var(--h-success)'
                 : connStatus === 'error'
-                  ? '#EF4444'
-                  : '#6B7280',
+                                    ? 'var(--h-danger)'
+                                    : 'var(--h-text-muted)',
         borderColor:
             connStatus === 'ok'
-                ? '#22C55E'
+                                ? 'var(--h-success)'
                 : connStatus === 'error'
-                  ? '#EF4444'
-                  : 'rgba(255,255,255,0.1)',
+                                    ? 'var(--h-danger)'
+                                    : 'var(--h-border)',
     };
 
     return (
         <nav className={styles.navbar}>
             <div className={styles.logo}>
-                <Hexagon size={18} color="#FF5C00" strokeWidth={2.2} />
+                <Hexagon size={18} color="var(--h-primary)" strokeWidth={2.2} />
                 HERCULES{' '}
-                <span style={{
-                    background: 'linear-gradient(135deg, #FF5C00, #FF8C42)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                }}>AI</span>
+                <span className={styles.logoAccent}>AI</span>
             </div>
             <div className={styles.links}>
                 <Link
@@ -112,6 +109,20 @@ export default function PrivateNavbar() {
                 >
                     API
                 </button>
+                <label className={styles.themeSelectWrap} title="Tema del dashboard">
+                    <Palette size={14} />
+                    <select
+                        className={styles.themeSelect}
+                        value={theme}
+                        onChange={(e) => onThemeChange(e.target.value)}
+                    >
+                        {DASHBOARD_THEMES.map((item) => (
+                            <option key={item.value} value={item.value}>
+                                {item.label}
+                            </option>
+                        ))}
+                    </select>
+                </label>
             </div>
         </nav>
     );

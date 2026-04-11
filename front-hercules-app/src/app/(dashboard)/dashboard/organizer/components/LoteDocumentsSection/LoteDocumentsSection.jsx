@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import EditablePencil from '../../../shared/components/EditablePencil/EditablePencil';
@@ -58,8 +58,8 @@ export default function LoteDocumentsSection({
  <React.Fragment key={`mp-${senderName}`}>
  <tr
  style={{
- background: 'linear-gradient(90deg, rgba(255,92,0,0.25), rgba(255,92,0,0.1))',
- borderLeft: '4px solid #FF5C00',
+ background: 'linear-gradient(90deg, rgba(var(--h-primary-rgb),0.25), rgba(var(--h-primary-rgb),0.1))',
+ borderLeft: '4px solid var(--h-primary)',
  }}
  >
  <td
@@ -159,9 +159,9 @@ export default function LoteDocumentsSection({
  marginTop: '3px',
  padding: '2px 8px',
  fontSize: '0.7rem',
- background: 'rgba(255,92,0,0.3)',
- color: '#FF5C00',
- border: '1px solid rgba(255,92,0,0.4)',
+ background: 'rgba(var(--h-primary-rgb),0.3)',
+ color: 'var(--h-primary)',
+ border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius: '4px',
  cursor: rescanningFile ? 'wait' : 'pointer',
  }}
@@ -183,9 +183,9 @@ export default function LoteDocumentsSection({
  marginTop: '3px',
  padding: '2px 8px',
  fontSize: '0.7rem',
- background: 'rgba(255,92,0,0.3)',
+ background: 'rgba(var(--h-primary-rgb),0.3)',
  color: '#cba6f7',
- border: '1px solid rgba(255,92,0,0.4)',
+ border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius: '4px',
  cursor: 'pointer',
  }}
@@ -222,7 +222,7 @@ export default function LoteDocumentsSection({
  borderRadius: '4px',
  background: 'rgba(255,255,255,0.1)',
  color: 'white',
- border: '1px solid rgba(255,92,0,0.5)',
+ border: '1px solid rgba(var(--h-primary-rgb),0.5)',
  outline: 'none',
  }}
  />
@@ -240,7 +240,7 @@ export default function LoteDocumentsSection({
  padding: '3px 6px',
  fontSize: '0.65rem',
  borderRadius: '4px',
- background: 'rgba(255,92,0,0.5)',
+ background: 'rgba(var(--h-primary-rgb),0.5)',
  color: 'white',
  border: 'none',
  cursor: 'pointer',
@@ -401,8 +401,8 @@ export default function LoteDocumentsSection({
  <React.Fragment key={`bp-${senderName}`}>
  <tr
  style={{
- background: 'linear-gradient(90deg, rgba(255,92,0,0.2), rgba(59,130,246,0.1))',
- borderLeft: '4px solid #FF5C00',
+ background: 'linear-gradient(90deg, rgba(var(--h-primary-rgb),0.2), rgba(59,130,246,0.1))',
+ borderLeft: '4px solid var(--h-primary)',
  }}
  >
  <td
@@ -414,7 +414,7 @@ export default function LoteDocumentsSection({
  letterSpacing: '0.5px',
  }}
  >
- <span style={{ color: '#FF5C00' }}>
+ <span style={{ color: 'var(--h-primary)' }}>
  <EditablePencil
  value={senderName}
  onSave={(nextValue) =>updateSenderGroup(senderName, nextValue)}
@@ -539,9 +539,9 @@ export default function LoteDocumentsSection({
  marginTop: '3px',
  padding: '2px 8px',
  fontSize: '0.7rem',
- background: 'rgba(255,92,0,0.3)',
- color: '#FF5C00',
- border: '1px solid rgba(255,92,0,0.4)',
+ background: 'rgba(var(--h-primary-rgb),0.3)',
+ color: 'var(--h-primary)',
+ border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius: '4px',
  cursor: rescanningFile ? 'wait' : 'pointer',
  }}
@@ -563,9 +563,9 @@ export default function LoteDocumentsSection({
  marginTop: '3px',
  padding: '2px 8px',
  fontSize: '0.7rem',
- background: 'rgba(255,92,0,0.3)',
+ background: 'rgba(var(--h-primary-rgb),0.3)',
  color: '#cba6f7',
- border: '1px solid rgba(255,92,0,0.4)',
+ border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius: '4px',
  cursor: 'pointer',
  }}
@@ -602,7 +602,7 @@ export default function LoteDocumentsSection({
  borderRadius: '4px',
  background: 'rgba(255,255,255,0.1)',
  color: 'white',
- border: '1px solid rgba(255,92,0,0.5)',
+ border: '1px solid rgba(var(--h-primary-rgb),0.5)',
  outline: 'none',
  }}
  />
@@ -620,7 +620,7 @@ export default function LoteDocumentsSection({
  padding: '3px 6px',
  fontSize: '0.65rem',
  borderRadius: '4px',
- background: 'rgba(255,92,0,0.5)',
+ background: 'rgba(var(--h-primary-rgb),0.5)',
  color: 'white',
  border: 'none',
  cursor: 'pointer',
@@ -726,7 +726,7 @@ export default function LoteDocumentsSection({
  inputWidth="190px"
  />
  </td>
- <td style={{ color: '#FF5C00', fontWeight: 'bold' }}>
+ <td style={{ color: 'var(--h-primary)', fontWeight: 'bold' }}>
  <EditablePencil
  value={item.monto ?? ''}
  displayValue={
@@ -763,3 +763,4 @@ export default function LoteDocumentsSection({
  </div>
  );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Select from 'react-select';
 import { FlaskConical, PlusCircle, RotateCcw, Trash2, XCircle } from 'lucide-react';
@@ -63,7 +63,7 @@ export default function OrganizerHeader({
  <button
  className="btn btn-download"
  style={{
- background: '#FF5C00',
+ background: 'var(--h-primary)',
  color: 'black',
  padding: '8px 14px',
  fontSize: '0.85rem',
@@ -134,3 +134,4 @@ export default function OrganizerHeader({
  </>
  );
 }
+

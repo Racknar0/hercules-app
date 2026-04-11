@@ -1,4 +1,4 @@
-import { STATUS_LABELS } from '../qaConfig/qaConfig';
+﻿import { STATUS_LABELS } from '../qaConfig/qaConfig';
 
 export default function InputsTableSection({ data, openDoc }) {
  return (
@@ -39,7 +39,7 @@ export default function InputsTableSection({ data, openDoc }) {
  fontSize: '0.7rem',
  padding: '2px 8px',
  borderRadius: '4px',
- background: row.isMedical ? 'rgba(255,92,0,0.3)' : 'rgba(255,0,0,0.2)',
+ background: row.isMedical ? 'rgba(var(--h-primary-rgb),0.3)' : 'rgba(255,0,0,0.2)',
  color: row.isMedical ? '#ccc' : '#ff6666'
  }}
  >
@@ -59,3 +59,4 @@ export default function InputsTableSection({ data, openDoc }) {
  </section>
  );
 }
+

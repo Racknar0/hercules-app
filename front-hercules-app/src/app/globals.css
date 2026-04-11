@@ -2,44 +2,57 @@
 
 /* ── Hercules AI — Design Tokens ── */
 :root {
-  /* Core palette */
-  --h-bg-deep:       #06060B;
-  --h-bg-primary:    #0A0A0F;
-  --h-bg-surface:    #111118;
-  --h-bg-elevated:   #16161F;
+  /* Default tokens (Hercules Classic) */
+  --h-bg-deep: #06060b;
+  --h-bg-primary: #0a0a0f;
+  --h-bg-surface: #111118;
+  --h-bg-elevated: #16161f;
 
-  /* Accent — Sunset Orange */
-  --h-primary:       #FF5C00;
-  --h-primary-hover: #FF7A2E;
+  --h-primary: #ff5c00;
+  --h-primary-rgb: 255, 92, 0;
+  --h-primary-hover: #ff7a2e;
   --h-primary-muted: rgba(255, 92, 0, 0.15);
-  --h-primary-glow:  rgba(255, 92, 0, 0.35);
-  --h-secondary:     #FF8C42;
-  --h-gradient:      linear-gradient(135deg, #FF5C00 0%, #FF8C42 50%, #FFB067 100%);
-  --h-gradient-btn:  linear-gradient(135deg, #FF5C00 0%, #FF8C42 100%);
+  --h-primary-glow: rgba(255, 92, 0, 0.35);
+  --h-secondary: #ff8c42;
+  --h-gradient: linear-gradient(135deg, #ff5c00 0%, #ff8c42 50%, #ffb067 100%);
+  --h-gradient-btn: linear-gradient(135deg, #ff5c00 0%, #ff8c42 100%);
+  --h-logo-gradient: linear-gradient(135deg, #ff5c00, #ff8c42);
 
-  /* Semantic */
-  --h-success:       #22C55E;
-  --h-warning:       #FBBF24;
-  --h-danger:        #EF4444;
-  --h-info:          #38BDF8;
+  --h-success: #22c55e;
+  --h-success-rgb: 34, 197, 94;
+  --h-warning: #fbbf24;
+  --h-warning-rgb: 251, 191, 36;
+  --h-danger: #ef4444;
+  --h-danger-rgb: 239, 68, 68;
+  --h-info: #38bdf8;
+  --h-info-rgb: 56, 189, 248;
 
-  /* Text */
-  --h-text:          #F5F5F7;
-  --h-text-secondary:#9CA3AF;
-  --h-text-muted:    #6B7280;
-  --h-text-disabled: #4B5563;
+  --h-text: #f5f5f7;
+  --h-text-secondary: #9ca3af;
+  --h-text-muted: #6b7280;
+  --h-text-disabled: #4b5563;
 
-  /* Borders & glass */
-  --h-border:        rgba(255, 255, 255, 0.06);
-  --h-border-hover:  rgba(255, 255, 255, 0.12);
-  --h-glass:         rgba(255, 255, 255, 0.03);
-  --h-glass-hover:   rgba(255, 255, 255, 0.06);
+  --h-border: rgba(255, 255, 255, 0.06);
+  --h-border-hover: rgba(255, 255, 255, 0.12);
+  --h-glass: rgba(255, 255, 255, 0.03);
+  --h-glass-hover: rgba(255, 255, 255, 0.06);
 
-  /* Shadows */
-  --h-shadow-sm:     0 2px 8px rgba(0, 0, 0, 0.3);
-  --h-shadow-md:     0 8px 32px rgba(0, 0, 0, 0.4);
-  --h-shadow-lg:     0 16px 64px rgba(0, 0, 0, 0.5);
-  --h-shadow-glow:   0 0 40px rgba(255, 92, 0, 0.15);
+  --h-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --h-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --h-shadow-lg: 0 16px 64px rgba(0, 0, 0, 0.5);
+  --h-shadow-glow: 0 0 40px rgba(255, 92, 0, 0.15);
+  --h-shadow-nav: 0 4px 30px rgba(0, 0, 0, 0.3);
+
+  --h-bg-image:
+    radial-gradient(ellipse 60% 40% at 10% 40%, rgba(255, 92, 0, 0.06), transparent),
+    radial-gradient(ellipse 50% 50% at 90% 20%, rgba(255, 140, 66, 0.04), transparent),
+    radial-gradient(ellipse 70% 60% at 50% 100%, rgba(255, 92, 0, 0.03), transparent);
+  --h-overlay-gradient: linear-gradient(180deg, rgba(6, 6, 11, 0.35), rgba(6, 6, 11, 0));
+
+  --h-nav-bg: rgba(10, 10, 15, 0.85);
+  --h-link: #0d6efd;
+  --h-link-hover: #3d8bfd;
+  --h-link-underline: rgba(13, 110, 253, 0.8);
 
   /* Radius */
   --h-radius-sm:     8px;
@@ -54,6 +67,190 @@
   /* Transitions */
   --h-ease:          cubic-bezier(0.25, 0.8, 0.25, 1);
   --h-duration:      0.3s;
+}
+
+[data-dashboard-theme='dracula'] {
+  --h-bg-deep: #191a21;
+  --h-bg-primary: #282a36;
+  --h-bg-surface: #2f3140;
+  --h-bg-elevated: #343746;
+  --h-primary: #bd93f9;
+  --h-primary-rgb: 189, 147, 249;
+  --h-primary-hover: #d6acff;
+  --h-primary-muted: rgba(189, 147, 249, 0.16);
+  --h-primary-glow: rgba(189, 147, 249, 0.28);
+  --h-secondary: #8be9fd;
+  --h-gradient: linear-gradient(135deg, #bd93f9 0%, #8be9fd 55%, #50fa7b 100%);
+  --h-gradient-btn: linear-gradient(135deg, #bd93f9 0%, #8be9fd 100%);
+  --h-logo-gradient: linear-gradient(135deg, #bd93f9, #8be9fd);
+  --h-success: #50fa7b;
+  --h-success-rgb: 80, 250, 123;
+  --h-warning: #ffb86c;
+  --h-warning-rgb: 255, 184, 108;
+  --h-danger: #ff5555;
+  --h-danger-rgb: 255, 85, 85;
+  --h-info: #8be9fd;
+  --h-info-rgb: 139, 233, 253;
+  --h-text: #f8f8f2;
+  --h-text-secondary: #c7cad6;
+  --h-text-muted: #9aa0b8;
+  --h-text-disabled: #6272a4;
+  --h-border: rgba(248, 248, 242, 0.1);
+  --h-border-hover: rgba(248, 248, 242, 0.18);
+  --h-glass: rgba(248, 248, 242, 0.04);
+  --h-glass-hover: rgba(248, 248, 242, 0.08);
+  --h-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28);
+  --h-shadow-md: 0 10px 34px rgba(0, 0, 0, 0.38);
+  --h-shadow-lg: 0 18px 64px rgba(0, 0, 0, 0.5);
+  --h-shadow-glow: 0 0 40px rgba(189, 147, 249, 0.18);
+  --h-shadow-nav: 0 6px 28px rgba(0, 0, 0, 0.35);
+  --h-bg-image:
+    radial-gradient(ellipse 60% 42% at 8% 35%, rgba(189, 147, 249, 0.09), transparent),
+    radial-gradient(ellipse 50% 45% at 90% 12%, rgba(139, 233, 253, 0.06), transparent),
+    radial-gradient(ellipse 70% 58% at 52% 100%, rgba(80, 250, 123, 0.04), transparent);
+  --h-overlay-gradient: linear-gradient(180deg, rgba(25, 26, 33, 0.35), rgba(25, 26, 33, 0));
+  --h-nav-bg: rgba(40, 42, 54, 0.82);
+  --h-link: #8be9fd;
+  --h-link-hover: #a4ffff;
+  --h-link-underline: rgba(139, 233, 253, 0.8);
+}
+
+[data-dashboard-theme='nord'] {
+  --h-bg-deep: #2e3440;
+  --h-bg-primary: #3b4252;
+  --h-bg-surface: #434c5e;
+  --h-bg-elevated: #4c566a;
+  --h-primary: #88c0d0;
+  --h-primary-rgb: 136, 192, 208;
+  --h-primary-hover: #8fbcbb;
+  --h-primary-muted: rgba(136, 192, 208, 0.18);
+  --h-primary-glow: rgba(136, 192, 208, 0.28);
+  --h-secondary: #81a1c1;
+  --h-gradient: linear-gradient(135deg, #88c0d0 0%, #81a1c1 55%, #8fbcbb 100%);
+  --h-gradient-btn: linear-gradient(135deg, #88c0d0 0%, #81a1c1 100%);
+  --h-logo-gradient: linear-gradient(135deg, #88c0d0, #81a1c1);
+  --h-success: #a3be8c;
+  --h-success-rgb: 163, 190, 140;
+  --h-warning: #ebcb8b;
+  --h-warning-rgb: 235, 203, 139;
+  --h-danger: #bf616a;
+  --h-danger-rgb: 191, 97, 106;
+  --h-info: #81a1c1;
+  --h-info-rgb: 129, 161, 193;
+  --h-text: #eceff4;
+  --h-text-secondary: #e5e9f0;
+  --h-text-muted: #d8dee9;
+  --h-text-disabled: #a7b0c0;
+  --h-border: rgba(216, 222, 233, 0.14);
+  --h-border-hover: rgba(216, 222, 233, 0.22);
+  --h-glass: rgba(216, 222, 233, 0.06);
+  --h-glass-hover: rgba(216, 222, 233, 0.1);
+  --h-shadow-sm: 0 2px 8px rgba(23, 28, 38, 0.28);
+  --h-shadow-md: 0 10px 34px rgba(23, 28, 38, 0.4);
+  --h-shadow-lg: 0 18px 64px rgba(23, 28, 38, 0.52);
+  --h-shadow-glow: 0 0 36px rgba(136, 192, 208, 0.2);
+  --h-shadow-nav: 0 6px 28px rgba(23, 28, 38, 0.38);
+  --h-bg-image:
+    radial-gradient(ellipse 62% 40% at 10% 35%, rgba(136, 192, 208, 0.1), transparent),
+    radial-gradient(ellipse 50% 45% at 88% 14%, rgba(129, 161, 193, 0.07), transparent),
+    radial-gradient(ellipse 70% 58% at 55% 100%, rgba(143, 188, 187, 0.04), transparent);
+  --h-overlay-gradient: linear-gradient(180deg, rgba(46, 52, 64, 0.36), rgba(46, 52, 64, 0));
+  --h-nav-bg: rgba(59, 66, 82, 0.84);
+  --h-link: #88c0d0;
+  --h-link-hover: #8fbcbb;
+  --h-link-underline: rgba(136, 192, 208, 0.85);
+}
+
+[data-dashboard-theme='solarized'] {
+  --h-bg-deep: #002b36;
+  --h-bg-primary: #073642;
+  --h-bg-surface: #0a3f4d;
+  --h-bg-elevated: #114a59;
+  --h-primary: #2aa198;
+  --h-primary-rgb: 42, 161, 152;
+  --h-primary-hover: #268bd2;
+  --h-primary-muted: rgba(42, 161, 152, 0.18);
+  --h-primary-glow: rgba(42, 161, 152, 0.28);
+  --h-secondary: #268bd2;
+  --h-gradient: linear-gradient(135deg, #2aa198 0%, #268bd2 55%, #859900 100%);
+  --h-gradient-btn: linear-gradient(135deg, #2aa198 0%, #268bd2 100%);
+  --h-logo-gradient: linear-gradient(135deg, #2aa198, #268bd2);
+  --h-success: #859900;
+  --h-success-rgb: 133, 153, 0;
+  --h-warning: #b58900;
+  --h-warning-rgb: 181, 137, 0;
+  --h-danger: #dc322f;
+  --h-danger-rgb: 220, 50, 47;
+  --h-info: #268bd2;
+  --h-info-rgb: 38, 139, 210;
+  --h-text: #eee8d5;
+  --h-text-secondary: #93a1a1;
+  --h-text-muted: #839496;
+  --h-text-disabled: #657b83;
+  --h-border: rgba(147, 161, 161, 0.18);
+  --h-border-hover: rgba(147, 161, 161, 0.26);
+  --h-glass: rgba(147, 161, 161, 0.07);
+  --h-glass-hover: rgba(147, 161, 161, 0.11);
+  --h-shadow-sm: 0 2px 8px rgba(0, 28, 33, 0.3);
+  --h-shadow-md: 0 10px 34px rgba(0, 28, 33, 0.42);
+  --h-shadow-lg: 0 18px 64px rgba(0, 28, 33, 0.54);
+  --h-shadow-glow: 0 0 34px rgba(42, 161, 152, 0.2);
+  --h-shadow-nav: 0 6px 28px rgba(0, 28, 33, 0.4);
+  --h-bg-image:
+    radial-gradient(ellipse 62% 42% at 8% 35%, rgba(42, 161, 152, 0.11), transparent),
+    radial-gradient(ellipse 54% 44% at 90% 15%, rgba(38, 139, 210, 0.08), transparent),
+    radial-gradient(ellipse 70% 56% at 54% 100%, rgba(133, 153, 0, 0.05), transparent);
+  --h-overlay-gradient: linear-gradient(180deg, rgba(0, 43, 54, 0.36), rgba(0, 43, 54, 0));
+  --h-nav-bg: rgba(7, 54, 66, 0.86);
+  --h-link: #268bd2;
+  --h-link-hover: #2aa198;
+  --h-link-underline: rgba(38, 139, 210, 0.85);
+}
+
+[data-dashboard-theme='catppuccin'] {
+  --h-bg-deep: #11111b;
+  --h-bg-primary: #1e1e2e;
+  --h-bg-surface: #313244;
+  --h-bg-elevated: #45475a;
+  --h-primary: #89b4fa;
+  --h-primary-rgb: 137, 180, 250;
+  --h-primary-hover: #b4befe;
+  --h-primary-muted: rgba(137, 180, 250, 0.2);
+  --h-primary-glow: rgba(137, 180, 250, 0.28);
+  --h-secondary: #cba6f7;
+  --h-gradient: linear-gradient(135deg, #89b4fa 0%, #cba6f7 52%, #94e2d5 100%);
+  --h-gradient-btn: linear-gradient(135deg, #89b4fa 0%, #cba6f7 100%);
+  --h-logo-gradient: linear-gradient(135deg, #89b4fa, #cba6f7);
+  --h-success: #a6e3a1;
+  --h-success-rgb: 166, 227, 161;
+  --h-warning: #f9e2af;
+  --h-warning-rgb: 249, 226, 175;
+  --h-danger: #f38ba8;
+  --h-danger-rgb: 243, 139, 168;
+  --h-info: #89dceb;
+  --h-info-rgb: 137, 220, 235;
+  --h-text: #cdd6f4;
+  --h-text-secondary: #bac2de;
+  --h-text-muted: #a6adc8;
+  --h-text-disabled: #7f849c;
+  --h-border: rgba(186, 194, 222, 0.16);
+  --h-border-hover: rgba(186, 194, 222, 0.25);
+  --h-glass: rgba(186, 194, 222, 0.06);
+  --h-glass-hover: rgba(186, 194, 222, 0.11);
+  --h-shadow-sm: 0 2px 8px rgba(9, 9, 15, 0.28);
+  --h-shadow-md: 0 10px 34px rgba(9, 9, 15, 0.4);
+  --h-shadow-lg: 0 18px 64px rgba(9, 9, 15, 0.52);
+  --h-shadow-glow: 0 0 36px rgba(137, 180, 250, 0.2);
+  --h-shadow-nav: 0 6px 28px rgba(9, 9, 15, 0.38);
+  --h-bg-image:
+    radial-gradient(ellipse 60% 42% at 10% 34%, rgba(137, 180, 250, 0.1), transparent),
+    radial-gradient(ellipse 50% 46% at 90% 14%, rgba(203, 166, 247, 0.08), transparent),
+    radial-gradient(ellipse 70% 58% at 54% 100%, rgba(148, 226, 213, 0.06), transparent);
+  --h-overlay-gradient: linear-gradient(180deg, rgba(17, 17, 27, 0.34), rgba(17, 17, 27, 0));
+  --h-nav-bg: rgba(30, 30, 46, 0.84);
+  --h-link: #89b4fa;
+  --h-link-hover: #b4befe;
+  --h-link-underline: rgba(137, 180, 250, 0.84);
 }
 
 /* ── Global Reset ── */
@@ -72,10 +269,7 @@ html {
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--h-bg-primary);
-  background-image:
-    radial-gradient(ellipse 60% 40% at 10% 40%, rgba(255, 92, 0, 0.06), transparent),
-    radial-gradient(ellipse 50% 50% at 90% 20%, rgba(255, 140, 66, 0.04), transparent),
-    radial-gradient(ellipse 70% 60% at 50% 100%, rgba(255, 92, 0, 0.03), transparent);
+  background-image: var(--h-bg-image);
   background-attachment: fixed;
   color: var(--h-text);
   min-height: 100vh;
@@ -168,6 +362,6 @@ input, textarea, select {
 
 /* ── Selection ── */
 ::selection {
-  background: rgba(255, 92, 0, 0.3);
+  background: rgba(var(--h-primary-rgb), 0.3);
   color: #fff;
 }

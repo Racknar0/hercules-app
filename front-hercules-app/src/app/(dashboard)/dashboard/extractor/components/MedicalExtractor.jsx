@@ -223,7 +223,7 @@ export default function MedicalExtractor() {
  return (
  <div className="app-container" style={{ marginTop: '1rem' }}>
  <header>
- <h1 style={{ color: '#FF5C00' }}>Med Extractor QA</h1>
+ <h1 style={{ color: 'var(--h-primary)' }}>Med Extractor QA</h1>
  <p>Corrida independiente sobre Medical Records aprobados. Analisis forense con trazabilidad de fuentes.</p>
  </header>
 
@@ -269,4 +269,5 @@ export default function MedicalExtractor() {
  </div>
  );
 }
+
 

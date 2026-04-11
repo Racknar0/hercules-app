@@ -1,9 +1,9 @@
-import { getQA, hasMeaningfulAnswer, QA_FIELDS } from '../qaConfig/qaConfig';
+﻿import { getQA, hasMeaningfulAnswer, QA_FIELDS } from '../qaConfig/qaConfig';
 
 export default function ExecutiveSummarySection({ data, openDoc }) {
  return (
- <section style={{ marginTop: '2rem', background: 'rgba(255,92,0,0.03)', border: '2px solid rgba(255,92,0,0.3)', borderRadius: '16px', padding: '2rem' }}>
- <h2 style={{ color: '#FF5C00', marginBottom: '1.5rem' }}>Resumen Ejecutivo</h2>
+ <section style={{ marginTop: '2rem', background: 'rgba(var(--h-primary-rgb),0.03)', border: '2px solid rgba(var(--h-primary-rgb),0.3)', borderRadius: '16px', padding: '2rem' }}>
+ <h2 style={{ color: 'var(--h-primary)', marginBottom: '1.5rem' }}>Resumen Ejecutivo</h2>
  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
  Basado en {data.sampledCount} Medical Record(s) de {data.providerNames.length} provider(s).
  </p>
@@ -52,3 +52,4 @@ export default function ExecutiveSummarySection({ data, openDoc }) {
  </section>
  );
 }
+

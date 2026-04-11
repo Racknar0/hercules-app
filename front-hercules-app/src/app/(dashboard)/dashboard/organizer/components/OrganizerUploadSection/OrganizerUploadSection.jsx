@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { DATE_FORMAT_HINT } from '@/helpers/dateFormat';
 
@@ -25,14 +25,14 @@ export default function OrganizerUploadSection({
  <section
  className="lote-formulario"
  style={{
- background: 'rgba(255, 92, 0, 0.05)',
+ background: 'rgba(var(--h-primary-rgb), 0.05)',
  padding: '20px',
  borderRadius: '12px',
  marginBottom: '20px',
- border: '1px solid #FF5C00',
+ border: '1px solid var(--h-primary)',
  }}
  >
- <h3 style={{ marginBottom: '15px', color: '#FF5C00' }}>
+ <h3 style={{ marginBottom: '15px', color: 'var(--h-primary)' }}>
  Perfilado oficial de carpeta
  </h3>
  <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
@@ -127,13 +127,13 @@ export default function OrganizerUploadSection({
  style={{
  width: '18px',
  height: '18px',
- accentColor: '#FF5C00',
+ accentColor: 'var(--h-primary)',
  cursor: 'pointer',
  }}
  />
  <span
  style={{
- color: enableQC ? '#FF5C00' : '#6B7280',
+ color: enableQC ? 'var(--h-primary)' : '#6B7280',
  fontWeight: enableQC ? 'bold' : 'normal',
  transition: 'color 0.2s',
  }}
@@ -200,3 +200,4 @@ export default function OrganizerUploadSection({
  </>
  );
 }
+

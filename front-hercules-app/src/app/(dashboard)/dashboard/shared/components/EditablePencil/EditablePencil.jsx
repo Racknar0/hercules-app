@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from 'react';
 import { FiCheck, FiEdit2, FiX } from 'react-icons/fi';
@@ -132,7 +132,7 @@ export default function EditablePencil({
  alignItems: 'center',
  gap: '4px',
  background: 'rgba(15, 23, 42, 0.96)',
- border: '1px solid rgba(255,92,0,0.4)',
+ border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius: '8px',
  padding: '4px',
  boxShadow: '0 8px 20px rgba(0,0,0,0.35)',
@@ -205,3 +205,4 @@ export default function EditablePencil({
  </span>
  );
 }
+

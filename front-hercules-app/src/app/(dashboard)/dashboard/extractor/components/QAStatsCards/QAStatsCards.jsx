@@ -1,9 +1,9 @@
-export default function QAStatsCards({ data }) {
+﻿export default function QAStatsCards({ data }) {
  const stats = [
  { val: data.sampledCount, label: 'Records Analizados', color: '#22C55E', bg: 'rgba(0,230,118,0.1)', border: '#22C55E' },
- { val: data.totalMedical, label: 'Total Medical Records', color: 'var(--accent)', bg: 'rgba(255,92,0,0.1)', border: 'rgba(255,92,0,0.4)' },
+ { val: data.totalMedical, label: 'Total Medical Records', color: 'var(--accent)', bg: 'rgba(var(--h-primary-rgb),0.1)', border: 'rgba(var(--h-primary-rgb),0.4)' },
  { val: data.totalBills, label: 'Bills (Excluidos)', color: '#ff4d4d', bg: 'rgba(255,0,0,0.05)', border: 'rgba(255,0,0,0.3)' },
- { val: data.providerNames.length, label: 'Providers', color: '#FF5C00', bg: 'rgba(255,92,0,0.1)', border: 'rgba(255,92,0,0.3)' }
+ { val: data.providerNames.length, label: 'Providers', color: 'var(--h-primary)', bg: 'rgba(var(--h-primary-rgb),0.1)', border: 'rgba(var(--h-primary-rgb),0.3)' }
  ];
 
  return (
@@ -28,3 +28,4 @@ export default function QAStatsCards({ data }) {
  </div>
  );
 }
+

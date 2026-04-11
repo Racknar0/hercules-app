@@ -20,7 +20,7 @@ export const QA_FIELDS = [
  { key: 'edadCliente', label: 'Edad del Cliente', color: '#ff9800' },
  { key: 'diagnostico', label: 'Diagnostico', color: 'var(--accent)' },
  { key: 'limitacionesVidaDiaria', label: 'Limitaciones Diarias', color: '#ff4d4d' },
- { key: 'recomendacionesFuturas', label: 'Tratamientos/Recomendaciones', color: '#FF5C00' },
+ { key: 'recomendacionesFuturas', label: 'Tratamientos/Recomendaciones', color: 'var(--h-primary)' },
  { key: 'diasIncapacidad', label: 'Dias Off / Incapacidades', color: 'yellow' },
  { key: 'hechos', label: 'Hechos del Accidente', color: '#22C55E' }
 ];
@@ -31,3 +31,4 @@ export const STATUS_LABELS = {
  excluded_bill: { text: 'Excluido (Bill)', color: '#ff4d4d' },
  unavailable: { text: 'Archivo no disponible', color: '#ff9800' }
 };
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Sparkles, FileSpreadsheet, Archive } from 'lucide-react';
 
@@ -13,8 +13,8 @@ export default function PostProcessingSection({
  return (
  <section
  style={{
- background: 'linear-gradient(135deg, rgba(255, 92, 0, 0.08), rgba(59, 130, 246, 0.08))',
- border: '1px solid rgba(255, 92, 0, 0.3)',
+ background: 'linear-gradient(135deg, rgba(var(--h-primary-rgb), 0.08), rgba(59, 130, 246, 0.08))',
+ border: '1px solid rgba(var(--h-primary-rgb), 0.3)',
  borderRadius: '12px',
  padding: '1.5rem',
  marginTop: '1.5rem',
@@ -28,10 +28,10 @@ export default function PostProcessingSection({
  marginBottom: '1rem',
  }}
  >
- <Sparkles size={22} color="#FF5C00" />
+ <Sparkles size={22} color="var(--h-primary)" />
  <span
  style={{
- color: '#FF5C00',
+ color: 'var(--h-primary)',
  fontWeight: '700',
  fontSize: '1.15rem',
  letterSpacing: '1px',
@@ -98,3 +98,4 @@ export default function PostProcessingSection({
  </section>
  );
 }
+

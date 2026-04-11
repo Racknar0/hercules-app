@@ -44,7 +44,7 @@ export default function QAControlPanel({
  disabled={hasPendientes || isRunning}
  onClick={onStart}
  style={{
- background: hasPendientes ? '#333' : 'linear-gradient(135deg, #22C55E 0%, #FF5C00 100%)',
+ background: hasPendientes ? '#333' : 'linear-gradient(135deg, #22C55E 0%, var(--h-primary) 100%)',
  color: hasPendientes ? '#888' : 'black',
  fontWeight: 'bold',
  minWidth: '220px',
@@ -83,3 +83,4 @@ export default function QAControlPanel({
  </section>
  );
 }
+

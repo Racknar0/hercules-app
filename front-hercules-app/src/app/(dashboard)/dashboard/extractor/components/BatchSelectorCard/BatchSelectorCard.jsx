@@ -5,7 +5,7 @@ import Select from 'react-select';
 const selectStyles = {
  control: (base) =>({ ...base, background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.15)', color: 'white', minWidth: '350px' }),
  menu: (base) =>({ ...base, background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.1)' }),
- option: (base, state) =>({ ...base, background: state.isFocused ? 'rgba(255,92,0,0.3)' : 'transparent', color: 'white' }),
+ option: (base, state) =>({ ...base, background: state.isFocused ? 'rgba(var(--h-primary-rgb),0.3)' : 'transparent', color: 'white' }),
  singleValue: (base) =>({ ...base, color: 'white' }),
  input: (base) =>({ ...base, color: 'white' }),
  placeholder: (base) =>({ ...base, color: '#888' }),
@@ -24,11 +24,11 @@ export default function BatchSelectorCard({
  background: 'var(--card-bg)',
  borderRadius: '16px',
  padding: '1.5rem',
- border: '2px solid rgba(255,92,0,0.3)',
+ border: '2px solid rgba(var(--h-primary-rgb),0.3)',
  marginBottom: '1.5rem',
  }}
  >
- <h3 style={{ color: '#FF5C00', marginBottom: '0.8rem' }}>
+ <h3 style={{ color: 'var(--h-primary)', marginBottom: '0.8rem' }}>
  Seleccionar Batch para Análisis
  </h3>
  <Select
@@ -95,4 +95,5 @@ export default function BatchSelectorCard({
  </section>
  );
 }
+
 

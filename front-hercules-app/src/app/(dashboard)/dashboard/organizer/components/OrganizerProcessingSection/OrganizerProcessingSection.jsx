@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { formatDateMMDDYYYY } from '@/helpers/dateFormat';
 
@@ -267,7 +267,7 @@ export default function OrganizerProcessingSection({
  style={{
  fontFamily: 'monospace',
  fontSize: '1.1rem',
- color: '#FF5C00',
+ color: 'var(--h-primary)',
  fontWeight: 'bold',
  letterSpacing: '2px',
  }}
@@ -299,3 +299,4 @@ export default function OrganizerProcessingSection({
  </>
  );
 }
+

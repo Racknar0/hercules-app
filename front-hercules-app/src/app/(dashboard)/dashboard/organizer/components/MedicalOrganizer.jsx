@@ -24,8 +24,8 @@ const customSelectStyles = {
  control: (base, state) =>({
  ...base,
  background: 'rgba(255, 255, 255, 0.04)',
- borderColor: state.isFocused ? '#FF5C00' : 'rgba(255, 255, 255, 0.1)',
- boxShadow: state.isFocused ? '0 0 0 1px #FF5C00' : 'none',
+ borderColor: state.isFocused ? 'var(--h-primary)' : 'rgba(255, 255, 255, 0.1)',
+ boxShadow: state.isFocused ? '0 0 0 1px var(--h-primary)' : 'none',
  color: 'white',
  borderRadius: '8px',
  padding: '4px',
@@ -38,13 +38,13 @@ const customSelectStyles = {
  }),
  option: (base, state) =>({
  ...base,
- background: state.isFocused ? 'rgba(255, 92, 0, 0.15)' : 'transparent',
+ background: state.isFocused ? 'rgba(var(--h-primary-rgb), 0.15)' : 'transparent',
  color: 'white',
  cursor: 'pointer',
  }),
  multiValue: (base) =>({
  ...base,
- background: 'rgba(255, 92, 0, 0.4)',
+ background: 'rgba(var(--h-primary-rgb), 0.4)',
  borderRadius: '6px',
  }),
  multiValueLabel: (base) =>({ ...base, color: 'white' }),
@@ -902,7 +902,7 @@ export default function MedicalOrganizer() {
  <button
  className="btn btn-download"
  style={{
- background: '#FF5C00',
+ background: 'var(--h-primary)',
  color: 'black',
  padding: '8px 14px',
  fontSize: '0.85rem',
@@ -962,17 +962,17 @@ export default function MedicalOrganizer() {
  <section
  className="lote-formulario"
  style={{
- background: 'rgba(255, 92, 0, 0.05)',
+ background: 'rgba(var(--h-primary-rgb), 0.05)',
  padding: '20px',
  borderRadius: '12px',
  marginBottom: '20px',
- border: '1px solid #FF5C00',
+ border: '1px solid var(--h-primary)',
  }}
  >
  <h3
  style={{
  marginBottom: '15px',
- color: '#FF5C00',
+ color: 'var(--h-primary)',
  }}
  >
  ¡ Perfilado Oficial de Carpeta (Blindaje IA)
@@ -1107,14 +1107,14 @@ export default function MedicalOrganizer() {
  style={{
  width: '18px',
  height: '18px',
- accentColor: '#FF5C00',
+ accentColor: 'var(--h-primary)',
  cursor: 'pointer',
  }}
  />
  <span
  style={{
  color: enableQC
- ? '#FF5C00'
+ ? 'var(--h-primary)'
  : '#6B7280',
  fontWeight: enableQC
  ? 'bold'
@@ -1521,7 +1521,7 @@ export default function MedicalOrganizer() {
  style={{
  fontFamily: 'monospace',
  fontSize: '1.1rem',
- color: '#FF5C00',
+ color: 'var(--h-primary)',
  fontWeight: 'bold',
  letterSpacing: '2px',
  }}
@@ -1691,7 +1691,7 @@ export default function MedicalOrganizer() {
  borderRadius:
  '4px',
  background:
- 'rgba(255,92,0,0.3)',
+ 'rgba(var(--h-primary-rgb),0.3)',
  color: '#cba6f7',
  }}
  >
@@ -1805,7 +1805,7 @@ export default function MedicalOrganizer() {
  {' vs '}
  <span
  style={{
- color: '#FF5C00',
+ color: 'var(--h-primary)',
  }}
  >
  R2: {d.run2}
@@ -1906,9 +1906,9 @@ export default function MedicalOrganizer() {
  padding:
  '3px 6px',
  background:
- 'rgba(255,92,0,0.3)',
- color: '#FF5C00',
- border: '1px solid rgba(255,92,0,0.4)',
+ 'rgba(var(--h-primary-rgb),0.3)',
+ color: 'var(--h-primary)',
+ border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius:
  '4px',
  cursor: 'pointer',
@@ -1939,9 +1939,9 @@ export default function MedicalOrganizer() {
  key={`${idx}-r2`}
  style={{
  borderTop:
- '1px dashed rgba(255,92,0,0.3)',
+ '1px dashed rgba(var(--h-primary-rgb),0.3)',
  background:
- 'rgba(255,92,0,0.04)',
+ 'rgba(var(--h-primary-rgb),0.04)',
  }}
  >
  <td
@@ -1956,7 +1956,7 @@ export default function MedicalOrganizer() {
  >
  <span
  style={{
- color: '#FF5C00',
+ color: 'var(--h-primary)',
  fontSize: '0.6rem',
  fontWeight: 'bold',
  }}
@@ -1990,8 +1990,8 @@ export default function MedicalOrganizer() {
  padding: '2px 6px',
  borderRadius: '4px',
  background:
- 'rgba(255,92,0,0.2)',
- color: '#FF5C00',
+ 'rgba(var(--h-primary-rgb),0.2)',
+ color: 'var(--h-primary)',
  }}
  >
  {r2.tipoDocumento ===
@@ -2063,14 +2063,14 @@ export default function MedicalOrganizer() {
  '4px',
  background:
  isMedical
- ? 'rgba(255,92,0,0.3)'
+ ? 'rgba(var(--h-primary-rgb),0.3)'
  : isBill
- ? 'rgba(255,92,0,0.2)'
+ ? 'rgba(var(--h-primary-rgb),0.2)'
  : 'rgba(255,255,255,0.1)',
  color: isMedical
  ? '#cba6f7'
  : isBill
- ? '#FF5C00'
+ ? 'var(--h-primary)'
  : '#888',
  }}
  >
@@ -2212,8 +2212,8 @@ export default function MedicalOrganizer() {
  <React.Fragment key={`mp-${senderName}`}>
  {/* Sender separator row */}
  <tr style={{
- background: 'linear-gradient(90deg, rgba(255,92,0,0.25), rgba(255,92,0,0.1))',
- borderLeft: '4px solid #FF5C00',
+ background: 'linear-gradient(90deg, rgba(var(--h-primary-rgb),0.25), rgba(var(--h-primary-rgb),0.1))',
+ borderLeft: '4px solid var(--h-primary)',
  }}>
  <td colSpan="5" style={{
  padding: '10px 14px',
@@ -2285,16 +2285,16 @@ export default function MedicalOrganizer() {
  )}
  <br />
  <button className="btn-sm btn-reject" onClick={() =>handleDeleteRecord(doc.archivoOrigen)} style={{marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem'}}>Eliminar</button>
- <button className="btn-sm" onClick={() =>handleRescanDoc(doc.archivoOrigen)} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(255,92,0,0.3)', color: '#FF5C00', border: '1px solid rgba(255,92,0,0.4)', borderRadius: '4px', cursor: rescanningFile ? 'wait' : 'pointer'}}>
+ <button className="btn-sm" onClick={() =>handleRescanDoc(doc.archivoOrigen)} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: 'var(--h-primary)', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: rescanningFile ? 'wait' : 'pointer'}}>
  {rescanningFile === doc.archivoOrigen ? ' Escaneando...' : ' Re-scan IA'}
  </button>
- <button className="btn-sm" onClick={() =>{ setPageRescanTarget(pageRescanTarget === doc.archivoOrigen ? null : doc.archivoOrigen); setPageRescanInput(''); }} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(255,92,0,0.3)', color: '#cba6f7', border: '1px solid rgba(255,92,0,0.4)', borderRadius: '4px', cursor: 'pointer'}}>
+ <button className="btn-sm" onClick={() =>{ setPageRescanTarget(pageRescanTarget === doc.archivoOrigen ? null : doc.archivoOrigen); setPageRescanInput(''); }} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: '#cba6f7', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: 'pointer'}}>
  Págs
  </button>
  {pageRescanTarget === doc.archivoOrigen && (
  <div style={{marginTop: '4px', display: 'flex', gap: '3px', alignItems: 'center'}}>
- <input type="text" value={pageRescanInput} onChange={(e) =>setPageRescanInput(e.target.value)} onKeyDown={(e) =>{ if (e.key === 'Enter' && pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} placeholder="1-5, 3, 8" autoFocus style={{width: '70px', padding: '3px 5px', fontSize: '0.7rem', borderRadius: '4px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,92,0,0.5)', outline: 'none'}} />
- <button onClick={() =>{ if (pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} disabled={!pageRescanInput.trim()} style={{padding: '3px 6px', fontSize: '0.65rem', borderRadius: '4px', background: 'rgba(255,92,0,0.5)', color: 'white', border: 'none', cursor: 'pointer'}}></button>
+ <input type="text" value={pageRescanInput} onChange={(e) =>setPageRescanInput(e.target.value)} onKeyDown={(e) =>{ if (e.key === 'Enter' && pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} placeholder="1-5, 3, 8" autoFocus style={{width: '70px', padding: '3px 5px', fontSize: '0.7rem', borderRadius: '4px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(var(--h-primary-rgb),0.5)', outline: 'none'}} />
+ <button onClick={() =>{ if (pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} disabled={!pageRescanInput.trim()} style={{padding: '3px 6px', fontSize: '0.65rem', borderRadius: '4px', background: 'rgba(var(--h-primary-rgb),0.5)', color: 'white', border: 'none', cursor: 'pointer'}}></button>
  </div>
  )}
  </td>
@@ -2409,8 +2409,8 @@ export default function MedicalOrganizer() {
  <React.Fragment key={`bp-${senderName}`}>
  {/* Sender separator row */}
  <tr style={{
- background: 'linear-gradient(90deg, rgba(255,92,0,0.2), rgba(59,130,246,0.1))',
- borderLeft: '4px solid #FF5C00',
+ background: 'linear-gradient(90deg, rgba(var(--h-primary-rgb),0.2), rgba(59,130,246,0.1))',
+ borderLeft: '4px solid var(--h-primary)',
  }}>
  <td colSpan="4" style={{
  padding: '10px 14px',
@@ -2418,7 +2418,7 @@ export default function MedicalOrganizer() {
  fontSize: '0.95rem',
  letterSpacing: '0.5px',
  }}>
- <span style={{color: '#FF5C00'}}>
+ <span style={{color: 'var(--h-primary)'}}>
  {' '}
  <EditablePencil
  value={senderName}
@@ -2508,16 +2508,16 @@ export default function MedicalOrganizer() {
  )}
  <br />
  <button className="btn-sm btn-reject" onClick={() =>handleDeleteRecord(doc.archivoOrigen)} style={{marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem'}}>Eliminar</button>
- <button className="btn-sm" onClick={() =>handleRescanDoc(doc.archivoOrigen)} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(255,92,0,0.3)', color: '#FF5C00', border: '1px solid rgba(255,92,0,0.4)', borderRadius: '4px', cursor: rescanningFile ? 'wait' : 'pointer'}}>
+ <button className="btn-sm" onClick={() =>handleRescanDoc(doc.archivoOrigen)} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: 'var(--h-primary)', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: rescanningFile ? 'wait' : 'pointer'}}>
  {rescanningFile === doc.archivoOrigen ? ' Escaneando...' : ' Re-scan IA'}
  </button>
- <button className="btn-sm" onClick={() =>{ setPageRescanTarget(pageRescanTarget === doc.archivoOrigen ? null : doc.archivoOrigen); setPageRescanInput(''); }} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(255,92,0,0.3)', color: '#cba6f7', border: '1px solid rgba(255,92,0,0.4)', borderRadius: '4px', cursor: 'pointer'}}>
+ <button className="btn-sm" onClick={() =>{ setPageRescanTarget(pageRescanTarget === doc.archivoOrigen ? null : doc.archivoOrigen); setPageRescanInput(''); }} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: '#cba6f7', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: 'pointer'}}>
  Págs
  </button>
  {pageRescanTarget === doc.archivoOrigen && (
  <div style={{marginTop: '4px', display: 'flex', gap: '3px', alignItems: 'center'}}>
- <input type="text" value={pageRescanInput} onChange={(e) =>setPageRescanInput(e.target.value)} onKeyDown={(e) =>{ if (e.key === 'Enter' && pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} placeholder="1-5, 3, 8" autoFocus style={{width: '70px', padding: '3px 5px', fontSize: '0.7rem', borderRadius: '4px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,92,0,0.5)', outline: 'none'}} />
- <button onClick={() =>{ if (pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} disabled={!pageRescanInput.trim()} style={{padding: '3px 6px', fontSize: '0.65rem', borderRadius: '4px', background: 'rgba(255,92,0,0.5)', color: 'white', border: 'none', cursor: 'pointer'}}></button>
+ <input type="text" value={pageRescanInput} onChange={(e) =>setPageRescanInput(e.target.value)} onKeyDown={(e) =>{ if (e.key === 'Enter' && pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} placeholder="1-5, 3, 8" autoFocus style={{width: '70px', padding: '3px 5px', fontSize: '0.7rem', borderRadius: '4px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(var(--h-primary-rgb),0.5)', outline: 'none'}} />
+ <button onClick={() =>{ if (pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} disabled={!pageRescanInput.trim()} style={{padding: '3px 6px', fontSize: '0.65rem', borderRadius: '4px', background: 'rgba(var(--h-primary-rgb),0.5)', color: 'white', border: 'none', cursor: 'pointer'}}></button>
  </div>
  )}
  </td>
@@ -2575,7 +2575,7 @@ export default function MedicalOrganizer() {
  inputWidth="190px"
  />
  </td>
- <td style={{ color: '#FF5C00', fontWeight: 'bold' }}>
+ <td style={{ color: 'var(--h-primary)', fontWeight: 'bold' }}>
  <EditablePencil
  value={item.monto ?? ''}
  displayValue={
@@ -2616,8 +2616,8 @@ export default function MedicalOrganizer() {
  <section
  style={{
  background:
- 'linear-gradient(135deg, rgba(255, 92, 0, 0.08), rgba(59, 130, 246, 0.08))',
- border: '1px solid rgba(255, 92, 0, 0.3)',
+ 'linear-gradient(135deg, rgba(var(--h-primary-rgb), 0.08), rgba(59, 130, 246, 0.08))',
+ border: '1px solid rgba(var(--h-primary-rgb), 0.3)',
  borderRadius: '12px',
  padding: '1.5rem',
  marginTop: '1.5rem',
@@ -2634,7 +2634,7 @@ export default function MedicalOrganizer() {
  <span style={{ fontSize: '1.4rem' }}>{''}</span>
  <span
  style={{
- color: '#FF5C00',
+ color: 'var(--h-primary)',
  fontWeight: '700',
  fontSize: '1.15rem',
  letterSpacing: '1px',
@@ -2777,7 +2777,7 @@ export default function MedicalOrganizer() {
  <button
  className="btn-sm"
  style={{
- background: '#FF5C00',
+ background: 'var(--h-primary)',
  color: 'black',
  }}
  onClick={() =>handleRestoreRecord(idx)}
@@ -2792,5 +2792,6 @@ export default function MedicalOrganizer() {
  </div>
  );
 }
+
 
 

@@ -4,14 +4,14 @@
   align-items: center;
   padding: 0 2rem;
   height: var(--h-nav-height, 64px);
-  background: rgba(10, 10, 15, 0.85);
+  background: var(--h-nav-bg);
   border-bottom: 1px solid var(--h-border);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   position: sticky;
   top: 0;
   z-index: 20;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--h-shadow-nav);
 }
 
 .logo {
@@ -43,13 +43,13 @@
 
 .link:hover {
   color: var(--h-text);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--h-glass-hover);
 }
 
 .active {
   color: var(--h-primary);
-  border-color: rgba(255, 92, 0, 0.25);
-  background: rgba(255, 92, 0, 0.08);
+  border-color: rgba(var(--h-primary-rgb), 0.25);
+  background: rgba(var(--h-primary-rgb), 0.12);
 }
 
 .qaBadge {
@@ -57,26 +57,57 @@
   font-size: 0.7rem;
   font-weight: 700;
   color: #fff;
-  background: var(--h-success, #22C55E);
+  background: var(--h-success, #22c55e);
   border-radius: var(--h-radius-full, 999px);
   padding: 0.1rem 0.45rem;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 6px rgba(var(--h-success-rgb), 0.4);
 }
 
 .apiButton {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--h-border);
   border-radius: var(--h-radius-sm);
   padding: 0.3rem 0.7rem;
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--h-glass);
   color: var(--h-text-muted);
   letter-spacing: 0.5px;
   transition: all 0.2s ease;
 }
 
 .apiButton:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--h-glass-hover);
   color: var(--h-text-secondary);
+}
+
+.logoAccent {
+  background: var(--h-logo-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.themeSelectWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--h-border);
+  border-radius: var(--h-radius-sm);
+  background: var(--h-glass);
+  color: var(--h-text-secondary);
+  padding: 0.25rem 0.45rem;
+}
+
+.themeSelect {
+  border: none;
+  background: transparent;
+  color: var(--h-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  outline: none;
+}
+
+.themeSelect option {
+  background: var(--h-bg-elevated);
+  color: var(--h-text);
 }

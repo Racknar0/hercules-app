@@ -39,3 +39,24 @@ Cuando te asigne una tarea, tu respuesta debe seguir esta estructura:
 2. **Archivos Creados/Modificados:** Lista clara de rutas y carpetas afectadas.
 3. **Código Generado:** Bloques de código limpios, comentando solo la lógica compleja.
 4. **Advertencias:** Menciona si el cambio afecta dependencias, interceptores HTTP, o requiere cambios en el layout.
+
+## 5. 🎨 Sistema de Temas Dashboard (Obligatorio)
+El dashboard debe soportar y conservar exactamente 5 paletas de color completas:
+
+- Hercules Classic (Default)
+- Dracula
+- Nord
+- Solarized Dark
+- Catppuccin Mocha
+
+Reglas obligatorias para cualquier cambio futuro en UI del dashboard:
+
+- Todo color nuevo debe salir de variables de tema (`--h-*`) y no de hex hardcodeado dentro de componentes.
+- Cualquier componente nuevo en rutas privadas (`src/app/(dashboard)/dashboard/**`) debe quedar automáticamente compatible con las 5 paletas.
+- Si se necesita un color adicional, primero se agrega como token semántico en el sistema de temas y luego se consume desde el componente.
+- No romper rutas públicas (`(public)`) al modificar temas del dashboard: el scope debe mantenerse en el layout del dashboard.
+
+Referencia de adopción:
+
+- Selector de tema + persistencia: `src/app/(dashboard)/dashboard/shared/layout/PrivateShell/PrivateShell.jsx` y `src/app/(dashboard)/dashboard/shared/layout/PrivateNavbar/PrivateNavbar.jsx`.
+- Tokens globales y paletas: `src/app/globals.css`.

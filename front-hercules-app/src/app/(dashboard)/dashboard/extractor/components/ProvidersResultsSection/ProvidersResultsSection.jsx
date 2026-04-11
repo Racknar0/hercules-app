@@ -1,4 +1,4 @@
-import { getQA, QA_FIELDS } from '../qaConfig/qaConfig';
+﻿import { getQA, QA_FIELDS } from '../qaConfig/qaConfig';
 
 export default function ProvidersResultsSection({ data, openDoc }) {
  return (
@@ -10,7 +10,7 @@ export default function ProvidersResultsSection({ data, openDoc }) {
 
  return (
  <div key={provider} style={{ marginBottom: '2rem' }}>
- <h3 style={{ color: '#FF5C00', marginBottom: '0.8rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,92,0,0.3)' }}>
+ <h3 style={{ color: 'var(--h-primary)', marginBottom: '0.8rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(var(--h-primary-rgb),0.3)' }}>
  {provider}
  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '10px' }}>
  ({records.length})
@@ -53,3 +53,4 @@ export default function ProvidersResultsSection({ data, openDoc }) {
  </section>
  );
 }
+

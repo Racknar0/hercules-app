@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import { CheckCircle2, Eye, Trash2 } from 'lucide-react';
@@ -101,7 +101,7 @@ export default function PendingConflictsSection({
  fontSize: '0.6rem',
  padding: '2px 6px',
  borderRadius: '4px',
- background: 'rgba(255,92,0,0.3)',
+ background: 'rgba(var(--h-primary-rgb),0.3)',
  color: '#cba6f7',
  }}
  >
@@ -256,8 +256,8 @@ export default function PendingConflictsSection({
  <tr
  key={`${idx}-r2`}
  style={{
- borderTop: '1px dashed rgba(255,92,0,0.3)',
- background: 'rgba(255,92,0,0.04)',
+ borderTop: '1px dashed rgba(var(--h-primary-rgb),0.3)',
+ background: 'rgba(var(--h-primary-rgb),0.04)',
  }}
  >
  <td
@@ -268,7 +268,7 @@ export default function PendingConflictsSection({
  >
  <span
  style={{
- color: '#FF5C00',
+ color: 'var(--h-primary)',
  fontSize: '0.6rem',
  fontWeight: 'bold',
  }}
@@ -295,8 +295,8 @@ export default function PendingConflictsSection({
  fontSize: '0.65rem',
  padding: '2px 6px',
  borderRadius: '4px',
- background: 'rgba(255,92,0,0.2)',
- color: '#FF5C00',
+ background: 'rgba(var(--h-primary-rgb),0.2)',
+ color: 'var(--h-primary)',
  }}
  >
  {r2.tipoDocumento === 'Medical Record' ? 'Record' : 'Bill'}
@@ -348,14 +348,14 @@ export default function PendingConflictsSection({
  padding: '2px 6px',
  borderRadius: '4px',
  background: isMedical
- ? 'rgba(255,92,0,0.3)'
+ ? 'rgba(var(--h-primary-rgb),0.3)'
  : isBill
- ? 'rgba(255,92,0,0.2)'
+ ? 'rgba(var(--h-primary-rgb),0.2)'
  : 'rgba(255,255,255,0.1)',
  color: isMedical
  ? '#cba6f7'
  : isBill
- ? '#FF5C00'
+ ? 'var(--h-primary)'
  : '#888',
  }}
  >
@@ -431,3 +431,4 @@ export default function PendingConflictsSection({
  </section>
  );
 }
+
