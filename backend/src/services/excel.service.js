@@ -20,8 +20,7 @@ export class ExcelService {
           { header: 'DOC / SERVICES', key: 'nombreDoctor', width: 25 },
           { header: 'PROCEDURES EXECUTED', key: 'procedimientoEjecutado', width: 30 },
           { header: 'FUTURE PROCEDURES', key: 'procedimientoFuturo', width: 30 },
-          { header: 'AMOUNT', key: 'monto', width: 12 },
-          { header: 'TOTAL DOC', key: 'totalDoctor', width: 12 }
+          { header: 'AMOUNT', key: 'monto', width: 12 }
       ];
 
       ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -29,7 +28,7 @@ export class ExcelService {
       ws.getRow(1).alignment = { horizontal: 'center' };
       ws.autoFilter = {
             from: { row: 1, column: 1 },
-            to: { row: 1, column: 12 }
+            to: { row: 1, column: 11 }
       };
 
       jsonRecords.forEach(doc => {
@@ -47,10 +46,10 @@ export class ExcelService {
                       quienEnvia: doc.quienEnvia,
                       fecha: item.fecha,
                       nombreDoctor: item.nombreDoctor,
+                      grupoProveedor: item.grupoProveedor,
                       procedimientoEjecutado: item.procedimientoEjecutado,
                       procedimientoFuturo: item.procedimientoFuturo,
-                      monto: item.monto,
-                      totalDoctor: item.totalDoctor
+                      monto: item.monto
                   });
 
                   // Rojo si falta DOL

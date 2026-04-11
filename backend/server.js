@@ -4,6 +4,8 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import archiver from 'archiver';
+import { PDFDocument } from 'pdf-lib';
 import { GeminiService } from './src/services/gemini.service.js';
 import { ValidationService } from './src/services/validation.service.js';
 import { MasterService } from './src/services/master.service.js';
@@ -795,7 +797,12 @@ app.get('/api/download', async (req, res) => {
 
         const finalBuffer = await ExcelService.generateExcelFromData(documents);
 
-        res.setHeader('Content-Disposition', `attachment; filename=Master-Med-Records${nombre ? '-' + nombre : ''}.xlsx`);
+        const safeNombre = nombre
+            ? String(nombre).replace(/[^a-zA-Z0-9 _.-]/g, '_').substring(0, 50)
+            : '';
+        const filename = `Master-Med-Records${safeNombre ? '-' + safeNombre : ''}.xlsx`;
+
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.send(finalBuffer);
 
@@ -804,6 +811,112 @@ app.get('/api/download', async (req, res) => {
         res.status(500).json({ error: "Server download err" });
     }
 });
+
+// ========================================
+// DOWNLOAD NORMALIZED PACK
+// ========================================
+app.get('/api/download-normalized', async (req, res) => {
+    try {
+        const { nombre, dol } = req.query;
+        if (!nombre || !dol) return res.status(400).json({ error: 'Faltan nombre y dol' });
+
+        const docs = MasterService.getLoteDocuments(nombre, dol);
+        if (!docs || docs.length === 0) return res.status(404).json({ error: 'No hay documentos en este lote' });
+
+        const caseTempDir = getCaseTempDir(nombre, dol);
+        const safeName = (nombre || 'Case').replace(/[^a-zA-Z0-9 _.-]/g, '_').substring(0, 50);
+        const safeDol = (dol || 'NO-DOL').replace(/\//g, '-');
+        const zipFilename = `${safeName} - ${safeDol}.zip`;
+
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="${zipFilename}"`);
+
+        const archive = archiver('zip', { zlib: { level: 9 } });
+        archive.on('error', (err) => { throw err; });
+        archive.pipe(res);
+
+        const usedNames = new Set();
+
+        for (const doc of docs) {
+            // Buscar archivo en temp del caso o legacy
+            let filePath = path.join(caseTempDir, doc.archivoOrigen);
+            if (!fs.existsSync(filePath)) filePath = path.join(TEMP_DOCS_DIR, doc.archivoOrigen);
+            if (!fs.existsSync(filePath)) continue; // Skip si no existe
+
+            // Construir nombre normalizado
+            const firstDate = (doc.lineItems && doc.lineItems.length > 0) ? doc.lineItems[0].fecha : 'Sin-Fecha';
+            const provider = doc.quienEnvia || doc.lineItems?.[0]?.nombreDoctor || 'Unknown Provider';
+            const safeProvider = provider.replace(/[^a-zA-Z0-9 _.,()-]/g, '_').substring(0, 60);
+
+            let normalizedName = '';
+            const isBill = doc.tipoDocumento && doc.tipoDocumento.toLowerCase().includes('bill');
+
+            if (isBill) {
+                // Sumar todos los montos del documento
+                let totalAmount = 0;
+                (doc.lineItems || []).forEach(li => { if (li.monto) totalAmount += li.monto; });
+                const amountStr = totalAmount > 0 ? ` - $${totalAmount.toFixed(2)}` : '';
+                normalizedName = `${firstDate} - ${safeProvider}${amountStr}.pdf`;
+            } else {
+                normalizedName = `${firstDate} - ${safeProvider}.pdf`;
+            }
+
+            // Evitar duplicados
+            let finalName = normalizedName;
+            let counter = 2;
+            while (usedNames.has(finalName.toLowerCase())) {
+                const ext = '.pdf';
+                const base = normalizedName.replace(ext, '');
+                finalName = `${base} (${counter})${ext}`;
+                counter++;
+            }
+            usedNames.add(finalName.toLowerCase());
+
+            const ext = path.extname(doc.archivoOrigen).toLowerCase();
+            const imageExts = ['.png', '.jpg', '.jpeg', '.webp'];
+
+            if (imageExts.includes(ext)) {
+                // Convertir imagen a PDF usando pdf-lib
+                const imgBuffer = fs.readFileSync(filePath);
+                const mimeMap = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
+                const mime = mimeMap[ext] || 'image/jpeg';
+                const pdfBytes = await createMinimalImagePDF(imgBuffer, mime);
+                archive.append(Buffer.from(pdfBytes), { name: finalName });
+            } else {
+                archive.file(filePath, { name: finalName });
+            }
+        }
+
+        await archive.finalize();
+        console.log(`[SYS] Normalized pack descargado: ${nombre} | ${dol} (${docs.length} docs)`);
+    } catch(err) {
+        console.error('Error generando normalized pack:', err);
+        if (!res.headersSent) res.status(500).json({ error: 'Error generando pack' });
+    }
+});
+
+/** Crea un PDF con una imagen embebida usando pdf-lib */
+async function createMinimalImagePDF(imgBuffer, mime) {
+    const pdfDoc = await PDFDocument.create();
+    let img;
+    if (mime.includes('jpeg') || mime.includes('jpg')) {
+        img = await pdfDoc.embedJpg(imgBuffer);
+    } else if (mime.includes('png')) {
+        img = await pdfDoc.embedPng(imgBuffer);
+    } else {
+        // Para webp u otros formatos no soportados, devolver buffer raw
+        return imgBuffer;
+    }
+    // Crear página del tamaño de la imagen (max 8.5x11 pulgadas = 612x792 pts)
+    const maxW = 612, maxH = 792;
+    let w = img.width, h = img.height;
+    const scale = Math.min(maxW / w, maxH / h, 1);
+    w *= scale;
+    h *= scale;
+    const page = pdfDoc.addPage([w, h]);
+    page.drawImage(img, { x: 0, y: 0, width: w, height: h });
+    return await pdfDoc.save();
+}
 
 // ========================================
 // ELIMINAR CASO/LOTE COMPLETO
