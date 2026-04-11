@@ -18,8 +18,8 @@ export default function OrganizerStartAction({
  <button className="btn" onClick={evalFilesForDuplicates} disabled={isDisabled} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
  <PlayCircle size={16} />
  {isDisabled
- ? 'Llena Cliente y DOL para desbloquear'
- : 'Iniciar evaluacion IA de todos los documentos'}
+ ? 'Fill in Client and DOL to unlock'
+ : 'Start AI evaluation for all documents'}
  </button>
  </section>
  );

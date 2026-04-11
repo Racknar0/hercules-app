@@ -3,7 +3,7 @@
 export default function InputsTableSection({ data, openDoc }) {
  return (
  <section style={{ marginBottom: '2rem' }}>
- <h2 style={{ color: 'var(--accent)', marginBottom: '1rem', fontSize: '1.2rem' }}>Tabla de Insumos Validados</h2>
+ <h2 style={{ color: 'var(--accent)', marginBottom: '1rem', fontSize: '1.2rem' }}>Validated Inputs Table</h2>
  <div className="table-wrapper">
  <table style={{ tableLayout: 'fixed', width: '100%' }}>
  <colgroup>
@@ -16,10 +16,10 @@ export default function InputsTableSection({ data, openDoc }) {
  <thead>
  <tr>
  <th>#</th>
- <th>Documento</th>
- <th>Tipo</th>
+ <th>Document</th>
+ <th>Type</th>
  <th>Provider</th>
- <th>Estado QA</th>
+ <th>QA Status</th>
  </tr>
  </thead>
  <tbody>

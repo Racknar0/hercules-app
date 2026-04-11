@@ -19,7 +19,7 @@ export default function TrashSection({ trashData, handleRestoreRecord }) {
  >
  <h2 style={{ color: '#ff3333', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
  <Trash2 size={20} />
- Papelera de Reciclaje
+ Recycle Bin
  </h2>
  <ul style={{ listStyle: 'none', padding: 0 }}>
  {trashData.map((t, idx) =>(
@@ -38,8 +38,8 @@ export default function TrashSection({ trashData, handleRestoreRecord }) {
  <div>
  <strong style={{ color: 'white' }}>{t.archivoOrigen}</strong>
  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
- Eliminado: {formatDateMMDDYYYY(t.deletedAt)}
- {t.doc._fromLote && ` | Lote: ${t.doc._fromLote}`}
+ Deleted: {formatDateMMDDYYYY(t.deletedAt)}
+ {t.doc._fromLote && ` | Batch: ${t.doc._fromLote}`}
  </div>
  </div>
  <button
@@ -48,7 +48,7 @@ export default function TrashSection({ trashData, handleRestoreRecord }) {
  onClick={() =>handleRestoreRecord(idx)}
  >
  <RotateCcw size={14} />
- Restaurar
+ Restore
  </button>
  </li>
  ))}

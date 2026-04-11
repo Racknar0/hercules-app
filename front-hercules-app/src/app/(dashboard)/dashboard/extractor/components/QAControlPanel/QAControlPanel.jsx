@@ -27,15 +27,15 @@ export default function QAControlPanel({
  <h3 style={{ color: hasPendientes ? '#ff4d4d' : '#22C55E', marginBottom: '0.3rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
  {hasPendientes && <AlertTriangle size={18} />}
  {hasPendientes
- ? `Hay ${qaStatus.pendientesCount} Pendiente(s) sin resolver`
+ ? `There are ${qaStatus.pendientesCount} unresolved pending item(s)`
  : filesUnavailable
- ? 'Algunos archivos podrian no estar en cache'
- : 'Listo para analisis QA'}
+ ? 'Some files may not be cached'
+ : 'Ready for QA analysis'}
  </h3>
  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
  {hasPendientes
- ? 'Resuelve todos los pendientes en el Organizer.'
- : `${data?.totalMedical || fileCheck?.medicalCount || 0} Medical Records · ${data?.totalBills || 0} Bills (excluidos) · ${fileCheck?.available || 0} en cache`}
+ ? 'Resolve all pending items in Organizer.'
+ : `${data?.totalMedical || fileCheck?.medicalCount || 0} Medical Records · ${data?.totalBills || 0} Bills (excluded) · ${fileCheck?.available || 0} cached`}
  </p>
  </div>
  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -57,25 +57,25 @@ export default function QAControlPanel({
  {isRunning ? (
  <>
  <span className="spinner" style={{ width: 16, height: 16, marginRight: 8, display: 'inline-block' }}></span>
- Analizando...
+ Analyzing...
  </>
  ) : (
  <>
  <PlayCircle size={16} />
- Iniciar Analisis QA
+ Start QA Analysis
  </>
  )}
  </button>
  {isRunning && (
  <button className="btn" style={{ background: '#ff0044', fontWeight: 'bold', animation: 'pulseBadge 1s infinite', display: 'inline-flex', alignItems: 'center', gap: '8px' }} onClick={onCancel}>
  <XCircle size={16} />
- Cancelar
+ Cancel
  </button>
  )}
  {hasResults && !isRunning && (
  <button className="btn" style={{ background: 'linear-gradient(135deg, #ff9800, #ff5722)', color: 'black', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '8px' }} onClick={onReRun}>
  <RotateCcw size={16} />
- Re-ejecutar
+ Re-run
  </button>
  )}
  </div>

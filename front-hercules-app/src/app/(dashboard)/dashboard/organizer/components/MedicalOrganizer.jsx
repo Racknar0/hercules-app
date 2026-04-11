@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Select from 'react-select';
+import { ArrowRight, CheckCircle2, Eye, FileText, PlayCircle, RotateCcw, Trash2, XCircle } from 'lucide-react';
 import HttpService from '@/services/HttpService';
 import { DATE_FORMAT_HINT, formatDateMMDDYYYY } from '@/helpers/dateFormat';
 import { useOrganizerPageStore } from '@/store/useOrganizerPageStore';
@@ -289,7 +290,7 @@ export default function MedicalOrganizer() {
  }
  };
 
- // Autoscroll terminal (solo dentro del contenedor, no la página)
+ // Autoscroll terminal (inside the container only, not the page)
  useEffect(() =>{
  if (terminalEndRef.current) {
  const container = terminalEndRef.current.parentElement;
@@ -342,7 +343,7 @@ export default function MedicalOrganizer() {
  } else {
  setStreamLogs((prev) =>[
  ...prev,
- ` Lote procesado: ${event.data.savedCount} guardados, ${event.data.pendientesCount} en alertas.`,
+ ` Batch processed: ${event.data.savedCount} saved, ${event.data.pendientesCount} flagged.`,
  ]);
  fetchAll();
  }
@@ -355,7 +356,7 @@ export default function MedicalOrganizer() {
  if (done) break;
  }
  } catch (error) {
- alert('Error en Streaming: ' + error.message);
+ alert('Streaming error: ' + error.message);
  } finally {
  setIsUploading(false);
  setFiles([]);
@@ -370,61 +371,22 @@ export default function MedicalOrganizer() {
  await httpService.postData('/api/cancel', {});
  setStreamLogs((prev) =>[
  ...prev,
- '[SYS] Cancelación enviada...',
+ '[SYS] Cancellation request sent...',
  ]);
  } catch (e) {}
  };
 
  // ===========================
- // NUEVO PROCESO (reset batch)
+ // NEW PROCESS (clear selected batch)
  // ===========================
  const handleNewProcess = () =>{
  if (
  !window.confirm(
- '¿Iniciar nuevo proceso? Esto limpiará los archivos en cola y los logs. La data ya guardada NO se pierde.',
+ 'Start a new process? This will only clear the selected batch so you can scan another case.',
  )
  )
  return;
- setFiles([]);
- setStreamLogs([]);
- setOfficialClient('');
- setOfficialDol('');
- };
-
- // ===========================
- // MOCK DEV
- // ===========================
- const handleInjectDummy = async () =>{
- let mockName = officialClient;
- let mockDol = officialDol;
- if (!mockName) {
- mockName = prompt('Nombre de cliente para el Mock:', 'JUAN JUAREZ');
- if (!mockName) return;
- }
- if (!mockDol) {
- mockDol = prompt(
- `Date of Loss para el Mock (${DATE_FORMAT_HINT}):`,
- '05-06-2024',
- );
- if (!mockDol) return;
- }
- setStreamLogs(['[SYS] Inyectando Dummy...']);
- try {
- const res = await httpService.postData('/api/upload-dummy', {
- officialClientName: mockName,
- officialDol: mockDol,
- });
- const data = res.data;
- if (data.success) {
- setStreamLogs((prev) =>[
- ...prev,
- ` Mock: ${data.savedCount} guardados, ${data.pendientesCount} alertas.`,
- ]);
- fetchAll();
- }
- } catch (e) {
- setStreamLogs((prev) =>[...prev, '[SYS] Error dummy.']);
- }
+ setSelectedLote(null);
  };
 
  // ===========================
@@ -433,7 +395,7 @@ export default function MedicalOrganizer() {
  const handleAssignPendiente = async (idx, selectedRun) =>{
  if (!selectedLote) {
  return alert(
- 'Selecciona un lote del dropdown para asignar este documento.',
+ 'Select a batch from the dropdown to assign this document.',
  );
  }
  const parsed = JSON.parse(selectedLote.value);
@@ -447,13 +409,13 @@ export default function MedicalOrganizer() {
  const data = res.data;
  if (data.success) fetchAll();
  } catch (e) {
- alert('Fallo asignando');
+ alert('Failed to assign');
  }
  };
 
  const handleDeletePendiente = async (idx) =>{
- if (!selectedLote) return alert('Selecciona un lote primero.');
- if (!window.confirm('¿Eliminar este documento permanentemente?'))
+ if (!selectedLote) return alert('Select a batch first.');
+ if (!window.confirm('Delete this document permanently?'))
  return;
  const parsed = JSON.parse(selectedLote.value);
  try {
@@ -463,7 +425,7 @@ export default function MedicalOrganizer() {
  const data = res.data;
  if (data.success) fetchAll();
  } catch (e) {
- alert('Fallo eliminando');
+ alert('Delete failed');
  }
  };
 
@@ -472,7 +434,7 @@ export default function MedicalOrganizer() {
  // ===========================
  const handleDeleteRecord = async (archivoOrigen) =>{
  if (!selectedLote) return;
- if (!window.confirm(`¿Eliminar ${archivoOrigen} del lote?`)) return;
+ if (!window.confirm(`Delete ${archivoOrigen} from the batch?`)) return;
  const parsed = JSON.parse(selectedLote.value);
  try {
  const res = await httpService.deleteData(
@@ -481,7 +443,7 @@ export default function MedicalOrganizer() {
  const data = res.data;
  if (data.success) fetchAll();
  } catch (e) {
- alert('Fallo eliminando');
+ alert('Delete failed');
  }
  };
 
@@ -497,7 +459,7 @@ export default function MedicalOrganizer() {
  if (
  !pages &&
  !window.confirm(
- `¿Re-escanear "${archivoOrigen}" con IA? Esto re-evaluará la extracción.`,
+ `Re-scan "${archivoOrigen}" with AI? This will re-evaluate extraction.`,
  )
  )
  return;
@@ -514,14 +476,14 @@ export default function MedicalOrganizer() {
  const data = res.data;
  if (data.success) {
  alert(
- ` Re-scan completado para ${archivoOrigen}${pages ? ` (Págs: ${pages})` : ''}. Data actualizada.`,
+ ` Re-scan completed for ${archivoOrigen}${pages ? ` (Pages: ${pages})` : ''}. Data updated.`,
  );
  fetchAll();
  } else {
  alert(` Error: ${data.error}`);
  }
  } catch (e) {
- alert('Error en re-scan: ' + e.message);
+ alert('Re-scan error: ' + e.message);
  } finally {
  setRescanningFile(null);
  setPageRescanTarget(null);
@@ -530,7 +492,7 @@ export default function MedicalOrganizer() {
  };
 
  // ===========================
- // RESTAURAR PAPELERA
+ // RESTORE FROM TRASH
  // ===========================
  const handleRestoreRecord = async (trashIndex) =>{
  const entry = trashData[trashIndex];
@@ -542,7 +504,7 @@ export default function MedicalOrganizer() {
  entry.doc._fromDol ||
  (selectedLote ? JSON.parse(selectedLote.value).dol : null);
  if (!targetNombre || !targetDol)
- return alert('Selecciona un lote destino.');
+ return alert('Select a target batch.');
  try {
  const res = await httpService.postData('/api/restore-record', {
  trashIndex,
@@ -552,7 +514,7 @@ export default function MedicalOrganizer() {
  const data = res.data;
  if (data.success) fetchAll();
  } catch (e) {
- alert('Fallo restaurando');
+ alert('Restore failed');
  }
  };
 
@@ -586,7 +548,7 @@ export default function MedicalOrganizer() {
  const response = await fetch(url);
 
  if (!response.ok) {
- let message = `Error al descargar (HTTP ${response.status})`;
+ let message = `Download error (HTTP ${response.status})`;
  const contentType = response.headers.get('content-type') || '';
  if (contentType.includes('application/json')) {
  const errorBody = await response.json();
@@ -609,7 +571,7 @@ export default function MedicalOrganizer() {
  link.remove();
  URL.revokeObjectURL(objectUrl);
  } catch (error) {
- alert(`No se pudo descargar: ${error.message}`);
+ alert(`Could not download: ${error.message}`);
  }
  };
 
@@ -619,7 +581,7 @@ export default function MedicalOrganizer() {
  const downloadFilteredExcel = async () =>{
  if (selectedLote && pendientes.length >0) {
  return alert(
- ` No puedes descargar el Excel mientras haya ${pendientes.length} documento(s) pendientes de revisión en este lote. Asígnalos o elimínalos primero.`,
+ ` You cannot download the Excel while there are ${pendientes.length} pending document(s) for review in this batch. Assign or delete them first.`,
  );
  }
  let url = `${API_BASE}/api/download`;
@@ -651,7 +613,7 @@ export default function MedicalOrganizer() {
  // RESET DB
  // ===========================
  const handleResetDB = async () =>{
- if (!window.confirm('¿BORRAR toda la base de datos permanentemente?'))
+ if (!window.confirm('DELETE the entire database permanently?'))
  return;
  try {
  await httpService.deleteData('/api/reset-db');
@@ -666,11 +628,11 @@ export default function MedicalOrganizer() {
  };
 
  const handleDeleteLote = async () =>{
- if (!selectedLote) return alert('Selecciona un caso primero.');
+ if (!selectedLote) return alert('Select a case first.');
  const parsed = JSON.parse(selectedLote.value);
  if (
  !window.confirm(
- `¿ELIMINAR el caso completo?\n\n ${parsed.nombre}\n DOL: ${parsed.dol}\n\nEsto borrará TODOS los documentos, pendientes y papelera de este caso.`,
+ `DELETE the entire case?\n\n ${parsed.nombre}\n DOL: ${parsed.dol}\n\nThis will delete ALL documents, pending items, and trash for this case.`,
  )
  )
  return;
@@ -680,7 +642,7 @@ export default function MedicalOrganizer() {
  const data = res.data;
  if (data.success) {
  alert(
- ` Caso eliminado: ${data.docsRemoved} docs, ${data.pendRemoved} pendientes, ${data.trashRemoved} papelera, ${data.tempFilesRemoved || 0} archivos temp`,
+ ` Case deleted: ${data.docsRemoved} docs, ${data.pendRemoved} pending, ${data.trashRemoved} trash, ${data.tempFilesRemoved || 0} temp files`,
  );
  setSelectedLote(null);
  setLoteDocuments([]);
@@ -688,10 +650,10 @@ export default function MedicalOrganizer() {
  fetchProfiles();
  fetchTrash();
  } else {
- alert('Error: ' + (data.error || 'Desconocido'));
+ alert('Error: ' + (data.error || 'Unknown'));
  }
  } catch (e) {
- alert('Error eliminando caso: ' + e.message);
+ alert('Error deleting case: ' + e.message);
  }
  };
 
@@ -725,13 +687,13 @@ export default function MedicalOrganizer() {
  });
  const data = res.data;
  if (!data.success) {
- alert(data.error || 'No se pudo actualizar el campo.');
+ alert(data.error || 'Could not update the field.');
  return false;
  }
  refreshCurrentLote();
  return true;
  } catch (e) {
- alert(`Error actualizando campo: ${e.message}`);
+ alert(`Error updating field: ${e.message}`);
  return false;
  }
  };
@@ -756,13 +718,13 @@ export default function MedicalOrganizer() {
  });
  const data = res.data;
  if (!data.success) {
- alert(data.error || 'No se pudo actualizar el line item.');
+ alert(data.error || 'Could not update the line item.');
  return false;
  }
  refreshCurrentLote();
  return true;
  } catch (e) {
- alert(`Error actualizando line item: ${e.message}`);
+ alert(`Error updating line item: ${e.message}`);
  return false;
  }
  };
@@ -780,13 +742,13 @@ export default function MedicalOrganizer() {
  });
  const data = res.data;
  if (!data.success) {
- alert(data.error || 'No se pudo actualizar el remitente.');
+ alert(data.error || 'Could not update the sender.');
  return false;
  }
  refreshCurrentLote();
  return true;
  } catch (e) {
- alert(`Error actualizando remitente: ${e.message}`);
+ alert(`Error updating sender: ${e.message}`);
  return false;
  }
  };
@@ -827,7 +789,7 @@ export default function MedicalOrganizer() {
  }
  });
  });
- // Ordenar items dentro de cada remitente por documento y luego cronológicamente.
+ // Sort items within each sender by document and then chronologically.
  // Esto evita desfases visuales cuando usamos rowSpan en tablas.
  Object.values(senderMap).forEach((group) =>{
  group.items.sort((a, b) =>{
@@ -840,7 +802,7 @@ export default function MedicalOrganizer() {
  return da - db;
  });
  });
- // Ordenar remitentes alfabéticamente
+ // Sort senders alphabetically.
  const sorted = Object.entries(senderMap).sort(([a], [b]) =>a.localeCompare(b));
  return sorted; // [[senderName, {items, totalCost}], ...]
  };
@@ -856,8 +818,8 @@ export default function MedicalOrganizer() {
  <header>
  <h1>Hercules IA</h1>
  <p>
- Administrador Histórico Maestro con Escudo Anti-Duplicados y
- Visor Local.
+ Master Historical Manager with anti-duplicate shield and
+ Local Viewer.
  </p>
  </header>
 
@@ -873,9 +835,9 @@ export default function MedicalOrganizer() {
  options={loteOptions}
  value={selectedLote}
  onChange={setSelectedLote}
- placeholder=" Seleccionar Lote (Cliente + DOL)..."
+ placeholder=" Select Batch (Client + DOL)..."
  styles={customSelectStyles}
- noOptionsMessage={() =>'No hay lotes en el Master DB'}
+ noOptionsMessage={() =>'No batches in Master DB'}
  />
  </div>
  <div
@@ -893,24 +855,15 @@ export default function MedicalOrganizer() {
  'linear-gradient(135deg, #ff9800, #ff5722)',
  padding: '8px 14px',
  fontSize: '0.85rem',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
  }}
  onClick={handleNewProcess}
- title="Limpiar batch actual y empezar nuevo"
+ title="Clear current selection to start another scan"
  >
- Nuevo Proceso
- </button>
- <button
- className="btn btn-download"
- style={{
- background: 'var(--h-primary)',
- color: 'black',
- padding: '8px 14px',
- fontSize: '0.85rem',
- }}
- onClick={handleInjectDummy}
- title="Simula inyección de data sin IA"
- >
- Mock
+ <PlayCircle size={14} />
+ New Process
  </button>
  {selectedLote && (
  <button
@@ -919,11 +872,15 @@ export default function MedicalOrganizer() {
  background: 'rgba(255, 100, 0, 0.8)',
  padding: '8px 14px',
  fontSize: '0.85rem',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
  }}
  onClick={handleDeleteLote}
- title="Elimina el caso seleccionado"
+ title="Delete selected case"
  >
- Eliminar Caso
+ <Trash2 size={14} />
+ Delete Case
  </button>
  )}
  <button
@@ -932,10 +889,14 @@ export default function MedicalOrganizer() {
  background: 'rgba(255, 0, 0, 0.7)',
  padding: '8px 14px',
  fontSize: '0.85rem',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
  }}
  onClick={handleResetDB}
- title="Borra TODA la DB"
+ title="Delete entire DB"
  >
+ <RotateCcw size={14} />
  Reset DB
  </button>
  {isUploading && (
@@ -946,10 +907,14 @@ export default function MedicalOrganizer() {
  padding: '8px 14px',
  fontSize: '0.85rem',
  animation: 'pulseBadge 1s infinite',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '6px',
  }}
  onClick={cancelProcess}
  >
- Cancelar
+ <XCircle size={14} />
+ Cancel
  </button>
  )}
  </div>
@@ -975,7 +940,7 @@ export default function MedicalOrganizer() {
  color: 'var(--h-primary)',
  }}
  >
- ¡ Perfilado Oficial de Carpeta (Blindaje IA)
+ Official Folder Profiling
  </h3>
  <div
  style={{
@@ -991,7 +956,7 @@ export default function MedicalOrganizer() {
  marginBottom: '5px',
  }}
  >
- Nombre de Cliente (Fijo):
+ Client Name (Fixed):
  </label>
  <input
  type="text"
@@ -1017,7 +982,7 @@ export default function MedicalOrganizer() {
  marginBottom: '5px',
  }}
  >
- Date of Loss (Fijo) <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>({DATE_FORMAT_HINT})</span>:
+ Date of Loss (Fixed) <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>({DATE_FORMAT_HINT})</span>:
  </label>
  <input
  type="text"
@@ -1043,7 +1008,7 @@ export default function MedicalOrganizer() {
  marginBottom: '5px',
  }}
  >
- Modelo IA:
+ AI Model:
  </label>
  <select
  value={aiModel}
@@ -1063,19 +1028,19 @@ export default function MedicalOrganizer() {
  value="gemini-3-flash-preview"
  style={{ color: 'black' }}
  >
- Flash Preview (Recomendado)
+ Flash Preview (Recommended)
  </option>
  <option
  value="gemini-3.1-flash-lite-preview"
  style={{ color: 'black' }}
  >
- Flash Lite 3.1 (Ultra Rápido)
+ Flash Lite 3.1 (Ultra Fast)
  </option>
  <option
  value="gemini-3.1-pro-preview"
  style={{ color: 'black' }}
  >
- Pro Preview (Inteligente)
+ Pro Preview (Intelligent)
  </option>
  </select>
  </div>
@@ -1122,8 +1087,7 @@ export default function MedicalOrganizer() {
  transition: 'color 0.2s',
  }}
  >
- Control de Calidad (Doble Revisión
- IA)
+ Quality Control (Double AI Review)
  </span>
  </label>
  {enableQC && (
@@ -1136,7 +1100,7 @@ export default function MedicalOrganizer() {
  borderRadius: '6px',
  }}
  >
- Duplica el tiempo de procesamiento
+ Doubles processing time
  </span>
  )}
  </div>
@@ -1162,8 +1126,8 @@ export default function MedicalOrganizer() {
  {files.length >0 ? (
  <div>
  <h3>
- {files.length} archivos capturados en
- memoria
+ {files.length} files captured in
+ memory
  </h3>
  <p
  style={{
@@ -1177,19 +1141,19 @@ export default function MedicalOrganizer() {
  .map((f) =>f.name)
  .join(', ')}{' '}
  {files.length >4
- ? `y ${files.length - 4} más...`
+ ? `and ${files.length - 4} more...`
  : ''}
  </p>
  </div>
  ) : (
  <div>
  <h3>
- Suelte Carpetas Enteras o PDFs / Imágenes
- aquí
+ Drop full folders or PDFs / images
+ here
  </h3>
  <p>
- Nuestra lógica recursiva buscará los
- documentos compatibles dentro de la carpeta.
+ Our recursive logic will search for compatible
+ documents inside the folder.
  </p>
  </div>
  )}
@@ -1509,7 +1473,7 @@ export default function MedicalOrganizer() {
 
  <section className="terminal-container">
  <div className="terminal-header">
- <span>Procesando con Inteligencia Artificial</span>
+ <span>Processing with Artificial Intelligence</span>
  <div
  style={{
  display: 'flex',
@@ -1547,7 +1511,7 @@ export default function MedicalOrganizer() {
  <div ref={terminalEndRef} />
  {!streamLogs.length && (
  <div className="terminal-line">
- Iniciando interfaz de transferencia...
+ Starting transfer interface...
  </div>
  )}
  <div className="terminal-line">
@@ -1569,10 +1533,12 @@ export default function MedicalOrganizer() {
  className="btn"
  onClick={evalFilesForDuplicates}
  disabled={!officialClient || !officialDol}
+ style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
  >
+ <PlayCircle size={16} />
  {!officialClient || !officialDol
- ? 'Llena Cliente y DOL para desbloquear'
- : '¡ Iniciar Evaluación IA de Todos los Documentos'}
+ ? 'Fill in Client and DOL to unlock'
+ : 'Start AI Evaluation for All Documents'}
  </button>
  </section>
  )}
@@ -1581,7 +1547,7 @@ export default function MedicalOrganizer() {
  {pendientes.length >0 && (
  <section className="conflict-manager">
  <h3>
- Documentos Pendientes de Revisión (
+ Pending Documents for Review (
  {pendientes.length})
  </h3>
  <p
@@ -1591,8 +1557,8 @@ export default function MedicalOrganizer() {
  fontSize: '0.85rem',
  }}
  >
- Pendientes del lote seleccionado. Asígnalos o
- elimínalos.
+ Pending items from the selected batch. Assign or
+ delete them.
  </p>
  <div className="table-wrapper">
  <table style={{ tableLayout: 'fixed', width: '100%' }}>
@@ -1607,14 +1573,14 @@ export default function MedicalOrganizer() {
  </colgroup>
  <thead>
  <tr>
- <th>Documento</th>
- <th>Cliente</th>
+ <th>Document</th>
+ <th>Client</th>
  <th>DOL</th>
- <th>Tipo</th>
- <th>Motivo</th>
- <th>Lote</th>
+ <th>Type</th>
+ <th>Reason</th>
+ <th>Batch</th>
  <th style={{ textAlign: 'center' }}>
- Acciones
+ Actions
  </th>
  </tr>
  </thead>
@@ -1858,8 +1824,13 @@ export default function MedicalOrganizer() {
  '0.7rem',
  padding:
  '3px 6px',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '4px',
  }}
  >
+ <Eye size={12} />
  Ver Doc
  </button>
  <button
@@ -1885,9 +1856,14 @@ export default function MedicalOrganizer() {
  borderRadius:
  '4px',
  cursor: 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '4px',
  }}
  >
- Aprobar R1
+ <CheckCircle2 size={12} />
+ Approve R1
  </button>
  <button
  className="btn-sm"
@@ -1912,9 +1888,14 @@ export default function MedicalOrganizer() {
  borderRadius:
  '4px',
  cursor: 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '4px',
  }}
  >
- Aprobar R2
+ <CheckCircle2 size={12} />
+ Approve R2
  </button>
  <button
  className="btn-sm btn-reject"
@@ -1928,9 +1909,14 @@ export default function MedicalOrganizer() {
  '0.7rem',
  padding:
  '3px 6px',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '4px',
  }}
  >
- Eliminar
+ <Trash2 size={12} />
+ Delete
  </button>
  </div>
  </td>
@@ -2124,9 +2110,14 @@ export default function MedicalOrganizer() {
  style={{
  fontSize: '0.7rem',
  padding: '3px 6px',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '4px',
  }}
  >
- Ver
+ <Eye size={12} />
+ View
  </button>
  <button
  className="btn-sm btn-approve"
@@ -2138,14 +2129,19 @@ export default function MedicalOrganizer() {
  disabled={!selectedLote}
  title={
  selectedLote
- ? `Asignar a ${JSON.parse(selectedLote.value).nombre}`
- : 'Selecciona un lote'
+ ? `Assign to ${JSON.parse(selectedLote.value).nombre}`
+ : 'Select a batch'
  }
  style={{
  fontSize: '0.7rem',
  padding: '3px 6px',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '4px',
  }}
  >
+ <CheckCircle2 size={12} />
  Asignar
  </button>
  <button
@@ -2158,8 +2154,13 @@ export default function MedicalOrganizer() {
  style={{
  fontSize: '0.7rem',
  padding: '3px 6px',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ gap: '4px',
  }}
  >
+ <Trash2 size={12} />
  Eliminar
  </button>
  </div>
@@ -2178,9 +2179,9 @@ export default function MedicalOrganizer() {
  <div>
  <div className="date-group-container">
  <h2 className="date-header">
- Lote: {JSON.parse(selectedLote.value).nombre} |
+ Batch: {JSON.parse(selectedLote.value).nombre} |
  DOL: {formatDateMMDDYYYY(JSON.parse(selectedLote.value).dol)} {' '}
- {loteDocuments.length} documentos
+ {loteDocuments.length} documents
  </h2>
  <section className="results-split">
  {/* MEDICAL RECORDS - GROUPED BY SENDER */}
@@ -2197,14 +2198,14 @@ export default function MedicalOrganizer() {
  <tr>
  <th>Client / Document</th>
  <th>Score</th>
- <th>Fecha Servicio <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
+ <th>Service Date <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
  <th>Doctor</th>
- <th>Procedimiento</th>
+ <th>Procedure</th>
  </tr>
  </thead>
  <tbody>
  {medicalBySender.length === 0 && (
- <tr><td colSpan="5" style={{textAlign: 'center'}}>Vacío</td></tr>
+ <tr><td colSpan="5" style={{textAlign: 'center'}}>Empty</td></tr>
  )}
  {medicalBySender.map(([senderName, group]) =>{
  const seenDocs = new Set();
@@ -2239,7 +2240,7 @@ export default function MedicalOrganizer() {
  fontSize: '0.8rem',
  color: 'var(--text-muted)',
  }}>
- ({group.items.length} visita{group.items.length !== 1 ? 's' : ''})
+ ({group.items.length} visit{group.items.length !== 1 ? 's' : ''})
  </span>
  </td>
  </tr>
@@ -2280,21 +2281,23 @@ export default function MedicalOrganizer() {
  </small>
  {doc._dolMissing && (
  <div style={{marginTop: '4px'}}>
- <span style={{fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(255,152,0,0.25)', color: '#ff9800', border: '1px solid rgba(255,152,0,0.4)'}}>DOL no encontrado</span>
+ <span style={{fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(255,152,0,0.25)', color: '#ff9800', border: '1px solid rgba(255,152,0,0.4)'}}>DOL not found</span>
  </div>
  )}
  <br />
- <button className="btn-sm btn-reject" onClick={() =>handleDeleteRecord(doc.archivoOrigen)} style={{marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem'}}>Eliminar</button>
- <button className="btn-sm" onClick={() =>handleRescanDoc(doc.archivoOrigen)} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: 'var(--h-primary)', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: rescanningFile ? 'wait' : 'pointer'}}>
- {rescanningFile === doc.archivoOrigen ? ' Escaneando...' : ' Re-scan IA'}
+ <button className="btn-sm btn-reject" onClick={() =>handleDeleteRecord(doc.archivoOrigen)} style={{marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '4px'}}><Trash2 size={12} />Delete</button>
+ <button className="btn-sm" onClick={() =>handleRescanDoc(doc.archivoOrigen)} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: 'var(--h-primary)', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: rescanningFile ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px'}}>
+ <RotateCcw size={12} />
+ {rescanningFile === doc.archivoOrigen ? ' Scanning...' : ' AI Re-scan'}
  </button>
- <button className="btn-sm" onClick={() =>{ setPageRescanTarget(pageRescanTarget === doc.archivoOrigen ? null : doc.archivoOrigen); setPageRescanInput(''); }} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: '#cba6f7', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: 'pointer'}}>
- Págs
+ <button className="btn-sm" onClick={() =>{ setPageRescanTarget(pageRescanTarget === doc.archivoOrigen ? null : doc.archivoOrigen); setPageRescanInput(''); }} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: '#cba6f7', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px'}}>
+ <FileText size={12} />
+ Pages
  </button>
  {pageRescanTarget === doc.archivoOrigen && (
  <div style={{marginTop: '4px', display: 'flex', gap: '3px', alignItems: 'center'}}>
  <input type="text" value={pageRescanInput} onChange={(e) =>setPageRescanInput(e.target.value)} onKeyDown={(e) =>{ if (e.key === 'Enter' && pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} placeholder="1-5, 3, 8" autoFocus style={{width: '70px', padding: '3px 5px', fontSize: '0.7rem', borderRadius: '4px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(var(--h-primary-rgb),0.5)', outline: 'none'}} />
- <button onClick={() =>{ if (pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} disabled={!pageRescanInput.trim()} style={{padding: '3px 6px', fontSize: '0.65rem', borderRadius: '4px', background: 'rgba(var(--h-primary-rgb),0.5)', color: 'white', border: 'none', cursor: 'pointer'}}></button>
+ <button onClick={() =>{ if (pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} disabled={!pageRescanInput.trim()} style={{padding: '3px 6px', fontSize: '0.65rem', borderRadius: '4px', background: 'rgba(var(--h-primary-rgb),0.5)', color: 'white', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center'}}><ArrowRight size={12} /></button>
  </div>
  )}
  </td>
@@ -2312,7 +2315,7 @@ export default function MedicalOrganizer() {
  {doc._nameMatchScore}%
  </span>
  <span style={{fontSize: '0.6rem', color: 'var(--text-muted)'}}>
- {doc._nameMatchScore >= 70 ? ' Match' : doc._nameMatchScore >= 40 ? ' Revisar' : ' Posible intruso'}
+ {doc._nameMatchScore >= 70 ? ' Match' : doc._nameMatchScore >= 40 ? ' Review' : ' Possible intruder'}
  </span>
  </div>
  ) : (
@@ -2392,16 +2395,16 @@ export default function MedicalOrganizer() {
  <table>
  <thead>
  <tr>
- <th>Doc Cliente / Sender</th>
+ <th>Client Doc / Sender</th>
  <th>Score</th>
- <th>Fecha <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
+ <th>Date <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
  <th>Doctor</th>
- <th>Monto</th>
+ <th>Amount</th>
  </tr>
  </thead>
  <tbody>
  {billsBySender.length === 0 && (
- <tr><td colSpan="5" style={{textAlign: 'center'}}>Vacío</td></tr>
+ <tr><td colSpan="5" style={{textAlign: 'center'}}>Empty</td></tr>
  )}
  {billsBySender.map(([senderName, group]) =>{
  const seenDocs = new Set();
@@ -2503,21 +2506,23 @@ export default function MedicalOrganizer() {
  </small>
  {doc._dolMissing && (
  <div style={{marginTop: '4px'}}>
- <span style={{fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(255,152,0,0.25)', color: '#ff9800', border: '1px solid rgba(255,152,0,0.4)'}}>DOL no encontrado</span>
+ <span style={{fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(255,152,0,0.25)', color: '#ff9800', border: '1px solid rgba(255,152,0,0.4)'}}>DOL not found</span>
  </div>
  )}
  <br />
- <button className="btn-sm btn-reject" onClick={() =>handleDeleteRecord(doc.archivoOrigen)} style={{marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem'}}>Eliminar</button>
- <button className="btn-sm" onClick={() =>handleRescanDoc(doc.archivoOrigen)} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: 'var(--h-primary)', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: rescanningFile ? 'wait' : 'pointer'}}>
- {rescanningFile === doc.archivoOrigen ? ' Escaneando...' : ' Re-scan IA'}
+ <button className="btn-sm btn-reject" onClick={() =>handleDeleteRecord(doc.archivoOrigen)} style={{marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '4px'}}><Trash2 size={12} />Delete</button>
+ <button className="btn-sm" onClick={() =>handleRescanDoc(doc.archivoOrigen)} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: 'var(--h-primary)', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: rescanningFile ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px'}}>
+ <RotateCcw size={12} />
+ {rescanningFile === doc.archivoOrigen ? ' Scanning...' : ' AI Re-scan'}
  </button>
- <button className="btn-sm" onClick={() =>{ setPageRescanTarget(pageRescanTarget === doc.archivoOrigen ? null : doc.archivoOrigen); setPageRescanInput(''); }} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: '#cba6f7', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: 'pointer'}}>
- Págs
+ <button className="btn-sm" onClick={() =>{ setPageRescanTarget(pageRescanTarget === doc.archivoOrigen ? null : doc.archivoOrigen); setPageRescanInput(''); }} disabled={!!rescanningFile} style={{marginTop: '3px', padding: '2px 8px', fontSize: '0.7rem', background: 'rgba(var(--h-primary-rgb),0.3)', color: '#cba6f7', border: '1px solid rgba(var(--h-primary-rgb),0.4)', borderRadius: '4px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px'}}>
+ <FileText size={12} />
+ Pages
  </button>
  {pageRescanTarget === doc.archivoOrigen && (
  <div style={{marginTop: '4px', display: 'flex', gap: '3px', alignItems: 'center'}}>
  <input type="text" value={pageRescanInput} onChange={(e) =>setPageRescanInput(e.target.value)} onKeyDown={(e) =>{ if (e.key === 'Enter' && pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} placeholder="1-5, 3, 8" autoFocus style={{width: '70px', padding: '3px 5px', fontSize: '0.7rem', borderRadius: '4px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(var(--h-primary-rgb),0.5)', outline: 'none'}} />
- <button onClick={() =>{ if (pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} disabled={!pageRescanInput.trim()} style={{padding: '3px 6px', fontSize: '0.65rem', borderRadius: '4px', background: 'rgba(var(--h-primary-rgb),0.5)', color: 'white', border: 'none', cursor: 'pointer'}}></button>
+ <button onClick={() =>{ if (pageRescanInput.trim()) handleRescanDoc(doc.archivoOrigen, pageRescanInput.trim()); }} disabled={!pageRescanInput.trim()} style={{padding: '3px 6px', fontSize: '0.65rem', borderRadius: '4px', background: 'rgba(var(--h-primary-rgb),0.5)', color: 'white', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center'}}><ArrowRight size={12} /></button>
  </div>
  )}
  </td>
@@ -2535,7 +2540,7 @@ export default function MedicalOrganizer() {
  {doc._nameMatchScore}%
  </span>
  <span style={{fontSize: '0.6rem', color: 'var(--text-muted)'}}>
- {doc._nameMatchScore >= 70 ? ' Match' : doc._nameMatchScore >= 40 ? ' Revisar' : ' Posible intruso'}
+ {doc._nameMatchScore >= 70 ? ' Match' : doc._nameMatchScore >= 40 ? ' Review' : ' Possible intruder'}
  </span>
  </div>
  ) : (
@@ -2649,7 +2654,7 @@ export default function MedicalOrganizer() {
  marginLeft: 'auto',
  }}
  >
- {loteDocuments.length} docs aprobados
+ {loteDocuments.length} approved docs
  </span>
  </div>
  <div
@@ -2700,16 +2705,16 @@ export default function MedicalOrganizer() {
  lineHeight: '1.5',
  }}
  >
- <strong>Normalized Pack:</strong>Renombra archivos a{' '}
+ <strong>Normalized Pack:</strong>Rename files to{' '}
  <code style={{ color: '#a78bfa' }}>
- [MM-DD-AAAA] - [Provider] - [$Monto].pdf
+ [MM-DD-AAAA] - [Provider] - [$Amount].pdf
  </code>
- , convierte imagenes a PDF, y empaqueta todo en un ZIP.
+ , convert images to PDF, and package everything into a ZIP.
  </div>
  </section>
  )}
 
- {/* Sin lote seleccionado pero hay lotes */}
+ {/* No selected batch but batches are available */}
  {!selectedLote && loteOptions.length >0 && (
  <div
  style={{
@@ -2719,17 +2724,17 @@ export default function MedicalOrganizer() {
  }}
  >
  <h3>
- Selecciona un lote del dropdown para ver sus
- documentos
+ Select a batch from the dropdown to view its
+ documents
  </h3>
  <p>
- {loteOptions.length} lote(s) disponibles en la base de
- datos.
+ {loteOptions.length} batch(es) available in the
+ database.
  </p>
  </div>
  )}
 
- {/* ===== PAPELERA ===== */}
+ {/* ===== TRASH ===== */}
  {trashData.length >0 && (
  <section
  style={{
@@ -2742,7 +2747,7 @@ export default function MedicalOrganizer() {
  }}
  >
  <h2 style={{ color: '#ff3333', marginBottom: '1rem' }}>
- Papelera de Reciclaje
+ Recycle Bin
  </h2>
  <ul style={{ listStyle: 'none', padding: 0 }}>
  {trashData.map((t, idx) =>(
@@ -2768,10 +2773,10 @@ export default function MedicalOrganizer() {
  color: 'var(--text-muted)',
  }}
  >
- Eliminado:{' '}
+ Deleted:{' '}
  {formatDateMMDDYYYY(t.deletedAt)}
  {t.doc._fromLote &&
- ` | Lote: ${t.doc._fromLote}`}
+ ` | Batch: ${t.doc._fromLote}`}
  </div>
  </div>
  <button
@@ -2782,7 +2787,7 @@ export default function MedicalOrganizer() {
  }}
  onClick={() =>handleRestoreRecord(idx)}
  >
- Restaurar
+ Restore
  </button>
  </li>
  ))}

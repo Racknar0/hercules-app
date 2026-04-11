@@ -33,18 +33,18 @@ export default function OrganizerUploadSection({
  }}
  >
  <h3 style={{ marginBottom: '15px', color: 'var(--h-primary)' }}>
- Perfilado oficial de carpeta
+ Official folder profiling
  </h3>
  <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
  <div style={{ flex: 1, minWidth: '200px' }}>
  <label style={{ display: 'block', marginBottom: '5px' }}>
- Nombre de cliente (fijo)
+ Client name (fixed)
  </label>
  <input
  type="text"
  value={officialClient}
  onChange={(e) =>setOfficialClient(e.target.value)}
- placeholder="Ej: CAMILO TORRES"
+ placeholder="E.g.: CAMILO TORRES"
  style={{
  width: '100%',
  padding: '10px',
@@ -57,7 +57,7 @@ export default function OrganizerUploadSection({
  </div>
  <div style={{ flex: 1, minWidth: '200px' }}>
  <label style={{ display: 'block', marginBottom: '5px' }}>
- Date of Loss (fijo) <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>({DATE_FORMAT_HINT})</span>
+ Date of Loss (fixed) <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>({DATE_FORMAT_HINT})</span>
  </label>
  <input
  type="text"
@@ -76,7 +76,7 @@ export default function OrganizerUploadSection({
  </div>
  <div style={{ flex: 1, minWidth: '200px' }}>
  <label style={{ display: 'block', marginBottom: '5px' }}>
- Modelo IA
+ AI model
  </label>
  <select
  value={aiModel}
@@ -91,13 +91,13 @@ export default function OrganizerUploadSection({
  }}
  >
  <option value="gemini-3-flash-preview" style={{ color: 'black' }}>
- Flash Preview (recomendado)
+ Flash Preview (recommended)
  </option>
  <option value="gemini-3.1-flash-lite-preview" style={{ color: 'black' }}>
- Flash Lite 3.1 (ultra rapido)
+ Flash Lite 3.1 (ultra fast)
  </option>
  <option value="gemini-3.1-pro-preview" style={{ color: 'black' }}>
- Pro Preview (inteligente)
+ Pro Preview (intelligent)
  </option>
  </select>
  </div>
@@ -138,7 +138,7 @@ export default function OrganizerUploadSection({
  transition: 'color 0.2s',
  }}
  >
- Control de calidad (doble revision IA)
+ Quality control (double AI review)
  </span>
  </label>
  {enableQC && (
@@ -151,7 +151,7 @@ export default function OrganizerUploadSection({
  borderRadius: '6px',
  }}
  >
- Duplica el tiempo de procesamiento
+ Doubles processing time
  </span>
  )}
  </div>
@@ -176,7 +176,7 @@ export default function OrganizerUploadSection({
  <div className="drop-icon">Folder</div>
  {files.length >0 ? (
  <div>
- <h3>{files.length} archivos capturados en memoria</h3>
+ <h3>{files.length} files captured in memory</h3>
  <p
  style={{
  marginTop: '10px',
@@ -185,14 +185,14 @@ export default function OrganizerUploadSection({
  }}
  >
  {files.slice(0, 4).map((f) =>f.name).join(', ')}{' '}
- {files.length >4 ? `y ${files.length - 4} mas...` : ''}
+ {files.length >4 ? `and ${files.length - 4} more...` : ''}
  </p>
  </div>
  ) : (
  <div>
- <h3>Suelta carpetas completas o PDF/imagenes aqui</h3>
+ <h3>Drop complete folders or PDF/images here</h3>
  <p>
- La logica recursiva buscara documentos compatibles dentro de la carpeta.
+ The recursive logic will search for compatible documents inside the folder.
  </p>
  </div>
  )}

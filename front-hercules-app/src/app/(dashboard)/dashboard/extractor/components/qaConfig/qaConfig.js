@@ -17,18 +17,18 @@ export function hasMeaningfulAnswer(answer) {
 }
 
 export const QA_FIELDS = [
- { key: 'edadCliente', label: 'Edad del Cliente', color: '#ff9800' },
- { key: 'diagnostico', label: 'Diagnostico', color: 'var(--accent)' },
- { key: 'limitacionesVidaDiaria', label: 'Limitaciones Diarias', color: '#ff4d4d' },
- { key: 'recomendacionesFuturas', label: 'Tratamientos/Recomendaciones', color: 'var(--h-primary)' },
- { key: 'diasIncapacidad', label: 'Dias Off / Incapacidades', color: 'yellow' },
- { key: 'hechos', label: 'Hechos del Accidente', color: '#22C55E' }
+ { key: 'edadCliente', label: 'Client Age', color: '#ff9800' },
+ { key: 'diagnostico', label: 'Diagnosis', color: 'var(--accent)' },
+ { key: 'limitacionesVidaDiaria', label: 'Daily Limitations', color: '#ff4d4d' },
+ { key: 'recomendacionesFuturas', label: 'Treatments/Recommendations', color: 'var(--h-primary)' },
+ { key: 'diasIncapacidad', label: 'Days Off / Disabilities', color: 'yellow' },
+ { key: 'hechos', label: 'Accident Facts', color: '#22C55E' }
 ];
 
 export const STATUS_LABELS = {
- sampled: { text: 'Revisado', color: '#22C55E' },
- not_sampled: { text: 'No muestreado', color: '#888' },
- excluded_bill: { text: 'Excluido (Bill)', color: '#ff4d4d' },
- unavailable: { text: 'Archivo no disponible', color: '#ff9800' }
+ sampled: { text: 'Reviewed', color: '#22C55E' },
+ not_sampled: { text: 'Not sampled', color: '#888' },
+ excluded_bill: { text: 'Excluded (Bill)', color: '#ff4d4d' },
+ unavailable: { text: 'File not available', color: '#ff9800' }
 };
 

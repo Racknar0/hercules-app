@@ -65,7 +65,7 @@ export default function EditablePencil({
  if (isDateField) {
  const normalized = normalizeDateDraft(draft);
  if (normalized && !isStrictMMDDYYYY(normalized)) {
- alert(`Formato de fecha invalido. Usa ${DATE_FORMAT_HINT}.`);
+ alert(`Invalid date format. Use ${DATE_FORMAT_HINT}.`);
  return;
  }
  valueToSave = normalized;
@@ -103,7 +103,7 @@ export default function EditablePencil({
  setDraft(isDateField ? normalizeDateDraft(value) : value ?? '');
  setIsOpen((prev) =>!prev);
  }}
- title="Editar"
+ title="Edit"
  style={{
  background: 'transparent',
  border: '1px solid rgba(255,255,255,0.25)',

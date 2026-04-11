@@ -29,7 +29,7 @@ export default function BatchSelectorCard({
  }}
  >
  <h3 style={{ color: 'var(--h-primary)', marginBottom: '0.8rem' }}>
- Seleccionar Batch para Análisis
+ Select Batch for Analysis
  </h3>
  <Select
  instanceId="extractor-batch-select"
@@ -38,10 +38,10 @@ export default function BatchSelectorCard({
  options={loteOptions}
  value={selectedLote}
  onChange={setSelectedLote}
- placeholder=" Seleccionar Lote (Cliente + DOL)..."
+ placeholder=" Select Batch (Client + DOL)..."
  styles={selectStyles}
  noOptionsMessage={() =>
- 'No hay lotes disponibles. Procesa documentos en el Organizer primero.'
+ 'No batches available. Process documents in the Organizer first.'
  }
  />
 
@@ -69,11 +69,11 @@ export default function BatchSelectorCard({
  >
  {' '}
  <strong>
- Los documentos de este batch ya no están disponibles.
+ Documents in this batch are no longer available.
  </strong>{' '}
- Los archivos temporales se eliminan después de 72 horas.
- Necesitas volver a correr el Medical Organizer para este
- caso.
+ Temporary files are removed after 72 hours.
+ You need to run Medical Organizer again for this
+ case.
  </p>
  ) : (
  <p
@@ -86,8 +86,8 @@ export default function BatchSelectorCard({
  {fileCheck.available} archivo(s) disponibles ·{' '}
  {fileCheck.medicalCount} Medical Record(s) ·{' '}
  {fileCheck.unavailable >0
- ? ` ${fileCheck.unavailable} no encontrado(s)`
- : 'Todos los archivos en caché'}
+ ? ` ${fileCheck.unavailable} not found`
+ : 'All files cached'}
  </p>
  )}
  </div>

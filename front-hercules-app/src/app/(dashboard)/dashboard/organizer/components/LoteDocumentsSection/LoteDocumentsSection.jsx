@@ -3,6 +3,7 @@
 import React from 'react';
 import EditablePencil from '../../../shared/components/EditablePencil/EditablePencil';
 import { DATE_FORMAT_HINT, formatDateMMDDYYYY } from '@/helpers/dateFormat';
+import { ArrowRight, FileText, RotateCcw, Trash2 } from 'lucide-react';
 
 export default function LoteDocumentsSection({
  selectedLoteData,
@@ -28,7 +29,7 @@ export default function LoteDocumentsSection({
  <div>
  <div className="date-group-container">
  <h2 className="date-header">
- Lote: {selectedLoteData.nombre} | DOL: {formatDateMMDDYYYY(selectedLoteData.dol)} - {loteDocuments.length} documentos
+ Batch: {selectedLoteData.nombre} | DOL: {formatDateMMDDYYYY(selectedLoteData.dol)} - {loteDocuments.length} documents
  </h2>
  <section className="results-split">
  <div className="results-half">
@@ -41,15 +42,15 @@ export default function LoteDocumentsSection({
  <tr>
  <th>Client / Document</th>
  <th>Score</th>
- <th>Fecha Servicio <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
+ <th>Service Date <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
  <th>Doctor</th>
- <th>Procedimiento</th>
+ <th>Procedure</th>
  </tr>
  </thead>
  <tbody>
  {medicalBySender.length === 0 && (
  <tr>
- <td colSpan="5" style={{ textAlign: 'center' }}>Vacio</td>
+ <td colSpan="5" style={{ textAlign: 'center' }}>Empty</td>
  </tr>
  )}
  {medicalBySender.map(([senderName, group]) =>{
@@ -85,7 +86,7 @@ export default function LoteDocumentsSection({
  color: 'var(--text-muted)',
  }}
  >
- ({group.items.length} visita{group.items.length !== 1 ? 's' : ''})
+ ({group.items.length} visit{group.items.length !== 1 ? 's' : ''})
  </span>
  </td>
  </tr>
@@ -139,7 +140,7 @@ export default function LoteDocumentsSection({
  border: '1px solid rgba(255,152,0,0.4)',
  }}
  >
- DOL no encontrado
+ DOL not found
  </span>
  </div>
  )}
@@ -147,9 +148,10 @@ export default function LoteDocumentsSection({
  <button
  className="btn-sm btn-reject"
  onClick={() =>handleDeleteRecord(doc.archivoOrigen)}
- style={{ marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem' }}
+ style={{ marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
  >
- Eliminar
+ <Trash2 size={12} />
+ Delete
  </button>
  <button
  className="btn-sm"
@@ -164,9 +166,13 @@ export default function LoteDocumentsSection({
  border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius: '4px',
  cursor: rescanningFile ? 'wait' : 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '4px',
  }}
  >
- {rescanningFile === doc.archivoOrigen ? 'Escaneando...' : 'Re-scan IA'}
+ <RotateCcw size={12} />
+ {rescanningFile === doc.archivoOrigen ? 'Scanning...' : 'AI Re-scan'}
  </button>
  <button
  className="btn-sm"
@@ -188,9 +194,13 @@ export default function LoteDocumentsSection({
  border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius: '4px',
  cursor: 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '4px',
  }}
  >
- Pags
+ <FileText size={12} />
+ Pages
  </button>
  {pageRescanTarget === doc.archivoOrigen && (
  <div
@@ -244,8 +254,12 @@ export default function LoteDocumentsSection({
  color: 'white',
  border: 'none',
  cursor: 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
  }}
  >
+ <ArrowRight size={12} />
  Go
  </button>
  </div>
@@ -301,8 +315,8 @@ export default function LoteDocumentsSection({
  {doc._nameMatchScore >= 70
  ? 'Match'
  : doc._nameMatchScore >= 40
- ? 'Revisar'
- : 'Posible intruso'}
+ ? 'Review'
+ : 'Possible intruder'}
  </span>
  </div>
  ) : (
@@ -382,17 +396,17 @@ export default function LoteDocumentsSection({
  <table>
  <thead>
  <tr>
- <th>Doc Cliente / Sender</th>
+ <th>Client Doc / Sender</th>
  <th>Score</th>
- <th>Fecha <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
+ <th>Date <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
  <th>Doctor</th>
- <th>Monto</th>
+ <th>Amount</th>
  </tr>
  </thead>
  <tbody>
  {billsBySender.length === 0 && (
  <tr>
- <td colSpan="5" style={{ textAlign: 'center' }}>Vacio</td>
+ <td colSpan="5" style={{ textAlign: 'center' }}>Empty</td>
  </tr>
  )}
  {billsBySender.map(([senderName, group]) =>{
@@ -519,7 +533,7 @@ export default function LoteDocumentsSection({
  border: '1px solid rgba(255,152,0,0.4)',
  }}
  >
- DOL no encontrado
+ DOL not found
  </span>
  </div>
  )}
@@ -527,9 +541,10 @@ export default function LoteDocumentsSection({
  <button
  className="btn-sm btn-reject"
  onClick={() =>handleDeleteRecord(doc.archivoOrigen)}
- style={{ marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem' }}
+ style={{ marginTop: '5px', padding: '2px 8px', fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
  >
- Eliminar
+ <Trash2 size={12} />
+ Delete
  </button>
  <button
  className="btn-sm"
@@ -544,9 +559,13 @@ export default function LoteDocumentsSection({
  border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius: '4px',
  cursor: rescanningFile ? 'wait' : 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '4px',
  }}
  >
- {rescanningFile === doc.archivoOrigen ? 'Escaneando...' : 'Re-scan IA'}
+ <RotateCcw size={12} />
+ {rescanningFile === doc.archivoOrigen ? 'Scanning...' : 'AI Re-scan'}
  </button>
  <button
  className="btn-sm"
@@ -568,9 +587,13 @@ export default function LoteDocumentsSection({
  border: '1px solid rgba(var(--h-primary-rgb),0.4)',
  borderRadius: '4px',
  cursor: 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '4px',
  }}
  >
- Pags
+ <FileText size={12} />
+ Pages
  </button>
  {pageRescanTarget === doc.archivoOrigen && (
  <div
@@ -624,8 +647,12 @@ export default function LoteDocumentsSection({
  color: 'white',
  border: 'none',
  cursor: 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ justifyContent: 'center',
  }}
  >
+ <ArrowRight size={12} />
  Go
  </button>
  </div>
@@ -681,8 +708,8 @@ export default function LoteDocumentsSection({
  {doc._nameMatchScore >= 70
  ? 'Match'
  : doc._nameMatchScore >= 40
- ? 'Revisar'
- : 'Posible intruso'}
+ ? 'Review'
+ : 'Possible intruder'}
  </span>
  </div>
  ) : (

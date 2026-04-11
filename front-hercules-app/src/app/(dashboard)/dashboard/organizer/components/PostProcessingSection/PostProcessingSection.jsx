@@ -46,7 +46,7 @@ export default function PostProcessingSection({
  marginLeft: 'auto',
  }}
  >
- {loteDocuments.length} docs aprobados
+ {loteDocuments.length} approved docs
  </span>
  </div>
  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -91,9 +91,9 @@ export default function PostProcessingSection({
  lineHeight: '1.5',
  }}
  >
- <strong>Normalized Pack:</strong>Renombra archivos a{' '}
- <code style={{ color: '#a78bfa' }}>[MM-DD-AAAA] - [Provider] - [$Monto].pdf</code>,
- convierte imagenes a PDF, y empaqueta todo en un ZIP.
+ <strong>Normalized Pack:</strong>Renames files to{' '}
+ <code style={{ color: '#a78bfa' }}>[MM-DD-AAAA] - [Provider] - [$Amount].pdf</code>,
+ converts images to PDF, and packages everything into a ZIP.
  </div>
  </section>
  );

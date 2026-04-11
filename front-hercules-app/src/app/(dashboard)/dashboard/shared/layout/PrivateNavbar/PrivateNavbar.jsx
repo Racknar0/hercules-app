@@ -45,15 +45,15 @@ export default function PrivateNavbar({ theme, onThemeChange }) {
             const data = res.data;
             setConnStatus('ok');
             alert(
-                `CONEXION OK (${latency}ms)\n\n` +
-                    `API_BASE: ${API_BASE || '(vacio)'}\n` +
+                `CONNECTION OK (${latency}ms)\n\n` +
+                    `API_BASE: ${API_BASE || '(empty)'}\n` +
                     `URL: ${targetUrl}\n` +
                     `Node: ${data.node} (${data.platform})\n` +
-                    `Lotes: ${data.data.lotes}`,
+                    `Batches: ${data.data.lotes}`,
             );
         } catch (err) {
             setConnStatus('error');
-            alert(`CONEXION FALLIDA\n\nURL: ${targetUrl}\nError: ${err.message}`);
+            alert(`CONNECTION FAILED\n\nURL: ${targetUrl}\nError: ${err.message}`);
         }
     };
 

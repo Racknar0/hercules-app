@@ -61,7 +61,7 @@ export default function OrganizerProcessingSection({
  letterSpacing: '1px',
  }}
  >
- RAZONAMIENTO
+ REASONING
  </span>
  <span
  style={{
@@ -194,7 +194,7 @@ export default function OrganizerProcessingSection({
  userSelect: 'none',
  }}
  >
- Ver historial completo ({thinkingHistory.length - 1} anteriores)
+ View full history ({thinkingHistory.length - 1} previous)
  </summary>
  <div
  style={{
@@ -261,7 +261,7 @@ export default function OrganizerProcessingSection({
 
  <section className="terminal-container">
  <div className="terminal-header">
- <span>Procesando con inteligencia artificial</span>
+ <span>Processing with artificial intelligence</span>
  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
  <span
  style={{
@@ -288,7 +288,7 @@ export default function OrganizerProcessingSection({
  ))}
  <div ref={terminalEndRef} />
  {!streamLogs.length && (
- <div className="terminal-line">Iniciando interfaz de transferencia...</div>
+ <div className="terminal-line">Starting transfer interface...</div>
  )}
  <div className="terminal-line">
  <span style={{ color: 'transparent' }}>_</span>

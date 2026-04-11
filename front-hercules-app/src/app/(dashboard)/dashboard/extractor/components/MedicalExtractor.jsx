@@ -119,21 +119,21 @@ export default function MedicalExtractor() {
  const parsed = parseSelectedLote(selectedLote);
 
  if (!parsed) {
- alert('Selecciona un batch/lote primero.');
+ alert('Select a batch first.');
  return;
  }
 
  if (qaStatus.pendientesCount >0) {
- alert(`Hay ${qaStatus.pendientesCount} documento(s) pendientes. Resuelve todos en el Organizer primero.`);
+ alert(`There are ${qaStatus.pendientesCount} pending document(s). Resolve all in Organizer first.`);
  return;
  }
 
  if (fileCheck && fileCheck.available === 0 && fileCheck.totalMedical >0) {
- if (!window.confirm('Los archivos de este batch no estan en cache (expirados). La IA omitira los que no encuentre. Continuar?')) return;
+ if (!window.confirm('Files in this batch are not cached (expired). AI will skip any that are missing. Continue?')) return;
  }
 
  setIsRunning(true);
- setQaLogs(['[QA] Iniciando corrida de analisis QA...']);
+ setQaLogs(['[QA] Starting QA analysis run...']);
 
  try {
  const response = await fetch(`${API_BASE}/api/run-qa`, {
@@ -162,7 +162,7 @@ export default function MedicalExtractor() {
  if (parsedLine.data.error) {
  setQaLogs(prev =>[...prev, `[ERROR] ${parsedLine.data.error}`]);
  } else {
- setQaLogs(prev =>[...prev, `[DONE] ${parsedLine.data.processed} procesados, ${parsedLine.data.failed} fallidos`]);
+ setQaLogs(prev =>[...prev, `[DONE] ${parsedLine.data.processed} processed, ${parsedLine.data.failed} failed`]);
  }
  }
  } catch (e) {
@@ -171,7 +171,7 @@ export default function MedicalExtractor() {
  }
  }
  } catch (e) {
- setQaLogs(prev =>[...prev, `[ERROR] Conexion fallida: ${e.message}`]);
+ setQaLogs(prev =>[...prev, `[ERROR] Connection failed: ${e.message}`]);
  } finally {
  setIsRunning(false);
 
@@ -184,7 +184,7 @@ export default function MedicalExtractor() {
  const cancelQA = async () =>{
  try {
  await httpService.postData('/api/cancel', {});
- setQaLogs(prev =>[...prev, '[SYS] Cancelacion enviada...']);
+ setQaLogs(prev =>[...prev, '[SYS] Cancellation request sent...']);
  } catch (e) {
  console.error(e);
  }
@@ -192,8 +192,8 @@ export default function MedicalExtractor() {
 
  const reRunQA = async () =>{
  const parsed = parseSelectedLote(selectedLote);
- if (!parsed) return alert('Selecciona un batch primero.');
- if (!window.confirm('Re-ejecutar? Esto borrara los resultados QA actuales de este lote y correra nuevamente.')) return;
+ if (!parsed) return alert('Select a batch first.');
+ if (!window.confirm('Re-run? This will clear the current QA results for this batch and run again.')) return;
 
  try {
  await httpService.postData('/api/clear-qa', { nombre: parsed.nombre, dol: parsed.dol });
@@ -210,7 +210,7 @@ export default function MedicalExtractor() {
  return (
  <div className="app-container" style={{ textAlign: 'center', paddingTop: '4rem' }}>
  <div className="spinner" style={{ width: '40px', height: '40px', margin: '0 auto 1rem' }}></div>
- <p style={{ color: 'var(--text-muted)' }}>Cargando...</p>
+ <p style={{ color: 'var(--text-muted)' }}>Loading...</p>
  </div>
  );
  }
@@ -224,7 +224,7 @@ export default function MedicalExtractor() {
  <div className="app-container" style={{ marginTop: '1rem' }}>
  <header>
  <h1 style={{ color: 'var(--h-primary)' }}>Med Extractor QA</h1>
- <p>Corrida independiente sobre Medical Records aprobados. Analisis forense con trazabilidad de fuentes.</p>
+ <p>Independent run on approved Medical Records. Forensic analysis with source traceability.</p>
  </header>
 
  <BatchSelectorCard

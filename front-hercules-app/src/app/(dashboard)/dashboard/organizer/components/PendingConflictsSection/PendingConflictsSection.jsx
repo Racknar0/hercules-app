@@ -17,7 +17,7 @@ export default function PendingConflictsSection({
 
  return (
  <section className="conflict-manager">
- <h3>Documentos pendientes de revision ({pendientes.length})</h3>
+ <h3>Pending documents for review ({pendientes.length})</h3>
  <p
  style={{
  marginBottom: '1rem',
@@ -25,7 +25,7 @@ export default function PendingConflictsSection({
  fontSize: '0.85rem',
  }}
  >
- Pendientes del lote seleccionado. Asignalos o eliminalos.
+ Pending items from the selected batch. Assign or delete them.
  </p>
  <div className="table-wrapper">
  <table style={{ tableLayout: 'fixed', width: '100%' }}>
@@ -40,13 +40,13 @@ export default function PendingConflictsSection({
  </colgroup>
  <thead>
  <tr>
- <th>Documento</th>
- <th>Cliente</th>
+ <th>Document</th>
+ <th>Client</th>
  <th>DOL</th>
- <th>Tipo</th>
- <th>Motivo</th>
- <th>Lote</th>
- <th style={{ textAlign: 'center' }}>Acciones</th>
+ <th>Type</th>
+ <th>Reason</th>
+ <th>Batch</th>
+ <th style={{ textAlign: 'center' }}>Actions</th>
  </tr>
  </thead>
  <tbody>
@@ -105,7 +105,7 @@ export default function PendingConflictsSection({
  color: '#cba6f7',
  }}
  >
- QC: {doc._qc.discrepancies.length} discrepancia(s)
+ QC: {doc._qc.discrepancies.length} discrepancy(ies)
  </span>
  </div>
  </td>
@@ -198,7 +198,7 @@ export default function PendingConflictsSection({
  style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
  <Eye size={12} />
- Ver Doc
+ View Doc
  </button>
  <button
  className="btn-sm"
@@ -219,7 +219,7 @@ export default function PendingConflictsSection({
  }}
  >
  <CheckCircle2 size={12} />
- Aprobar R1
+ Approve R1
  </button>
  <button
  className="btn-sm"
@@ -240,7 +240,7 @@ export default function PendingConflictsSection({
  }}
  >
  <CheckCircle2 size={12} />
- Aprobar R2
+ Approve R2
  </button>
  <button
  className="btn-sm btn-reject"
@@ -248,7 +248,7 @@ export default function PendingConflictsSection({
  style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
  <Trash2 size={12} />
- Eliminar
+ Delete
  </button>
  </div>
  </td>
@@ -396,7 +396,7 @@ export default function PendingConflictsSection({
  style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
  <Eye size={12} />
- Ver
+ View
  </button>
  <button
  className="btn-sm btn-approve"
@@ -404,13 +404,13 @@ export default function PendingConflictsSection({
  disabled={!hasSelectedLote}
  title={
  hasSelectedLote
- ? `Asignar a ${selectedLoteData.nombre}`
- : 'Selecciona un lote'
+ ? `Assign to ${selectedLoteData.nombre}`
+ : 'Select a batch'
  }
  style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
  <CheckCircle2 size={12} />
- Asignar
+ Assign
  </button>
  <button
  className="btn-sm btn-reject"
@@ -418,7 +418,7 @@ export default function PendingConflictsSection({
  style={{ fontSize: '0.7rem', padding: '3px 6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
  >
  <Trash2 size={12} />
- Eliminar
+ Delete
  </button>
  </div>
  </td>

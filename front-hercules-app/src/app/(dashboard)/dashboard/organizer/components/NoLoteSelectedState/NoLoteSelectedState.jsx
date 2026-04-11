@@ -11,8 +11,8 @@ export default function NoLoteSelectedState({ selectedLote, loteOptions }) {
  color: 'var(--text-muted)',
  }}
  >
- <h3>Selecciona un lote del dropdown para ver sus documentos</h3>
- <p>{loteOptions.length} lote(s) disponibles en la base de datos.</p>
+ <h3>Select a batch from the dropdown to view its documents</h3>
+ <p>{loteOptions.length} batch(es) available in the database.</p>
  </div>
  );
 }

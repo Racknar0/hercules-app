@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Select from 'react-select';
-import { FlaskConical, PlusCircle, RotateCcw, Trash2, XCircle } from 'lucide-react';
+import { PlusCircle, RotateCcw, Trash2, XCircle } from 'lucide-react';
 
 export default function OrganizerHeader({
  loteOptions,
@@ -9,7 +9,6 @@ export default function OrganizerHeader({
  setSelectedLote,
  customSelectStyles,
  handleNewProcess,
- handleInjectDummy,
  handleDeleteLote,
  handleResetDB,
  isUploading,
@@ -19,7 +18,7 @@ export default function OrganizerHeader({
  <>
  <header>
  <h1>Hercules IA</h1>
- <p>Administrador Historico Maestro con escudo anti-duplicados y visor local.</p>
+ <p>Master Historical Manager with anti-duplicate shield and local viewer.</p>
  </header>
 
  <section className="actions-bar" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -31,9 +30,9 @@ export default function OrganizerHeader({
  options={loteOptions}
  value={selectedLote}
  onChange={setSelectedLote}
- placeholder="Seleccionar lote (Cliente + DOL)..."
+ placeholder="Select batch (Client + DOL)..."
  styles={customSelectStyles}
- noOptionsMessage={() =>'No hay lotes en el Master DB'}
+ noOptionsMessage={() =>'No batches in Master DB'}
  />
  </div>
  <div
@@ -55,27 +54,10 @@ export default function OrganizerHeader({
  gap: '6px',
  }}
  onClick={handleNewProcess}
- title="Limpiar batch actual y empezar nuevo"
+ title="Clear current selection to start another scan"
  >
  <PlusCircle size={14} />
- Nuevo Proceso
- </button>
- <button
- className="btn btn-download"
- style={{
- background: 'var(--h-primary)',
- color: 'black',
- padding: '8px 14px',
- fontSize: '0.85rem',
- display: 'inline-flex',
- alignItems: 'center',
- gap: '6px',
- }}
- onClick={handleInjectDummy}
- title="Simula inyeccion de data sin IA"
- >
- <FlaskConical size={14} />
- Mock
+ New Process
  </button>
  {selectedLote && (
  <button
@@ -89,10 +71,10 @@ export default function OrganizerHeader({
  gap: '6px',
  }}
  onClick={handleDeleteLote}
- title="Elimina el caso seleccionado"
+ title="Delete selected case"
  >
  <Trash2 size={14} />
- Eliminar Caso
+ Delete Case
  </button>
  )}
  <button
@@ -106,7 +88,7 @@ export default function OrganizerHeader({
  gap: '6px',
  }}
  onClick={handleResetDB}
- title="Borra toda la DB"
+ title="Delete entire DB"
  >
  <RotateCcw size={14} />
  Reset DB
@@ -126,7 +108,7 @@ export default function OrganizerHeader({
  onClick={cancelProcess}
  >
  <XCircle size={14} />
- Cancelar
+ Cancel
  </button>
  )}
  </div>
