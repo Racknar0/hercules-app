@@ -24,6 +24,8 @@ export default function OrganizerHeader({
  <section className="actions-bar" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
  <div className="select-container">
  <Select
+ instanceId="organizer-header-lote-select"
+ inputId="organizer-header-lote-select-input"
  isClearable
  options={loteOptions}
  value={selectedLote}

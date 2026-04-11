@@ -4,16 +4,7 @@
    ══════════════════════════════════════════════════════════════ */
 
 /* ── Body Override for Dashboard ── */
-body {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-}
-
-#root {
-  width: 100%;
-  max-width: 100%;
-}
+/* Evitar reglas globales en body para no descentrar las rutas publicas. */
 
 /* ── Layout ── */
 .global-layout {

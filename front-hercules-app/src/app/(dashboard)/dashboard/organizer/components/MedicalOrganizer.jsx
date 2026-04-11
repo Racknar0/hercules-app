@@ -856,6 +856,8 @@ export default function MedicalOrganizer() {
  >
  <div className="select-container">
  <Select
+ instanceId="organizer-lote-select"
+ inputId="organizer-lote-select-input"
  isClearable
  options={loteOptions}
  value={selectedLote}

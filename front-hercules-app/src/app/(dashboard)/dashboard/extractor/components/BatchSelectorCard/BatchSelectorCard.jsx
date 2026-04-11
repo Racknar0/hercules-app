@@ -32,6 +32,8 @@ export default function BatchSelectorCard({
  Seleccionar Batch para Análisis
  </h3>
  <Select
+ instanceId="extractor-batch-select"
+ inputId="extractor-batch-select-input"
  isClearable
  options={loteOptions}
  value={selectedLote}

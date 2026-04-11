@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import EditablePencil from '../EditablePencil/EditablePencil';
+import EditablePencil from '../../../shared/components/EditablePencil/EditablePencil';
 
 export default function LoteDocumentsSection({
  selectedLoteData,
