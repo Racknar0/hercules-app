@@ -1,23 +1,23 @@
 "use client";
 
 export default function OrganizerStartAction({
-    files,
-    isUploading,
-    officialClient,
-    officialDol,
-    evalFilesForDuplicates,
+ files,
+ isUploading,
+ officialClient,
+ officialDol,
+ evalFilesForDuplicates,
 }) {
-    if (files.length === 0 || isUploading) return null;
+ if (files.length === 0 || isUploading) return null;
 
-    const isDisabled = !officialClient || !officialDol;
+ const isDisabled = !officialClient || !officialDol;
 
-    return (
-        <section className="actions-bar" style={{ justifyContent: 'center' }}>
-            <button className="btn" onClick={evalFilesForDuplicates} disabled={isDisabled}>
-                {isDisabled
-                    ? 'Llena Cliente y DOL para desbloquear'
-                    : 'Iniciar evaluacion IA de todos los documentos'}
-            </button>
-        </section>
-    );
+ return (
+ <section className="actions-bar" style={{ justifyContent: 'center' }}>
+ <button className="btn" onClick={evalFilesForDuplicates} disabled={isDisabled}>
+ {isDisabled
+ ? 'Llena Cliente y DOL para desbloquear'
+ : 'Iniciar evaluacion IA de todos los documentos'}
+ </button>
+ </section>
+ );
 }

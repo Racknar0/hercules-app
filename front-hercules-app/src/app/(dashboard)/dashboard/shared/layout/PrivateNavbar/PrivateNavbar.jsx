@@ -58,27 +58,35 @@ export default function PrivateNavbar() {
     const apiButtonStyle = {
         background:
             connStatus === 'ok'
-                ? 'rgba(0,200,83,0.25)'
+                ? 'rgba(34,197,94,0.15)'
                 : connStatus === 'error'
-                  ? 'rgba(255,0,68,0.25)'
-                  : 'rgba(255,255,255,0.1)',
+                  ? 'rgba(239,68,68,0.15)'
+                  : 'rgba(255,255,255,0.05)',
         color:
             connStatus === 'ok'
-                ? '#00c853'
+                ? '#22C55E'
                 : connStatus === 'error'
-                  ? '#ff4d4d'
-                  : '#8b8d99',
+                  ? '#EF4444'
+                  : '#6B7280',
         borderColor:
             connStatus === 'ok'
-                ? '#00c853'
+                ? '#22C55E'
                 : connStatus === 'error'
-                  ? '#ff4d4d'
-                  : 'rgba(255,255,255,0.2)',
+                  ? '#EF4444'
+                  : 'rgba(255,255,255,0.1)',
     };
 
     return (
         <nav className={styles.navbar}>
-            <div className={styles.logo}>HERCULES AI</div>
+            <div className={styles.logo}>
+                <span style={{ color: '#FF5C00', fontSize: '1.2rem' }}>⬡</span>
+                HERCULES{' '}
+                <span style={{
+                    background: 'linear-gradient(135deg, #FF5C00, #FF8C42)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                }}>AI</span>
+            </div>
             <div className={styles.links}>
                 <Link
                     href="/dashboard/organizer"

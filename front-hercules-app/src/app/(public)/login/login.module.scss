@@ -1,0 +1,423 @@
+/* ══════════════════════════════════════════════════════════════
+   Hercules AI — Login Page Styles
+   ══════════════════════════════════════════════════════════════ */
+
+.loginPage {
+  min-height: 100vh;
+  background: var(--h-bg-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Atmospheric background glows */
+.glowTop {
+  position: absolute;
+  top: -10%;
+  right: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 92, 0, 0.08) 0%, transparent 60%);
+  filter: blur(100px);
+  pointer-events: none;
+}
+
+.glowBottom {
+  position: absolute;
+  bottom: -15%;
+  left: 5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 140, 66, 0.06) 0%, transparent 60%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+/* ── Container ── */
+.loginContainer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 100%;
+  max-width: 920px;
+  min-height: 560px;
+  background: rgba(17, 17, 24, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--h-border);
+  border-radius: var(--h-radius-xl);
+  overflow: hidden;
+  box-shadow:
+    var(--h-shadow-lg),
+    0 0 80px rgba(255, 92, 0, 0.04);
+  animation: h-scaleIn 0.5s ease-out;
+}
+
+/* ── Brand Panel (Left) ── */
+.brandPanel {
+  flex: 1;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background:
+    linear-gradient(160deg, rgba(255, 92, 0, 0.06) 0%, transparent 40%),
+    rgba(10, 10, 15, 0.4);
+  border-right: 1px solid var(--h-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.brandPanel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--h-gradient-btn);
+}
+
+.brandContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brandLogo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--h-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.logoIcon {
+  color: var(--h-primary);
+  font-size: 1.4rem;
+}
+
+.logoAccent {
+  background: var(--h-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brandTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--h-text);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.brandSubtitle {
+  font-size: 0.9rem;
+  color: var(--h-text-secondary);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.brandStats {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.brandStat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.brandStatValue {
+  font-size: 1.3rem;
+  font-weight: 800;
+  background: var(--h-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brandStatLabel {
+  font-size: 0.72rem;
+  color: var(--h-text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.brandStatDivider {
+  width: 1px;
+  height: 30px;
+  background: var(--h-border);
+}
+
+.brandFooter {
+  padding-top: 1rem;
+}
+
+.backLink {
+  font-size: 0.85rem;
+  color: var(--h-text-muted);
+  transition: color 0.2s ease;
+}
+
+.backLink:hover {
+  color: var(--h-primary);
+}
+
+/* ── Form Panel (Right) ── */
+.formPanel {
+  flex: 1;
+  padding: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loginForm {
+  width: 100%;
+  max-width: 360px;
+}
+
+.formHeader {
+  margin-bottom: 2rem;
+}
+
+.formTitle {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--h-text);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.4rem;
+  background: none;
+  -webkit-text-fill-color: unset;
+}
+
+.formSubtitle {
+  font-size: 0.88rem;
+  color: var(--h-text-muted);
+}
+
+/* ── Inputs ── */
+.inputGroup {
+  margin-bottom: 1.25rem;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--h-text-secondary);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--h-text-muted);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.input {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--h-border);
+  border-radius: var(--h-radius-sm);
+  color: var(--h-text);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--h-text-disabled);
+}
+
+.input:focus {
+  border-color: var(--h-primary);
+  background: rgba(255, 92, 0, 0.03);
+  box-shadow: 0 0 0 3px rgba(255, 92, 0, 0.08);
+}
+
+.togglePassword {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--h-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.togglePassword:hover {
+  color: var(--h-text);
+}
+
+/* ── Form Options ── */
+.formOptions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.rememberMe {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--h-text-secondary);
+  cursor: pointer;
+}
+
+.rememberMe input[type="checkbox"] {
+  accent-color: var(--h-primary);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.forgotLink {
+  font-size: 0.82rem;
+  color: var(--h-primary);
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.forgotLink:hover {
+  opacity: 0.8;
+}
+
+/* ── Submit Button ── */
+.submitBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.5rem;
+  background: var(--h-gradient-btn);
+  color: white;
+  border: none;
+  border-radius: var(--h-radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s var(--h-ease);
+  box-shadow: 0 4px 20px rgba(255, 92, 0, 0.3);
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 92, 0, 0.45);
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.submitBtn.loading {
+  padding: 0.85rem;
+}
+
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: h-spin 0.7s linear infinite;
+}
+
+/* ── Divider ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--h-border);
+}
+
+.divider span {
+  font-size: 0.78rem;
+  color: var(--h-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── SSO Button ── */
+.ssoBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--h-border);
+  border-radius: var(--h-radius-sm);
+  color: var(--h-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ssoBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--h-border-hover);
+  color: var(--h-text);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .loginContainer {
+    flex-direction: column;
+    max-width: 440px;
+  }
+
+  .brandPanel {
+    border-right: none;
+    border-bottom: 1px solid var(--h-border);
+    padding: 2rem;
+  }
+
+  .brandTitle {
+    font-size: 1.4rem;
+  }
+
+  .formPanel {
+    padding: 2rem;
+  }
+}
