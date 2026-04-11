@@ -2,6 +2,7 @@
 
 import React from 'react';
 import EditablePencil from '../../../shared/components/EditablePencil/EditablePencil';
+import { DATE_FORMAT_HINT, formatDateMMDDYYYY } from '@/helpers/dateFormat';
 
 export default function LoteDocumentsSection({
  selectedLoteData,
@@ -27,7 +28,7 @@ export default function LoteDocumentsSection({
  <div>
  <div className="date-group-container">
  <h2 className="date-header">
- Lote: {selectedLoteData.nombre} | DOL: {selectedLoteData.dol} - {loteDocuments.length} documentos
+ Lote: {selectedLoteData.nombre} | DOL: {formatDateMMDDYYYY(selectedLoteData.dol)} - {loteDocuments.length} documentos
  </h2>
  <section className="results-split">
  <div className="results-half">
@@ -40,7 +41,7 @@ export default function LoteDocumentsSection({
  <tr>
  <th>Client / Document</th>
  <th>Score</th>
- <th>Fecha Servicio</th>
+ <th>Fecha Servicio <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
  <th>Doctor</th>
  <th>Procedimiento</th>
  </tr>
@@ -121,11 +122,7 @@ export default function LoteDocumentsSection({
  </strong>
  <br />
  <small
- style={{
- cursor: 'pointer',
- color: '#FF5C00',
- textDecoration: 'underline',
- }}
+ className="doc-link"
  onClick={() =>openDocumentLocal(doc.archivoOrigen)}
  >
  {doc.archivoOrigen}
@@ -320,6 +317,7 @@ export default function LoteDocumentsSection({
  <td>
  <EditablePencil
  value={item.fecha || ''}
+ displayValue={item.fecha ? formatDateMMDDYYYY(item.fecha) : undefined}
  onSave={(nextValue) =>
  updateLineItemField(
  doc.archivoOrigen,
@@ -385,7 +383,7 @@ export default function LoteDocumentsSection({
  <tr>
  <th>Doc Cliente / Sender</th>
  <th>Score</th>
- <th>Fecha</th>
+ <th>Fecha <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
  <th>Doctor</th>
  <th>Monto</th>
  </tr>
@@ -503,11 +501,7 @@ export default function LoteDocumentsSection({
  </strong>
  <br />
  <small
- style={{
- cursor: 'pointer',
- color: '#FF5C00',
- textDecoration: 'underline',
- }}
+ className="doc-link"
  onClick={() =>openDocumentLocal(doc.archivoOrigen)}
  >
  {doc.archivoOrigen}
@@ -702,6 +696,7 @@ export default function LoteDocumentsSection({
  <td>
  <EditablePencil
  value={item.fecha || ''}
+ displayValue={item.fecha ? formatDateMMDDYYYY(item.fecha) : undefined}
  onSave={(nextValue) =>
  updateLineItemField(
  doc.archivoOrigen,

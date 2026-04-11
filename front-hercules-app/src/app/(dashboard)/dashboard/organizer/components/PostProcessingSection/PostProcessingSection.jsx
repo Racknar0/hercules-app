@@ -88,7 +88,7 @@ export default function PostProcessingSection({
  }}
  >
  <strong>Normalized Pack:</strong>Renombra archivos a{' '}
- <code style={{ color: '#a78bfa' }}>[Fecha Servicio] - [Provider] - [$Monto].pdf</code>,
+ <code style={{ color: '#a78bfa' }}>[MM-DD-AAAA] - [Provider] - [$Monto].pdf</code>,
  convierte imagenes a PDF, y empaqueta todo en un ZIP.
  </div>
  </section>

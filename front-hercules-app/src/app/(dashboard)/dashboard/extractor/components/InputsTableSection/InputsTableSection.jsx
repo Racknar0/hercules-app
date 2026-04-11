@@ -29,7 +29,7 @@ export default function InputsTableSection({ data, openDoc }) {
  <tr key={index}>
  <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{index + 1}</td>
  <td style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={row.archivo}>
- <small style={{ cursor: 'pointer', color: '#FF5C00', textDecoration: 'underline' }} onClick={() =>openDoc(row.archivo)}>
+ <small className="doc-link" onClick={() =>openDoc(row.archivo)}>
  {row.archivo}
  </small>
  </td>

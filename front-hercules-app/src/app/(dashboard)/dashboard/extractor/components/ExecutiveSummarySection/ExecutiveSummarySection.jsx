@@ -39,7 +39,7 @@ export default function ExecutiveSummarySection({ data, openDoc }) {
  >
  <div style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>{entry.answer}</div>
  <div style={{ fontSize: '0.65rem', color: '#888', marginTop: '3px' }}>
- <span style={{ cursor: 'pointer', color: '#FF5C00', textDecoration: 'underline' }} onClick={() =>openDoc(entry.archivo)}>
+ <span className="doc-link" onClick={() =>openDoc(entry.archivo)}>
  {entry.archivo}
  </span>
  {entry.source && <>- {entry.source}</>}

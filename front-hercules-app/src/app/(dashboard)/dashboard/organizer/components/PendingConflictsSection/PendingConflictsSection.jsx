@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { formatDateMMDDYYYY } from '@/helpers/dateFormat';
 
 export default function PendingConflictsSection({
  pendientes,
@@ -88,11 +89,7 @@ export default function PendingConflictsSection({
  title={doc.archivoOrigen}
  >
  <small
- style={{
- cursor: 'pointer',
- color: '#FF5C00',
- textDecoration: 'underline',
- }}
+ className="doc-link"
  onClick={() =>openDocumentLocal(doc.archivoOrigen)}
  >
  {doc.archivoOrigen}
@@ -134,7 +131,7 @@ export default function PendingConflictsSection({
  fontSize: '0.8rem',
  }}
  >
- {r1.dol || '-'}
+ {formatDateMMDDYYYY(r1.dol) || '-'}
  </td>
  <td
  style={{
@@ -155,29 +152,19 @@ export default function PendingConflictsSection({
  </td>
  <td
  rowSpan={2}
- style={{
- color: '#ff3333',
- fontSize: '0.7rem',
- wordBreak: 'break-word',
- whiteSpace: 'normal',
- verticalAlign: 'middle',
- }}
+ style={{ verticalAlign: 'middle' }}
+ className="reason-cell"
  >
  {doc._qc.discrepancies.map((d, di) =>(
  <div
  key={di}
- style={{
- marginBottom: '3px',
- padding: '2px 4px',
- background: 'rgba(255,0,0,0.08)',
- borderRadius: '3px',
- }}
+ className="reason-chip"
  >
- <strong style={{ color: '#ff9800' }}>{d.label}:</strong>
+ <strong className="reason-label">{d.label}:</strong>
  <br />
  <span style={{ color: '#00c853' }}>R1: {d.run1}</span>
  {' vs '}
- <span style={{ color: '#FF5C00' }}>R2: {d.run2}</span>
+ <span style={{ color: '#fb923c' }}>R2: {d.run2}</span>
  </div>
  ))}
  </td>
@@ -218,9 +205,9 @@ export default function PendingConflictsSection({
  style={{
  fontSize: '0.7rem',
  padding: '3px 6px',
- background: 'rgba(0,200,83,0.3)',
- color: '#00c853',
- border: '1px solid rgba(0,200,83,0.4)',
+ background: 'rgba(34,197,94,0.14)',
+ color: '#86efac',
+ border: '1px solid rgba(34,197,94,0.32)',
  borderRadius: '4px',
  cursor: 'pointer',
  }}
@@ -234,9 +221,9 @@ export default function PendingConflictsSection({
  style={{
  fontSize: '0.7rem',
  padding: '3px 6px',
- background: 'rgba(255,92,0,0.3)',
- color: '#FF5C00',
- border: '1px solid rgba(255,92,0,0.4)',
+ background: 'rgba(34,197,94,0.14)',
+ color: '#86efac',
+ border: '1px solid rgba(34,197,94,0.32)',
  borderRadius: '4px',
  cursor: 'pointer',
  }}
@@ -283,7 +270,7 @@ export default function PendingConflictsSection({
  fontSize: '0.8rem',
  }}
  >
- {r2.dol || '-'}
+ {formatDateMMDDYYYY(r2.dol) || '-'}
  </td>
  <td
  style={{
@@ -317,11 +304,7 @@ export default function PendingConflictsSection({
  title={doc.archivoOrigen}
  >
  <small
- style={{
- cursor: 'pointer',
- color: '#FF5C00',
- textDecoration: 'underline',
- }}
+ className="doc-link"
  onClick={() =>openDocumentLocal(doc.archivoOrigen)}
  >
  {doc.archivoOrigen}
@@ -339,7 +322,7 @@ export default function PendingConflictsSection({
  >
  {doc.nombreCliente || '-'}
  </td>
- <td style={{ fontSize: '0.8rem' }}>{doc.dol || '-'}</td>
+ <td style={{ fontSize: '0.8rem' }}>{formatDateMMDDYYYY(doc.dol) || '-'}</td>
  <td>
  {(() =>{
  const tipo = (doc.tipoDocumento || '').toLowerCase();
@@ -369,14 +352,9 @@ export default function PendingConflictsSection({
  })()}
  </td>
  <td
- style={{
- color: '#ff3333',
- fontSize: '0.75rem',
- wordBreak: 'break-word',
- whiteSpace: 'normal',
- }}
+ className="reason-cell"
  >
- {doc._pendienteMotivo}
+ <div className="reason-chip" style={{ marginBottom: 0 }}>{doc._pendienteMotivo}</div>
  </td>
  <td
  style={{

@@ -1,5 +1,7 @@
 "use client";
 
+import { DATE_FORMAT_HINT } from '@/helpers/dateFormat';
+
 export default function OrganizerUploadSection({
  files,
  isDragging,
@@ -55,13 +57,13 @@ export default function OrganizerUploadSection({
  </div>
  <div style={{ flex: 1, minWidth: '200px' }}>
  <label style={{ display: 'block', marginBottom: '5px' }}>
- Date of Loss (fijo)
+ Date of Loss (fijo) <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>({DATE_FORMAT_HINT})</span>
  </label>
  <input
  type="text"
  value={officialDol}
  onChange={(e) =>setOfficialDol(e.target.value)}
- placeholder="MM/DD/YYYY"
+ placeholder={DATE_FORMAT_HINT}
  style={{
  width: '100%',
  padding: '10px',

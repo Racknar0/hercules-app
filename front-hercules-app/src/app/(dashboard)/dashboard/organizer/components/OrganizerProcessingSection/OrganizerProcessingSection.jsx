@@ -1,5 +1,7 @@
 "use client";
 
+import { formatDateMMDDYYYY } from '@/helpers/dateFormat';
+
 export default function OrganizerProcessingSection({
  thinkingData,
  thinkingHistory,
@@ -234,7 +236,7 @@ export default function OrganizerProcessingSection({
  fontSize: '0.78rem',
  }}
  >
- {new Date(t.timestamp).toLocaleString()}
+ {formatDateMMDDYYYY(t.timestamp)}
  </span>
  )}
  <div

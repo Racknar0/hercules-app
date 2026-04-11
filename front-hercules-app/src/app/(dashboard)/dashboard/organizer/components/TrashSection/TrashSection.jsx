@@ -1,5 +1,7 @@
 "use client";
 
+import { formatDateMMDDYYYY } from '@/helpers/dateFormat';
+
 export default function TrashSection({ trashData, handleRestoreRecord }) {
  if (trashData.length === 0) return null;
 
@@ -32,7 +34,7 @@ export default function TrashSection({ trashData, handleRestoreRecord }) {
  <div>
  <strong style={{ color: 'white' }}>{t.archivoOrigen}</strong>
  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
- Eliminado: {new Date(t.deletedAt).toLocaleString()}
+ Eliminado: {formatDateMMDDYYYY(t.deletedAt)}
  {t.doc._fromLote && ` | Lote: ${t.doc._fromLote}`}
  </div>
  </div>

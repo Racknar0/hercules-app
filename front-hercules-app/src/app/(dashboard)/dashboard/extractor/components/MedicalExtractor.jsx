@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import HttpService from '@/services/HttpService';
+import { formatDateMMDDYYYY } from '@/helpers/dateFormat';
+import { useExtractorPageStore } from '@/store/useExtractorPageStore';
 import BatchSelectorCard from './BatchSelectorCard/BatchSelectorCard';
 import NoBatchSelectedState from './NoBatchSelectedState/NoBatchSelectedState';
 import QAControlPanel from './QAControlPanel/QAControlPanel';
@@ -25,14 +27,24 @@ function parseSelectedLote(selectedLote) {
 }
 
 export default function MedicalExtractor() {
- const [data, setData] = useState(null);
- const [loading, setLoading] = useState(true);
- const [qaStatus, setQaStatus] = useState({ hasData: false, count: 0, pendientesCount: 0 });
- const [isRunning, setIsRunning] = useState(false);
- const [qaLogs, setQaLogs] = useState([]);
- const [loteOptions, setLoteOptions] = useState([]);
- const [selectedLote, setSelectedLote] = useState(null);
- const [fileCheck, setFileCheck] = useState(null); // {available, unavailable, medicalCount}
+ const {
+ data,
+ loading,
+ qaStatus,
+ isRunning,
+ qaLogs,
+ loteOptions,
+ selectedLote,
+ fileCheck,
+ setData,
+ setLoading,
+ setQaStatus: setExtractorQaStatus,
+ setIsRunning,
+ setQaLogs,
+ setLoteOptions,
+ setSelectedLote,
+ setFileCheck,
+ } = useExtractorPageStore();
  const logsEndRef = useRef(null);
 
  const fetchLotes = async () =>{
@@ -41,7 +53,7 @@ export default function MedicalExtractor() {
  const json = res.data;
  const opts = (json.profiles || []).map(p =>({
  value: JSON.stringify({ nombre: p.labelCliente, dol: p.dol }),
- label: `${p.labelCliente} | DOL: ${p.dol} (${p.documentCount} docs${p.pendientesCount >0 ? ` · ${p.pendientesCount} pend.` : ''})`
+ label: `${p.labelCliente} | DOL: ${formatDateMMDDYYYY(p.dol)} (${p.documentCount} docs${p.pendientesCount >0 ? ` · ${p.pendientesCount} pend.` : ''})`
  }));
  setLoteOptions(opts);
  } catch (e) {
@@ -63,7 +75,7 @@ export default function MedicalExtractor() {
  const json = dataRes.data;
  const status = statusRes.data;
  if (json.success) setData(json);
- setQaStatus(status);
+ setExtractorQaStatus(status);
  } catch (e) {
  console.error(e);
  } finally {

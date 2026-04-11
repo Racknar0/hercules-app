@@ -3,12 +3,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Select from 'react-select';
 import HttpService from '@/services/HttpService';
+import { DATE_FORMAT_HINT, formatDateMMDDYYYY } from '@/helpers/dateFormat';
+import { useOrganizerPageStore } from '@/store/useOrganizerPageStore';
 import OrganizerHeader from './OrganizerHeader/OrganizerHeader';
 import OrganizerUploadSection from './OrganizerUploadSection/OrganizerUploadSection';
 import OrganizerProcessingSection from './OrganizerProcessingSection/OrganizerProcessingSection';
 import OrganizerStartAction from './OrganizerStartAction/OrganizerStartAction';
 import PendingConflictsSection from './PendingConflictsSection/PendingConflictsSection';
 import LoteDocumentsSection from './LoteDocumentsSection/LoteDocumentsSection';
+import EditablePencil from '../../shared/components/EditablePencil/EditablePencil';
 import PostProcessingSection from './PostProcessingSection/PostProcessingSection';
 import NoLoteSelectedState from './NoLoteSelectedState/NoLoteSelectedState';
 import TrashSection from './TrashSection/TrashSection';
@@ -51,37 +54,45 @@ const customSelectStyles = {
 };
 
 export default function MedicalOrganizer() {
- const [files, setFiles] = useState([]);
+ const {
+ files,
+ isUploading,
+ streamLogs,
+ thinkingData,
+ thinkingHistory,
+ thinkingOpen,
+ loteOptions,
+ selectedLote,
+ loteDocuments,
+ pendientes,
+ trashData,
+ officialClient,
+ officialDol,
+ aiModel,
+ enableQC,
+ setFiles,
+ setIsUploading,
+ setStreamLogs,
+ setThinkingData,
+ setThinkingHistory,
+ setThinkingOpen,
+ setLoteOptions,
+ setSelectedLote,
+ setLoteDocuments,
+ setPendientes,
+ setTrashData,
+ setOfficialClient,
+ setOfficialDol,
+ setAiModel,
+ setEnableQC,
+ } = useOrganizerPageStore();
  const [isDragging, setIsDragging] = useState(false);
- const [isUploading, setIsUploading] = useState(false);
 
  // Terminal
- const [streamLogs, setStreamLogs] = useState([]);
  const terminalEndRef = useRef(null);
 
  // IA Thinking (razonamiento en tiempo real)
- const [thinkingData, setThinkingData] = useState(null);
- const [thinkingHistory, setThinkingHistory] = useState([]);
- const [thinkingOpen, setThinkingOpen] = useState(true);
-
- // Lotes (para el select)
- const [loteOptions, setLoteOptions] = useState([]);
- const [selectedLote, setSelectedLote] = useState(null);
-
- // Documentos del lote seleccionado
- const [loteDocuments, setLoteDocuments] = useState([]);
-
- // Pendientes (alertas)
- const [pendientes, setPendientes] = useState([]);
-
- // Papelera
- const [trashData, setTrashData] = useState([]);
-
- // Campos del formulario de lote
- const [officialClient, setOfficialClient] = useState('');
- const [officialDol, setOfficialDol] = useState('');
- const [aiModel, setAiModel] = useState('gemini-3-flash-preview');
- const [enableQC, setEnableQC] = useState(false);
+ // IA Thinking, lotes, documentos y campos del formulario se gestionan en store por feature
 
  // Timer de proceso
  const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -127,7 +138,7 @@ export default function MedicalOrganizer() {
  nombre: p.labelCliente,
  dol: p.dol,
  }),
- label: ` ${p.labelCliente} | DOL: ${p.dol} (${p.documentCount} docs${p.pendientesCount >0 ? ` · ${p.pendientesCount} pend.` : ''})`,
+ label: ` ${p.labelCliente} | DOL: ${formatDateMMDDYYYY(p.dol)} (${p.documentCount} docs${p.pendientesCount >0 ? ` · ${p.pendientesCount} pend.` : ''})`,
  }));
  setLoteOptions(opts);
  }
@@ -392,8 +403,8 @@ export default function MedicalOrganizer() {
  }
  if (!mockDol) {
  mockDol = prompt(
- 'Date of Loss para el Mock (MM/DD/YYYY):',
- '05/06/2024',
+ `Date of Loss para el Mock (${DATE_FORMAT_HINT}):`,
+ '05-06-2024',
  );
  if (!mockDol) return;
  }
@@ -1006,7 +1017,7 @@ export default function MedicalOrganizer() {
  marginBottom: '5px',
  }}
  >
- Date of Loss (Fijo):
+ Date of Loss (Fijo) <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>({DATE_FORMAT_HINT})</span>:
  </label>
  <input
  type="text"
@@ -1014,7 +1025,7 @@ export default function MedicalOrganizer() {
  onChange={(e) =>
  setOfficialDol(e.target.value)
  }
- placeholder="MM/DD/YYYY"
+ placeholder={DATE_FORMAT_HINT}
  style={{
  width: '100%',
  padding: '10px',
@@ -1469,9 +1480,7 @@ export default function MedicalOrganizer() {
  '0.78rem',
  }}
  >
- {new Date(
- t.timestamp,
- ).toLocaleString()}
+ {formatDateMMDDYYYY(t.timestamp)}
  </span>
  )}
  <div
@@ -1730,7 +1739,7 @@ export default function MedicalOrganizer() {
  fontSize: '0.8rem',
  }}
  >
- {r1.dol || ''}
+ {formatDateMMDDYYYY(r1.dol) || ''}
  </td>
  <td
  style={{
@@ -1968,7 +1977,7 @@ export default function MedicalOrganizer() {
  fontSize: '0.8rem',
  }}
  >
- {r2.dol || ''}
+ {formatDateMMDDYYYY(r2.dol) || ''}
  </td>
  <td
  style={{
@@ -2039,7 +2048,7 @@ export default function MedicalOrganizer() {
  {doc.nombreCliente || ''}
  </td>
  <td style={{ fontSize: '0.8rem' }}>
- {doc.dol || ''}
+ {formatDateMMDDYYYY(doc.dol) || ''}
  </td>
  <td>
  {(() =>{
@@ -2179,7 +2188,7 @@ export default function MedicalOrganizer() {
  <div className="date-group-container">
  <h2 className="date-header">
  Lote: {JSON.parse(selectedLote.value).nombre} |
- DOL: {JSON.parse(selectedLote.value).dol} {' '}
+ DOL: {formatDateMMDDYYYY(JSON.parse(selectedLote.value).dol)} {' '}
  {loteDocuments.length} documentos
  </h2>
  <section className="results-split">
@@ -2197,7 +2206,7 @@ export default function MedicalOrganizer() {
  <tr>
  <th>Client / Document</th>
  <th>Score</th>
- <th>Fecha Servicio</th>
+ <th>Fecha Servicio <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
  <th>Doctor</th>
  <th>Procedimiento</th>
  </tr>
@@ -2323,6 +2332,7 @@ export default function MedicalOrganizer() {
  <td>
  <EditablePencil
  value={item.fecha || ''}
+ displayValue={item.fecha ? formatDateMMDDYYYY(item.fecha) : undefined}
  onSave={(nextValue) =>
  updateLineItemField(
  doc.archivoOrigen,
@@ -2392,7 +2402,7 @@ export default function MedicalOrganizer() {
  <tr>
  <th>Doc Cliente / Sender</th>
  <th>Score</th>
- <th>Fecha</th>
+ <th>Fecha <span style={{ color: '#9ca3af', fontSize: '0.68rem', fontWeight: 500 }}>({DATE_FORMAT_HINT})</span></th>
  <th>Doctor</th>
  <th>Monto</th>
  </tr>
@@ -2544,6 +2554,7 @@ export default function MedicalOrganizer() {
  <td>
  <EditablePencil
  value={item.fecha || ''}
+ displayValue={item.fecha ? formatDateMMDDYYYY(item.fecha) : undefined}
  onSave={(nextValue) =>
  updateLineItemField(
  doc.archivoOrigen,
@@ -2698,7 +2709,7 @@ export default function MedicalOrganizer() {
  >
  <strong>Normalized Pack:</strong>Renombra archivos a{' '}
  <code style={{ color: '#a78bfa' }}>
- [Fecha Servicio] - [Provider] - [$Monto].pdf
+ [MM-DD-AAAA] - [Provider] - [$Monto].pdf
  </code>
  , convierte imagenes a PDF, y empaqueta todo en un ZIP.
  </div>
@@ -2765,7 +2776,7 @@ export default function MedicalOrganizer() {
  }}
  >
  Eliminado:{' '}
- {new Date(t.deletedAt).toLocaleString()}
+ {formatDateMMDDYYYY(t.deletedAt)}
  {t.doc._fromLote &&
  ` | Lote: ${t.doc._fromLote}`}
  </div>
