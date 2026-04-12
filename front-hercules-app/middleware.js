@@ -3,11 +3,31 @@ import { NextResponse } from 'next/server';
 const LOGIN_PATH = '/login';
 const DASHBOARD_PATH = '/dashboard';
 const DASHBOARD_ADMIN_PATH = '/dashboard/admin';
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-async function validateSession(token) {
+function trimTrailingSlash(url) {
+  return String(url || '').replace(/\/+$/, '');
+}
+
+function resolveApiBase(request) {
+  const envBase = trimTrailingSlash(
+    process.env.BACKEND_URL ||
+      process.env.INTERNAL_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      ''
+  );
+
+  if (envBase) {
+    return envBase;
+  }
+
+  const { protocol, hostname } = request.nextUrl;
+  return `${protocol}//${hostname}:3000`;
+}
+
+async function validateSession(token, request) {
   try {
-    const response = await fetch(`${API_BASE}/api/auth/me`, {
+    const apiBase = resolveApiBase(request);
+    const response = await fetch(`${apiBase}/api/auth/me`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -58,7 +78,7 @@ export async function middleware(request) {
       return buildLoginRedirect(request, pathname, search);
     }
 
-    const session = await validateSession(authToken);
+    const session = await validateSession(authToken, request);
     if (!session.isValid) {
       return buildLoginRedirect(request, pathname, search);
     }
@@ -82,7 +102,7 @@ export async function middleware(request) {
   }
 
   if (pathname === LOGIN_PATH && authToken) {
-    const session = await validateSession(authToken);
+    const session = await validateSession(authToken, request);
 
     if (!session.isValid) {
       const response = NextResponse.next();
