@@ -1,17 +1,14 @@
-import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
 import { PDFDocument } from 'pdf-lib';
 import { GeminiService } from '../../infrastructure/ai/gemini.service.js';
-import { ValidationService } from '../../shared/validators/validation.service.js';
-import { MasterService } from './services/master.service.js';
 import { ExcelService } from '../../infrastructure/export/excel.service.js';
-import { TEMP_DOCS_DIR, getCaseTempDir, getMimeType } from '../../shared/runtime/files.js';
+import { TEMP_DOCS_DIR, getCaseTempDir, getMimeType } from '../../infrastructure/storage/temp-docs.runtime.js';
+import { MasterService } from './services/master.service.js';
+import { ValidationService } from './services/validation.service.js';
 
-const router = Router();
-
-router.get('/api/profiles', async (req, res) => {
+export async function getProfiles(req, res) {
     try {
         const profiles = await MasterService.getUniqueProfiles();
         res.json({ profiles });
@@ -19,9 +16,9 @@ router.get('/api/profiles', async (req, res) => {
         console.error('Error perfiles:', error);
         res.status(500).json({ error: 'Server err' });
     }
-});
+}
 
-router.get('/api/lote-documents', async (req, res) => {
+export async function getLoteDocuments(req, res) {
     try {
         const { nombre, dol } = req.query;
         if (!nombre || !dol) return res.status(400).json({ error: 'Falta nombre o dol' });
@@ -30,9 +27,9 @@ router.get('/api/lote-documents', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error fetching lote docs' });
     }
-});
+}
 
-router.get('/api/all-records', async (req, res) => {
+export async function getAllRecords(req, res) {
     try {
         const records = await MasterService.getAllDocumentsFlat();
         res.json({ success: true, data: records });
@@ -40,9 +37,9 @@ router.get('/api/all-records', async (req, res) => {
         console.error('Error all records:', error);
         res.status(500).json({ error: 'Server err fetching records' });
     }
-});
+}
 
-router.get('/api/pendientes', async (req, res) => {
+export async function getPendientes(req, res) {
     try {
         const { nombre, dol } = req.query;
         if (!nombre || !dol) return res.json({ success: true, data: [] });
@@ -51,9 +48,9 @@ router.get('/api/pendientes', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error fetching pendientes' });
     }
-});
+}
 
-router.post('/api/assign-pendiente', async (req, res) => {
+export async function assignPendiente(req, res) {
     try {
         const { pendienteIndex, nombre, dol, selectedRun } = req.body;
         if (pendienteIndex === undefined || !nombre || !dol) {
@@ -82,9 +79,9 @@ router.post('/api/assign-pendiente', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error asignando pendiente' });
     }
-});
+}
 
-router.delete('/api/pendiente', async (req, res) => {
+export async function deletePendiente(req, res) {
     try {
         const idx = parseInt(req.query.index, 10);
         const { nombre, dol } = req.query;
@@ -96,9 +93,9 @@ router.delete('/api/pendiente', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error eliminando pendiente' });
     }
-});
+}
 
-router.get('/api/thinking', async (req, res) => {
+export async function getThinking(req, res) {
     try {
         const { nombre, dol } = req.query;
         if (!nombre || !dol) return res.json({ success: true, data: [] });
@@ -107,9 +104,9 @@ router.get('/api/thinking', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error fetching thinking history' });
     }
-});
+}
 
-router.post('/api/rescan-document', async (req, res) => {
+export async function rescanDocument(req, res) {
     try {
         const { archivoOrigen, nombre, dol, aiModel, pages } = req.body;
         if (!archivoOrigen || !nombre || !dol) {
@@ -158,9 +155,9 @@ router.post('/api/rescan-document', async (req, res) => {
         console.error('[RESCAN] Error:', error);
         res.status(500).json({ error: error.message });
     }
-});
+}
 
-router.post('/api/update-document-field', async (req, res) => {
+export async function updateDocumentField(req, res) {
     try {
         const { nombre, dol, archivoOrigen, field, value } = req.body;
         const allowedFields = ['nombreCliente', 'nombrePaciente', 'quienEnvia'];
@@ -186,9 +183,9 @@ router.post('/api/update-document-field', async (req, res) => {
         console.error('Inline update document field error:', error);
         return res.status(500).json({ error: 'Error actualizando documento' });
     }
-});
+}
 
-router.post('/api/update-lineitem-field', async (req, res) => {
+export async function updateLineitemField(req, res) {
     try {
         const { nombre, dol, archivoOrigen, lineItemIndex, field, value } = req.body;
         const allowedFields = ['fecha', 'nombreDoctor', 'procedimientoEjecutado', 'monto'];
@@ -228,9 +225,9 @@ router.post('/api/update-lineitem-field', async (req, res) => {
         console.error('Inline update line item error:', error);
         return res.status(500).json({ error: 'Error actualizando line item' });
     }
-});
+}
 
-router.post('/api/update-sender-group', async (req, res) => {
+export async function updateSenderGroup(req, res) {
     try {
         const { nombre, dol, oldSender, newSender } = req.body;
         if (!nombre || !dol || oldSender === undefined || newSender === undefined) {
@@ -258,9 +255,9 @@ router.post('/api/update-sender-group', async (req, res) => {
         console.error('Inline update sender group error:', error);
         return res.status(500).json({ error: 'Error actualizando remitente' });
     }
-});
+}
 
-router.post('/api/save-records', async (req, res) => {
+export async function saveRecords(req, res) {
     try {
         const { nombre, dol, recordsToSave } = req.body;
         if (!nombre || !dol || !recordsToSave || recordsToSave.length === 0) {
@@ -272,9 +269,9 @@ router.post('/api/save-records', async (req, res) => {
         console.error('Error guardando:', error);
         res.status(500).json({ error: 'Failed to persist records' });
     }
-});
+}
 
-router.delete('/api/records', async (req, res) => {
+export async function deleteRecord(req, res) {
     try {
         const { archivoOrigen, nombre, dol } = req.query;
         if (!archivoOrigen || !nombre || !dol) {
@@ -292,18 +289,18 @@ router.delete('/api/records', async (req, res) => {
         console.error('Error deleting record:', error);
         res.status(500).json({ error: 'Server err deleting record' });
     }
-});
+}
 
-router.get('/api/deleted-records', async (req, res) => {
+export async function getDeletedRecords(req, res) {
     try {
         const trash = await MasterService.getTrash();
         res.json({ success: true, list: trash });
     } catch (error) {
         res.status(500).json({ error: 'Error leyendo papelera' });
     }
-});
+}
 
-router.post('/api/restore-record', async (req, res) => {
+export async function restoreRecord(req, res) {
     try {
         const { trashIndex, nombre, dol } = req.body;
         if (trashIndex === undefined || !nombre || !dol) {
@@ -315,9 +312,9 @@ router.post('/api/restore-record', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error en restauracion' });
     }
-});
+}
 
-router.get('/api/download', async (req, res) => {
+export async function download(req, res) {
     try {
         const { nombre, dol } = req.query;
         let documents;
@@ -341,9 +338,9 @@ router.get('/api/download', async (req, res) => {
         console.error('Download error:', error);
         res.status(500).json({ error: 'Server download err' });
     }
-});
+}
 
-router.get('/api/download-normalized', async (req, res) => {
+export async function downloadNormalized(req, res) {
     try {
         const { nombre, dol } = req.query;
         if (!nombre || !dol) return res.status(400).json({ error: 'Faltan nombre y dol' });
@@ -413,9 +410,9 @@ router.get('/api/download-normalized', async (req, res) => {
         console.error('Error generando normalized pack:', error);
         if (!res.headersSent) res.status(500).json({ error: 'Error generando pack' });
     }
-});
+}
 
-router.delete('/api/lote', async (req, res) => {
+export async function deleteLote(req, res) {
     try {
         const { nombre, dol } = req.query;
         if (!nombre || !dol) {
@@ -441,9 +438,9 @@ router.delete('/api/lote', async (req, res) => {
         console.error('Error eliminando caso:', error);
         res.status(500).json({ error: 'Fallo eliminando caso' });
     }
-});
+}
 
-router.delete('/api/reset-db', async (req, res) => {
+export async function resetDb(req, res) {
     try {
         await MasterService.resetAll();
         if (fs.existsSync(TEMP_DOCS_DIR)) {
@@ -455,7 +452,7 @@ router.delete('/api/reset-db', async (req, res) => {
         console.error('Error fatal borrando DB:', error);
         res.status(500).json({ error: 'Fallo borrando DB' });
     }
-});
+}
 
 async function createMinimalImagePDF(imgBuffer, mime) {
     const pdfDoc = await PDFDocument.create();
@@ -481,5 +478,3 @@ async function createMinimalImagePDF(imgBuffer, mime) {
     page.drawImage(img, { x: 0, y: 0, width: w, height: h });
     return pdfDoc.save();
 }
-
-export default router;

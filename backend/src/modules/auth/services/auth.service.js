@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createHash, randomUUID } from 'crypto';
-import { prisma } from '../../database/prismaClient.js';
-import { env } from '../../config/env.js';
+import { prisma } from '../../../database/prismaClient.js';
+import { env } from '../../../config/env.js';
 
 function hashToken(token) {
   return createHash('sha256').update(token).digest('hex');

@@ -1,4 +1,4 @@
-import { prisma } from '../database/prismaClient.js';
+import { prisma } from '../../../database/prismaClient.js';
 
 const DEFAULT_ORG_ID = process.env.DEFAULT_ORGANIZATION_ID || 'org_default_hercules_seed';
 
