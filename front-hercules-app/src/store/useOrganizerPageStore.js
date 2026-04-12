@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 const initialState = {
  files: [],
@@ -26,7 +27,9 @@ const setValue = (set, key) =>(valueOrUpdater) =>
  : valueOrUpdater,
  }));
 
-export const useOrganizerPageStore = create((set) =>({
+export const useOrganizerPageStore = create(
+ persist(
+ (set) =>({
  ...initialState,
  setFiles: setValue(set, 'files'),
  setIsUploading: setValue(set, 'isUploading'),
@@ -44,4 +47,24 @@ export const useOrganizerPageStore = create((set) =>({
  setAiModel: setValue(set, 'aiModel'),
  setEnableQC: setValue(set, 'enableQC'),
  resetOrganizerState: () =>set(initialState),
-}));
+ }),
+ {
+ name: 'hercules-organizer-store',
+ storage: createJSONStorage(() => localStorage),
+ partialize: (state) =>({
+ selectedLote: state.selectedLote,
+ streamLogs: state.streamLogs,
+ thinkingData: state.thinkingData,
+ thinkingHistory: state.thinkingHistory,
+ thinkingOpen: state.thinkingOpen,
+ officialClient: state.officialClient,
+ officialDol: state.officialDol,
+ aiModel: state.aiModel,
+ enableQC: state.enableQC,
+ loteDocuments: state.loteDocuments,
+ pendientes: state.pendientes,
+ trashData: state.trashData,
+ }),
+ },
+ ),
+);

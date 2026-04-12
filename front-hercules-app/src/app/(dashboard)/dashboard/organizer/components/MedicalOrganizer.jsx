@@ -21,6 +21,23 @@ import TrashSection from './TrashSection/TrashSection';
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const httpService = new HttpService();
 
+function createQueuedFileKey(file, index) {
+ return `${file.name}__${file.size}__${file.lastModified}__${index}`;
+}
+
+function normalizeFilename(value) {
+ return String(value || '').trim().toLowerCase();
+}
+
+function parseSelectedLoteValue(selectedLote) {
+ if (!selectedLote) return null;
+ try {
+ return JSON.parse(selectedLote.value);
+ } catch {
+ return null;
+ }
+}
+
 const customSelectStyles = {
  control: (base, state) =>({
  ...base,
@@ -88,6 +105,7 @@ export default function MedicalOrganizer() {
  setEnableQC,
  } = useOrganizerPageStore();
  const [isDragging, setIsDragging] = useState(false);
+ const [approvedDuplicateKeys, setApprovedDuplicateKeys] = useState({});
 
  // Terminal
  const terminalEndRef = useRef(null);
@@ -100,6 +118,67 @@ export default function MedicalOrganizer() {
  const timerRef = useRef(null);
 
  const fileInputRef = useRef(null);
+
+ const queuedFileEntries = files.map((file, index) =>({
+ key: createQueuedFileKey(file, index),
+ file,
+ fileName: file.name,
+ normalizedName: normalizeFilename(file.name),
+ }));
+
+ const existingFileNames = new Set(
+ [
+ ...loteDocuments.map((doc) =>doc.archivoOrigen),
+ ...pendientes.map((doc) =>doc.archivoOrigen),
+ ]
+ .map((name) =>normalizeFilename(name))
+ .filter(Boolean),
+ );
+
+ const queuedSeenNames = new Set();
+ const queueReview = queuedFileEntries.map((entry) =>{
+ let duplicateReason = null;
+
+ if (existingFileNames.has(entry.normalizedName)) {
+ duplicateReason = 'Ya existe en este lote';
+ } else if (queuedSeenNames.has(entry.normalizedName)) {
+ duplicateReason = 'Duplicado dentro de la cola actual';
+ }
+
+ if (!queuedSeenNames.has(entry.normalizedName)) {
+ queuedSeenNames.add(entry.normalizedName);
+ }
+
+ return {
+ ...entry,
+ isDuplicateCandidate: Boolean(duplicateReason),
+ duplicateReason,
+ };
+ });
+
+ const newQueueItems = queueReview.filter((entry) =>!entry.isDuplicateCandidate);
+ const duplicateQueueItems = queueReview.filter((entry) =>entry.isDuplicateCandidate);
+ const approvedDuplicateItems = duplicateQueueItems.filter((entry) =>approvedDuplicateKeys[entry.key]);
+ const selectedQueueItems = [...newQueueItems, ...approvedDuplicateItems];
+
+ useEffect(() =>{
+ setApprovedDuplicateKeys((previous) =>{
+ const validKeys = new Set(duplicateQueueItems.map((entry) =>entry.key));
+ const next = Object.fromEntries(
+ Object.entries(previous).filter(([key, value]) =>validKeys.has(key) && value),
+ );
+
+ const previousKeys = Object.keys(previous).filter((key) =>previous[key]).sort();
+ const nextKeys = Object.keys(next).sort();
+ const sameKeys = previousKeys.length === nextKeys.length
+ && previousKeys.every((key, index) =>key === nextKeys[index]);
+ if (sameKeys) {
+ return previous;
+ }
+
+ return next;
+ });
+ }, [files, loteDocuments, pendientes]);
 
  // Timer: iniciar/parar cuando isUploading cambia
  useEffect(() =>{
@@ -185,13 +264,39 @@ export default function MedicalOrganizer() {
  .catch(console.error);
  };
 
+ const fetchThinkingHistory = (nombre, dol) =>{
+ if (!nombre || !dol) {
+ setThinkingHistory([]);
+ setThinkingData(null);
+ return;
+ }
+
+ httpService
+ .getData(
+ `/api/thinking?nombre=${encodeURIComponent(nombre)}&dol=${encodeURIComponent(dol)}`,
+ )
+ .then((res) =>{
+ const data = res.data;
+ if (data.success && data.data.length >0) {
+ setThinkingHistory(data.data);
+ setThinkingData(data.data[data.data.length - 1]);
+ } else {
+ setThinkingHistory([]);
+ setThinkingData(null);
+ }
+ })
+ .catch(console.error);
+ };
+
  const fetchAll = () =>{
  fetchProfiles();
  fetchTrash();
  if (selectedLote) {
- const parsed = JSON.parse(selectedLote.value);
+ const parsed = parseSelectedLoteValue(selectedLote);
+ if (!parsed) return;
  fetchPendientes(parsed.nombre, parsed.dol);
  fetchLoteDocuments(parsed.nombre, parsed.dol);
+ fetchThinkingHistory(parsed.nombre, parsed.dol);
  } else {
  setPendientes([]);
  }
@@ -204,28 +309,18 @@ export default function MedicalOrganizer() {
 
  useEffect(() =>{
  if (selectedLote) {
- const parsed = JSON.parse(selectedLote.value);
+ const parsed = parseSelectedLoteValue(selectedLote);
+ if (!parsed) return;
+ setOfficialClient(parsed.nombre);
+ setOfficialDol(parsed.dol);
  fetchLoteDocuments(parsed.nombre, parsed.dol);
  fetchPendientes(parsed.nombre, parsed.dol);
- // Cargar historial de razonamiento IA persistido
- httpService
- .getData(
- `/api/thinking?nombre=${encodeURIComponent(parsed.nombre)}&dol=${encodeURIComponent(parsed.dol)}`,
- )
- .then((res) =>{
- const data = res.data;
- if (data.success && data.data.length >0) {
- setThinkingHistory(data.data);
- setThinkingData(data.data[data.data.length - 1]);
- } else {
- setThinkingHistory([]);
- setThinkingData(null);
- }
- })
- .catch(() =>{});
+ fetchThinkingHistory(parsed.nombre, parsed.dol);
  } else {
  setLoteDocuments([]);
  setPendientes([]);
+ setOfficialClient('');
+ setOfficialDol('');
  setThinkingHistory([]);
  setThinkingData(null);
  }
@@ -303,13 +398,43 @@ export default function MedicalOrganizer() {
  // ===========================
  const evalFilesForDuplicates = async () =>{
  if (files.length === 0) return;
+
+ const parsedSelectedLote = parseSelectedLoteValue(selectedLote);
+ const resolvedOfficialClient = parsedSelectedLote?.nombre || officialClient;
+ const resolvedOfficialDol = parsedSelectedLote?.dol || officialDol;
+
+ if (!resolvedOfficialClient || !resolvedOfficialDol) {
+ alert('Define el cliente y DOL del lote antes de procesar archivos.');
+ return;
+ }
+
+ if (selectedQueueItems.length === 0) {
+ alert('No hay archivos aprobados para procesar. Marca los posibles duplicados que quieres reescanear o agrega archivos nuevos.');
+ return;
+ }
+
+ const processedKeySet = new Set(selectedQueueItems.map((entry) =>entry.key));
+ const filesToUpload = selectedQueueItems.map((entry) =>entry.file);
+ const waitingDuplicateCount = duplicateQueueItems.length - approvedDuplicateItems.length;
+ let uploadSucceeded = false;
+
  setIsUploading(true);
- setStreamLogs([]);
+ setStreamLogs(
+ [
+ `[SYS] ${newQueueItems.length} archivo(s) nuevos listos para procesar.`,
+ approvedDuplicateItems.length >0
+ ? `[SYS] ${approvedDuplicateItems.length} posible(s) duplicado(s) aprobados para re-scan manual.`
+ : null,
+ waitingDuplicateCount >0
+ ? `[SYS] ${waitingDuplicateCount} posible(s) duplicado(s) quedan en espera de tu aprobacion en la cola.`
+ : null,
+ ].filter(Boolean),
+ );
 
  const formData = new FormData();
- files.forEach((file) =>formData.append('files', file));
- formData.append('officialClientName', officialClient);
- formData.append('officialDol', officialDol);
+ filesToUpload.forEach((file) =>formData.append('files', file));
+ formData.append('officialClientName', resolvedOfficialClient);
+ formData.append('officialDol', resolvedOfficialDol);
  formData.append('aiModel', aiModel);
  formData.append('enableQC', enableQC);
 
@@ -341,6 +466,7 @@ export default function MedicalOrganizer() {
  if (event.data.error) {
  alert('Error: ' + event.data.error);
  } else {
+ uploadSucceeded = true;
  setStreamLogs((prev) =>[
  ...prev,
  ` Batch processed: ${event.data.savedCount} saved, ${event.data.pendientesCount} flagged.`,
@@ -359,7 +485,17 @@ export default function MedicalOrganizer() {
  alert('Streaming error: ' + error.message);
  } finally {
  setIsUploading(false);
- setFiles([]);
+ if (uploadSucceeded) {
+ setFiles((previousFiles) =>previousFiles.filter((file, index) =>!processedKeySet.has(createQueuedFileKey(file, index))));
+ setApprovedDuplicateKeys((previous) =>{
+ const next = { ...previous };
+ processedKeySet.forEach((key) =>delete next[key]);
+ return next;
+ });
+ }
+ if (parsedSelectedLote) {
+ fetchThinkingHistory(parsedSelectedLote.nombre, parsedSelectedLote.dol);
+ }
  }
  };
 
@@ -387,6 +523,7 @@ export default function MedicalOrganizer() {
  )
  return;
  setSelectedLote(null);
+ setStreamLogs([]);
  };
 
  // ===========================
@@ -645,6 +782,7 @@ export default function MedicalOrganizer() {
  ` Case deleted: ${data.docsRemoved} docs, ${data.pendRemoved} pending, ${data.trashRemoved} trash, ${data.tempFilesRemoved || 0} temp files`,
  );
  setSelectedLote(null);
+ setStreamLogs([]);
  setLoteDocuments([]);
  setPendientes([]);
  fetchProfiles();
@@ -1158,6 +1296,132 @@ export default function MedicalOrganizer() {
  </div>
  )}
  </section>
+
+ {files.length >0 && !isUploading && (
+ <section
+ style={{
+ background: 'linear-gradient(135deg, rgba(var(--h-primary-rgb), 0.06), rgba(255,255,255,0.02))',
+ border: '1px solid rgba(var(--h-primary-rgb), 0.18)',
+ borderRadius: '12px',
+ padding: '1rem 1.1rem',
+ marginBottom: '1rem',
+ }}
+ >
+ <div
+ style={{
+ display: 'flex',
+ justifyContent: 'space-between',
+ alignItems: 'center',
+ gap: '0.8rem',
+ flexWrap: 'wrap',
+ marginBottom: duplicateQueueItems.length >0 ? '0.8rem' : 0,
+ }}
+ >
+ <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+ <span
+ style={{
+ background: 'rgba(34,197,94,0.18)',
+ color: '#bbf7d0',
+ border: '1px solid rgba(34,197,94,0.35)',
+ borderRadius: '999px',
+ padding: '0.3rem 0.7rem',
+ fontSize: '0.82rem',
+ fontWeight: 700,
+ }}
+ >
+ {newQueueItems.length} nuevo(s)
+ </span>
+ <span
+ style={{
+ background: 'rgba(251,191,36,0.18)',
+ color: '#fde68a',
+ border: '1px solid rgba(251,191,36,0.35)',
+ borderRadius: '999px',
+ padding: '0.3rem 0.7rem',
+ fontSize: '0.82rem',
+ fontWeight: 700,
+ }}
+ >
+ {duplicateQueueItems.length} posible(s) duplicado(s)
+ </span>
+ <span
+ style={{
+ background: 'rgba(var(--h-primary-rgb), 0.18)',
+ color: 'var(--h-primary)',
+ border: '1px solid rgba(var(--h-primary-rgb), 0.3)',
+ borderRadius: '999px',
+ padding: '0.3rem 0.7rem',
+ fontSize: '0.82rem',
+ fontWeight: 700,
+ }}
+ >
+ {selectedQueueItems.length} listo(s) para procesar
+ </span>
+ </div>
+ <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+ Los duplicados no se procesan salvo que los apruebes abajo para re-scan.
+ </span>
+ </div>
+
+ {duplicateQueueItems.length >0 && (
+ <div
+ style={{
+ background: 'rgba(15, 23, 42, 0.45)',
+ border: '1px solid rgba(251,191,36,0.2)',
+ borderRadius: '10px',
+ padding: '0.8rem',
+ }}
+ >
+ <div style={{ color: '#fde68a', fontWeight: 700, marginBottom: '0.5rem' }}>
+ Posibles duplicados para revisar
+ </div>
+ <div style={{ display: 'grid', gap: '0.5rem' }}>
+ {duplicateQueueItems.map((entry) =>(
+ <label
+ key={entry.key}
+ style={{
+ display: 'flex',
+ alignItems: 'flex-start',
+ gap: '0.7rem',
+ padding: '0.55rem 0.65rem',
+ borderRadius: '8px',
+ background: approvedDuplicateKeys[entry.key]
+ ? 'rgba(251,191,36,0.14)'
+ : 'rgba(255,255,255,0.03)',
+ border: approvedDuplicateKeys[entry.key]
+ ? '1px solid rgba(251,191,36,0.35)'
+ : '1px solid rgba(255,255,255,0.06)',
+ cursor: 'pointer',
+ }}
+ >
+ <input
+ type="checkbox"
+ checked={Boolean(approvedDuplicateKeys[entry.key])}
+ onChange={(event) =>{
+ const { checked } = event.target;
+ setApprovedDuplicateKeys((previous) =>({
+ ...previous,
+ [entry.key]: checked,
+ }));
+ }}
+ style={{ marginTop: '0.15rem', accentColor: 'var(--h-primary)' }}
+ />
+ <div style={{ display: 'grid', gap: '0.18rem' }}>
+ <span style={{ color: 'white', fontWeight: 600 }}>{entry.fileName}</span>
+ <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{entry.duplicateReason}</span>
+ <span style={{ color: approvedDuplicateKeys[entry.key] ? '#fde68a' : '#94a3b8', fontSize: '0.76rem' }}>
+ {approvedDuplicateKeys[entry.key]
+ ? 'Aprobado para re-scan en esta corrida.'
+ : 'Queda en espera hasta que lo apruebes.'}
+ </span>
+ </div>
+ </label>
+ ))}
+ </div>
+ </div>
+ )}
+ </section>
+ )}
  </>
  ) : (
  <>
@@ -1532,13 +1796,15 @@ export default function MedicalOrganizer() {
  <button
  className="btn"
  onClick={evalFilesForDuplicates}
- disabled={!officialClient || !officialDol}
+ disabled={!officialClient || !officialDol || selectedQueueItems.length === 0}
  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
  >
  <PlayCircle size={16} />
  {!officialClient || !officialDol
  ? 'Fill in Client and DOL to unlock'
- : 'Start AI Evaluation for All Documents'}
+ : selectedQueueItems.length === 0
+ ? 'Approve duplicate re-scans or add new files'
+ : `Start AI Evaluation (${selectedQueueItems.length})`}
  </button>
  </section>
  )}
