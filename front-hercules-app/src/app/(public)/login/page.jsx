@@ -1,22 +1,86 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import Link from 'next/link';
 import styles from './login.module.scss';
 import { FiMail, FiLock, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
+import HttpService from '@/services/HttpService';
+
+const httpService = new HttpService();
+const AUTH_MAX_AGE_SECONDS = 60 * 60 * 12;
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [errorMsg, setErrorMsg] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
+        setErrorMsg('');
+
+        if (!email.trim() || !password) {
+            setErrorMsg('Please enter your email and password.');
+            return;
+        }
+
         setIsLoading(true);
-        // Simulate brief loading then redirect
-        setTimeout(() => {
+
+        try {
+            const response = await httpService.postData('/api/auth/login', {
+                email: email.trim(),
+                password,
+            });
+
+            const token = response?.data?.token;
+            const role = response?.data?.role;
+            const user = response?.data?.user;
+
+            if (!token || !role) {
+                setErrorMsg('Invalid login response from server.');
+                return;
+            }
+
+            localStorage.setItem('token', token);
+            localStorage.setItem('auth_token', token);
+            localStorage.setItem('auth_role', role);
+            if (user) {
+                localStorage.setItem('auth_user', JSON.stringify(user));
+            }
+
+            document.cookie = `auth_token=${token}; Path=/; Max-Age=${AUTH_MAX_AGE_SECONDS}; SameSite=Lax`;
+            document.cookie = `auth_role=${role}; Path=/; Max-Age=${AUTH_MAX_AGE_SECONDS}; SameSite=Lax`;
+
+            const nextPath = searchParams.get('next');
+            const safeNextPath =
+                nextPath && nextPath.startsWith('/dashboard')
+                    ? nextPath
+                    : null;
+
+            if (safeNextPath) {
+                router.push(safeNextPath);
+                return;
+            }
+
+            if (role === 'SUPER_ADMIN') {
+                router.push('/dashboard/admin');
+                return;
+            }
+
             router.push('/dashboard');
-        }, 600);
+        } catch (error) {
+            const apiError =
+                error?.response?.data?.error ||
+                error?.message ||
+                'Login failed. Please try again.';
+            setErrorMsg(apiError);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -58,9 +122,9 @@ export default function LoginPage() {
                         </div>
                     </div>
                     <div className={styles.brandFooter}>
-                        <a href="/" className={styles.backLink}>
+                        <Link href="/" className={styles.backLink}>
                             ← Back to Homepage
-                        </a>
+                        </Link>
                     </div>
                 </div>
 
@@ -82,7 +146,8 @@ export default function LoginPage() {
                                     className={styles.input}
                                     placeholder="name@company.com"
                                     autoComplete="email"
-                                    defaultValue=""
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -97,7 +162,8 @@ export default function LoginPage() {
                                     className={styles.input}
                                     placeholder="••••••••"
                                     autoComplete="current-password"
-                                    defaultValue=""
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                 />
                                 <button
                                     type="button"
@@ -117,6 +183,8 @@ export default function LoginPage() {
                             </label>
                             <a href="#" className={styles.forgotLink}>Forgot password?</a>
                         </div>
+
+                        {errorMsg && <div className={styles.errorBox}>{errorMsg}</div>}
 
                         <button
                             type="submit"
@@ -147,6 +215,10 @@ export default function LoginPage() {
                             </svg>
                             Continue with Google
                         </button>
+
+                        <div className={styles.seedHint}>
+                            Demo users: <strong>superadmin@hercules.local</strong>, <strong>owner@hercules.local</strong>, <strong>user@hercules.local</strong>.
+                        </div>
                     </form>
                 </div>
             </div>

@@ -17,7 +17,7 @@ function navClass(pathname, href) {
     return styles.link;
 }
 
-export default function PrivateNavbar({ theme, onThemeChange }) {
+export default function PrivateNavbar({ theme, onThemeChange, role = 'USER' }) {
     const pathname = usePathname();
     const { qaStatus, connStatus, setQaStatus, setConnStatus } =
         useDashboardStore();
@@ -78,6 +78,24 @@ export default function PrivateNavbar({ theme, onThemeChange }) {
                                     : 'var(--h-border)',
     };
 
+    const isSuperAdmin = role === 'SUPER_ADMIN';
+
+    const handleLogout = async () => {
+        try {
+            await httpService.postData('/api/auth/logout');
+        } catch {
+            // Ignore logout API failures and clear local session anyway.
+        }
+
+        localStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_role');
+        localStorage.removeItem('auth_user');
+        document.cookie = 'auth_token=; Path=/; Max-Age=0; SameSite=Lax';
+        document.cookie = 'auth_role=; Path=/; Max-Age=0; SameSite=Lax';
+        window.location.href = '/login';
+    };
+
     return (
         <nav className={styles.navbar}>
             <div className={styles.logo}>
@@ -101,6 +119,14 @@ export default function PrivateNavbar({ theme, onThemeChange }) {
                         <span className={styles.qaBadge}>{qaStatus.count}</span>
                     )}
                 </Link>
+                {isSuperAdmin && (
+                    <Link
+                        href="/dashboard/admin"
+                        className={navClass(pathname, '/dashboard/admin')}
+                    >
+                        Super Admin
+                    </Link>
+                )}
                 <button
                     type="button"
                     onClick={testConnection}
@@ -109,6 +135,7 @@ export default function PrivateNavbar({ theme, onThemeChange }) {
                 >
                     API
                 </button>
+                <span className={styles.roleBadge}>{role}</span>
                 <label className={styles.themeSelectWrap} title="Tema del dashboard">
                     <Palette size={14} />
                     <select
@@ -123,6 +150,9 @@ export default function PrivateNavbar({ theme, onThemeChange }) {
                         ))}
                     </select>
                 </label>
+                <button type="button" onClick={handleLogout} className={styles.logoutButton}>
+                    Logout
+                </button>
             </div>
         </nav>
     );

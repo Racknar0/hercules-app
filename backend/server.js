@@ -10,6 +10,12 @@ import { GeminiService } from './src/services/gemini.service.js';
 import { ValidationService } from './src/services/validation.service.js';
 import { MasterService } from './src/services/master.service.js';
 import { ExcelService } from './src/services/excel.service.js';
+import {
+    extractBearerToken,
+    getAuthenticatedUserByToken,
+    loginWithPassword,
+    logoutByToken,
+} from './src/modules/auth/auth.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +46,80 @@ const upload = multer({ storage: storage });
 app.use(cors());
 app.use(express.json({limit: '200mb'}));
 app.use(express.urlencoded({extended: true, limit: '200mb'}));
+
+// ========================================
+// AUTH
+// ========================================
+
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email y password son requeridos.' });
+        }
+
+        const auth = await loginWithPassword({
+            email,
+            password,
+            ipAddress: req.ip,
+            userAgent: req.get('user-agent') || null,
+        });
+
+        if (!auth) {
+            return res.status(401).json({ error: 'Credenciales invalidas.' });
+        }
+
+        return res.json({
+            success: true,
+            token: auth.token,
+            role: auth.user.role,
+            user: auth.user,
+            expiresAt: auth.expiresAt.toISOString(),
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ error: 'Error interno en login.' });
+    }
+});
+
+app.get('/api/auth/me', async (req, res) => {
+    try {
+        const token = extractBearerToken(req.headers.authorization);
+        if (!token) {
+            return res.status(401).json({ error: 'No autorizado.' });
+        }
+
+        const auth = await getAuthenticatedUserByToken(token);
+        if (!auth) {
+            return res.status(401).json({ error: 'Sesion invalida o expirada.' });
+        }
+
+        return res.json({
+            success: true,
+            role: auth.user.role,
+            user: auth.user,
+        });
+    } catch (error) {
+        console.error('Auth me error:', error);
+        return res.status(500).json({ error: 'Error interno consultando sesion.' });
+    }
+});
+
+app.post('/api/auth/logout', async (req, res) => {
+    try {
+        const token = extractBearerToken(req.headers.authorization);
+        if (!token) {
+            return res.json({ success: true, revoked: 0 });
+        }
+
+        const revoked = await logoutByToken(token);
+        return res.json({ success: true, revoked });
+    } catch (error) {
+        console.error('Logout error:', error);
+        return res.status(500).json({ error: 'Error interno en logout.' });
+    }
+});
 
 // ========================================
 // HEALTH CHECK / DIAGNÓSTICO
