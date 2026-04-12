@@ -12,7 +12,11 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
+      const token =
+        localStorage.getItem('token') ||
+        localStorage.getItem('auth_token') ||
+        sessionStorage.getItem('token') ||
+        sessionStorage.getItem('auth_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -31,6 +35,10 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_role');
       localStorage.removeItem('auth_user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('auth_token');
+      sessionStorage.removeItem('auth_role');
+      sessionStorage.removeItem('auth_user');
       document.cookie = 'auth_token=; Path=/; Max-Age=0; SameSite=Lax';
       document.cookie = 'auth_role=; Path=/; Max-Age=0; SameSite=Lax';
       window.location.href = '/login';

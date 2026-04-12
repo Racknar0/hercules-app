@@ -5,6 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
+    "dev": "node --watch server.js",
     "start": "node server.js",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",

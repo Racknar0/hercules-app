@@ -26,3 +26,10 @@
   max-width: 100%;
   animation: h-fadeIn 0.3s ease-out;
 }
+
+.authGate {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--h-bg-primary);
+  background-image: var(--h-bg-image);
+}

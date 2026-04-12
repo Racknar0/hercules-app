@@ -8,7 +8,31 @@ import { FiMail, FiLock, FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
 import HttpService from '@/services/HttpService';
 
 const httpService = new HttpService();
-const AUTH_MAX_AGE_SECONDS = 60 * 60 * 12;
+const PERSISTENT_AUTH_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+const MIN_LOADING_MS = 500;
+
+function clearAuthStorage() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_role');
+    localStorage.removeItem('auth_user');
+
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_role');
+    sessionStorage.removeItem('auth_user');
+}
+
+function setAuthCookies(token, role, rememberMe) {
+    if (rememberMe) {
+        document.cookie = `auth_token=${token}; Path=/; Max-Age=${PERSISTENT_AUTH_MAX_AGE_SECONDS}; SameSite=Lax`;
+        document.cookie = `auth_role=${role}; Path=/; Max-Age=${PERSISTENT_AUTH_MAX_AGE_SECONDS}; SameSite=Lax`;
+        return;
+    }
+
+    document.cookie = `auth_token=${token}; Path=/; SameSite=Lax`;
+    document.cookie = `auth_role=${role}; Path=/; SameSite=Lax`;
+}
 
 export default function LoginPage() {
     const router = useRouter();
@@ -17,6 +41,7 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(true);
     const [errorMsg, setErrorMsg] = useState('');
 
     const handleLogin = async (e) => {
@@ -29,6 +54,7 @@ export default function LoginPage() {
         }
 
         setIsLoading(true);
+        const startedAt = Date.now();
 
         try {
             const response = await httpService.postData('/api/auth/login', {
@@ -45,15 +71,17 @@ export default function LoginPage() {
                 return;
             }
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('auth_token', token);
-            localStorage.setItem('auth_role', role);
+            clearAuthStorage();
+
+            const targetStorage = rememberMe ? localStorage : sessionStorage;
+            targetStorage.setItem('token', token);
+            targetStorage.setItem('auth_token', token);
+            targetStorage.setItem('auth_role', role);
             if (user) {
-                localStorage.setItem('auth_user', JSON.stringify(user));
+                targetStorage.setItem('auth_user', JSON.stringify(user));
             }
 
-            document.cookie = `auth_token=${token}; Path=/; Max-Age=${AUTH_MAX_AGE_SECONDS}; SameSite=Lax`;
-            document.cookie = `auth_role=${role}; Path=/; Max-Age=${AUTH_MAX_AGE_SECONDS}; SameSite=Lax`;
+            setAuthCookies(token, role, rememberMe);
 
             const nextPath = searchParams.get('next');
             const safeNextPath =
@@ -79,6 +107,12 @@ export default function LoginPage() {
                 'Login failed. Please try again.';
             setErrorMsg(apiError);
         } finally {
+            const elapsed = Date.now() - startedAt;
+            if (elapsed < MIN_LOADING_MS) {
+                await new Promise((resolve) =>
+                    setTimeout(resolve, MIN_LOADING_MS - elapsed),
+                );
+            }
             setIsLoading(false);
         }
     };
@@ -178,7 +212,11 @@ export default function LoginPage() {
 
                         <div className={styles.formOptions}>
                             <label className={styles.rememberMe}>
-                                <input type="checkbox" defaultChecked />
+                                <input
+                                    type="checkbox"
+                                    checked={rememberMe}
+                                    onChange={(e) => setRememberMe(e.target.checked)}
+                                />
                                 <span>Remember me</span>
                             </label>
                             <a href="#" className={styles.forgotLink}>Forgot password?</a>
@@ -191,9 +229,13 @@ export default function LoginPage() {
                             className={`${styles.submitBtn} ${isLoading ? styles.loading : ''}`}
                             disabled={isLoading}
                             id="login-submit-btn"
+                            aria-busy={isLoading}
                         >
                             {isLoading ? (
-                                <span className={styles.spinner} />
+                                <span className={styles.loadingContent}>
+                                    <span className={styles.spinner} />
+                                    <span>Signing in...</span>
+                                </span>
                             ) : (
                                 <>
                                     Sign In
