@@ -792,7 +792,7 @@ export default function MedicalOrganizer() {
  const parsed = JSON.parse(selectedLote.value);
  if (
  !window.confirm(
- `DELETE the entire case?\n\n ${parsed.nombre}\n DOL: ${parsed.dol}\n\nThis will delete ALL documents, pending items, and trash for this case.`,
+ `BORRAR el caso completo?\n\n ${parsed.nombre}\n DOL: ${parsed.dol}\n\nEsto eliminara TODO lo relacionado: documentos, pendientes, historial de thinking/auditoria, jobs IA, papelera y temporales.`,
  )
  )
  return;
@@ -802,7 +802,7 @@ export default function MedicalOrganizer() {
  const data = res.data;
  if (data.success) {
  alert(
- ` Case deleted: ${data.docsRemoved} docs, ${data.pendRemoved} pending, ${data.trashRemoved} trash, ${data.tempFilesRemoved || 0} temp files`,
+ ` Caso borrado: ${data.docsRemoved} docs, ${data.pendRemoved} pendientes, ${data.auditLogsRemoved || 0} logs, ${data.aiJobsRemoved || 0} jobs IA, ${data.trashRemoved} papelera, ${data.tempFilesRemoved || 0} temporales.`,
  );
  setSelectedLote(null);
  setStreamLogs([]);
@@ -1037,10 +1037,10 @@ export default function MedicalOrganizer() {
  gap: '6px',
  }}
  onClick={handleDeleteLote}
- title="Delete selected case"
+ title="Borrar caso seleccionado"
  >
  <Trash2 size={14} />
- Delete Case
+ Borrar caso
  </button>
  )}
  <button

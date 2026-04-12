@@ -589,10 +589,38 @@ export class MasterService {
       prisma.pendingReview.count({ where: { caseId: caseRecord.id, status: 'OPEN' } }),
     ]);
 
-    const trashBefore = await prisma.trashItem.count({ where: { caseId: caseRecord.id } });
+    const [trashBefore, thinkingLogsBefore, aiJobsBefore] = await Promise.all([
+      prisma.trashItem.count({ where: { caseId: caseRecord.id } }),
+      prisma.auditLog.count({
+        where: {
+          organizationId: caseRecord.organizationId,
+          entityType: 'case',
+          entityId: caseRecord.id,
+        },
+      }),
+      prisma.aiJob.count({
+        where: {
+          organizationId: caseRecord.organizationId,
+          caseId: caseRecord.id,
+        },
+      }),
+    ]);
 
     await prisma.$transaction([
       prisma.trashItem.deleteMany({ where: { caseId: caseRecord.id } }),
+      prisma.auditLog.deleteMany({
+        where: {
+          organizationId: caseRecord.organizationId,
+          entityType: 'case',
+          entityId: caseRecord.id,
+        },
+      }),
+      prisma.aiJob.deleteMany({
+        where: {
+          organizationId: caseRecord.organizationId,
+          caseId: caseRecord.id,
+        },
+      }),
       prisma.caseRecord.delete({ where: { id: caseRecord.id } }),
     ]);
 
@@ -601,6 +629,8 @@ export class MasterService {
       docsRemoved,
       pendRemoved,
       trashRemoved: trashBefore,
+      auditLogsRemoved: thinkingLogsBefore,
+      aiJobsRemoved: aiJobsBefore,
     };
   }
 
