@@ -32,6 +32,28 @@ router.get('/api/lote-documents', async (req, res) => {
     }
 });
 
+router.get('/api/document-file', async (req, res) => {
+    try {
+        const { nombre, dol, archivoOrigen } = req.query;
+        if (!nombre || !dol || !archivoOrigen) {
+            return res.status(400).json({ error: 'Missing nombre, dol or archivoOrigen' });
+        }
+
+        const caseTempDir = getCaseTempDir(nombre, dol);
+        const filePath = path.join(caseTempDir, archivoOrigen);
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'Document file is not available in temporary storage.' });
+        }
+
+        const mimeType = getMimeType(archivoOrigen) || 'application/octet-stream';
+        res.type(mimeType);
+        return res.sendFile(filePath);
+    } catch (error) {
+        return res.status(500).json({ error: 'Error opening document file' });
+    }
+});
+
 router.get('/api/all-records', async (req, res) => {
     try {
         const records = await MasterService.getAllDocumentsFlat();

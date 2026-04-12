@@ -658,7 +658,30 @@ export default function MedicalOrganizer() {
  // ===========================
  // PDF VIEWER
  // ===========================
- const openDocumentLocal = (filename) =>{
+ const openDocumentLocal = async (filename, loteOverride = null) =>{
+ const lote = loteOverride || getCurrentLoteParams();
+
+ if (lote?.nombre && lote?.dol) {
+ try {
+ const encodedNombre = encodeURIComponent(lote.nombre);
+ const encodedDol = encodeURIComponent(lote.dol);
+ const encodedArchivo = encodeURIComponent(filename);
+ const previewUrl = `${API_BASE}/api/document-file?nombre=${encodedNombre}&dol=${encodedDol}&archivoOrigen=${encodedArchivo}`;
+ const response = await fetch(previewUrl, { method: 'HEAD' });
+
+ if (!response.ok) {
+ alert('The document file is not available in temporary storage anymore.');
+ return;
+ }
+
+ window.open(previewUrl, '_blank');
+ return;
+ } catch (error) {
+ alert(`Could not open the document: ${error.message}`);
+ return;
+ }
+ }
+
  window.open(`${API_BASE}/api/documents/${filename}`, '_blank');
  };
 
@@ -956,8 +979,7 @@ export default function MedicalOrganizer() {
  <header>
  <h1>Hercules IA</h1>
  <p>
- Master Historical Manager with anti-duplicate shield and
- Local Viewer.
+ Master Historical Manager with duplicate review controls and local preview.
  </p>
  </header>
 
@@ -1329,7 +1351,7 @@ export default function MedicalOrganizer() {
  fontWeight: 700,
  }}
  >
- {newQueueItems.length} nuevo(s)
+ {newQueueItems.length} new file(s)
  </span>
  <span
  style={{
@@ -1342,7 +1364,7 @@ export default function MedicalOrganizer() {
  fontWeight: 700,
  }}
  >
- {duplicateQueueItems.length} posible(s) duplicado(s)
+ {duplicateQueueItems.length} possible duplicate(s)
  </span>
  <span
  style={{
@@ -1355,11 +1377,11 @@ export default function MedicalOrganizer() {
  fontWeight: 700,
  }}
  >
- {selectedQueueItems.length} listo(s) para procesar
+ {selectedQueueItems.length} ready to process
  </span>
  </div>
  <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
- Los duplicados no se procesan salvo que los apruebes abajo para re-scan.
+ Duplicate candidates are skipped unless you approve them below for re-scan.
  </span>
  </div>
 
@@ -1373,7 +1395,7 @@ export default function MedicalOrganizer() {
  }}
  >
  <div style={{ color: '#fde68a', fontWeight: 700, marginBottom: '0.5rem' }}>
- Posibles duplicados para revisar
+ Possible duplicates to review
  </div>
  <div style={{ display: 'grid', gap: '0.5rem' }}>
  {duplicateQueueItems.map((entry) =>(
@@ -1407,12 +1429,40 @@ export default function MedicalOrganizer() {
  style={{ marginTop: '0.15rem', accentColor: 'var(--h-primary)' }}
  />
  <div style={{ display: 'grid', gap: '0.18rem' }}>
+ <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
  <span style={{ color: 'white', fontWeight: 600 }}>{entry.fileName}</span>
- <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{entry.duplicateReason}</span>
+ {selectedLote && (
+ <button
+ type="button"
+ onClick={(event) =>{
+ event.preventDefault();
+ event.stopPropagation();
+ const lote = parseSelectedLoteValue(selectedLote);
+ openDocumentLocal(entry.fileName, lote);
+ }}
+ style={{
+ border: '1px solid rgba(var(--h-primary-rgb), 0.35)',
+ background: 'rgba(var(--h-primary-rgb), 0.12)',
+ color: 'var(--h-primary)',
+ borderRadius: '999px',
+ padding: '0.18rem 0.55rem',
+ fontSize: '0.74rem',
+ cursor: 'pointer',
+ }}
+ >
+ Open existing file
+ </button>
+ )}
+ </div>
+ <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+ {entry.duplicateReason === 'Ya existe en este lote'
+ ? 'Already exists in this batch'
+ : 'Duplicate inside the current queue'}
+ </span>
  <span style={{ color: approvedDuplicateKeys[entry.key] ? '#fde68a' : '#94a3b8', fontSize: '0.76rem' }}>
  {approvedDuplicateKeys[entry.key]
- ? 'Aprobado para re-scan en esta corrida.'
- : 'Queda en espera hasta que lo apruebes.'}
+ ? 'Approved for re-scan in this run.'
+ : 'Waiting for your approval.'}
  </span>
  </div>
  </label>
@@ -1477,7 +1527,7 @@ export default function MedicalOrganizer() {
  letterSpacing: '1px',
  }}
  >
- RAZONAMIENTO IA
+ AI REASONING
  </span>
  <span
  style={{
@@ -1486,8 +1536,7 @@ export default function MedicalOrganizer() {
  marginLeft: 'auto',
  }}
  >
- {thinkingHistory.length} doc
- {thinkingHistory.length !== 1 ? 's' : ''}
+ {thinkingHistory.length} doc{thinkingHistory.length !== 1 ? 's' : ''}
  </span>
  <span
  style={{
@@ -1499,7 +1548,7 @@ export default function MedicalOrganizer() {
  : 'rotate(0deg)',
  }}
  >
- 
+ ▼
  </span>
  </div>
 
