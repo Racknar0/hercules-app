@@ -1,0 +1,14 @@
+.wrapper {
+  min-height: calc(100vh - var(--h-nav-height, 64px));
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--h-text);
+}

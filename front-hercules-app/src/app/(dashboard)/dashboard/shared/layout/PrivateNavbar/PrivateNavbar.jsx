@@ -109,6 +109,12 @@ export default function PrivateNavbar({ theme, onThemeChange, role = 'USER' }) {
             </div>
             <div className={styles.links}>
                 <Link
+                    href="/dashboard/file-viewer"
+                    className={navClass(pathname, '/dashboard/file-viewer')}
+                >
+                    File Viewer
+                </Link>
+                <Link
                     href="/dashboard/organizer"
                     className={navClass(pathname, '/dashboard/organizer')}
                 >

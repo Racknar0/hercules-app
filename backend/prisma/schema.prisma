@@ -447,7 +447,7 @@ model PendingReview {
   @@map("pending_reviews")
 }
 
-// Papelera de documentos/casos (hoy archivo deleted_records.json)
+// Papelera de documentos/casos persistida en DB
 model TrashItem {
   // PK interna del item en papelera
   id             String        @id @default(cuid())
