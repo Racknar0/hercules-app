@@ -6,10 +6,9 @@ import { usePathname } from 'next/navigation';
 import { Hexagon, Palette } from 'lucide-react';
 import { useDashboardStore } from '@/store/useDashboardStore';
 import HttpService from '@/services/HttpService';
+import API_BASE from '@/helpers/apiBase';
 import { DASHBOARD_THEMES } from '@/helpers/dashboardThemes';
 import styles from './PrivateNavbar.module.scss';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const httpService = new HttpService();
 
 function navClass(pathname, href) {

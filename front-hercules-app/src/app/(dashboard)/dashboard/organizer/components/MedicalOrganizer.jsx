@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Select from 'react-select';
 import { ArrowRight, CheckCircle2, Eye, FileText, PlayCircle, RotateCcw, Trash2, XCircle } from 'lucide-react';
 import HttpService from '@/services/HttpService';
+import API_BASE from '@/helpers/apiBase';
 import { DATE_FORMAT_HINT, formatDateMMDDYYYY } from '@/helpers/dateFormat';
 import { useOrganizerPageStore } from '@/store/useOrganizerPageStore';
 import OrganizerHeader from './OrganizerHeader/OrganizerHeader';
@@ -17,8 +18,6 @@ import PostProcessingSection from './PostProcessingSection/PostProcessingSection
 import NoLoteSelectedState from './NoLoteSelectedState/NoLoteSelectedState';
 import TrashSection from './TrashSection/TrashSection';
 
-// API Base: en dev/prod usa NEXT_PUBLIC_API_URL; fallback local al backend Express
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const httpService = new HttpService();
 
 function createQueuedFileKey(file, index) {

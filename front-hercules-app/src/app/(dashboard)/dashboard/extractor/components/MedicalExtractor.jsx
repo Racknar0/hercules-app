@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import HttpService from '@/services/HttpService';
+import API_BASE from '@/helpers/apiBase';
 import { formatDateMMDDYYYY } from '@/helpers/dateFormat';
 import { useExtractorPageStore } from '@/store/useExtractorPageStore';
 import BatchSelectorCard from './BatchSelectorCard/BatchSelectorCard';
@@ -14,7 +15,6 @@ import InputsTableSection from './InputsTableSection/InputsTableSection';
 import ProvidersResultsSection from './ProvidersResultsSection/ProvidersResultsSection';
 import ExecutiveSummarySection from './ExecutiveSummarySection/ExecutiveSummarySection';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const httpService = new HttpService();
 
 function parseSelectedLote(selectedLote) {
