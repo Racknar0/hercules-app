@@ -18,19 +18,6 @@ function isLoopbackUrl(url) {
     }
 }
 
-function resolveFromBrowserLocation() {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-
-    const { protocol, hostname } = window.location;
-    if (!hostname) {
-        return null;
-    }
-
-    return `${protocol}//${hostname}:3000`;
-}
-
 export function getApiBase() {
     if (envApiBase) {
         const normalizedEnv = trimTrailingSlash(envApiBase);
@@ -38,22 +25,14 @@ export function getApiBase() {
         if (typeof window !== 'undefined') {
             const currentHost = window.location.hostname;
             if (!isLoopbackHost(currentHost) && isLoopbackUrl(normalizedEnv)) {
-                const browserApiBase = resolveFromBrowserLocation();
-                if (browserApiBase) {
-                    return browserApiBase;
-                }
+                return '';
             }
         }
 
         return normalizedEnv;
     }
 
-    const browserApiBase = resolveFromBrowserLocation();
-    if (browserApiBase) {
-        return browserApiBase;
-    }
-
-    return 'http://localhost:3000';
+    return '';
 }
 
 const API_BASE = getApiBase();

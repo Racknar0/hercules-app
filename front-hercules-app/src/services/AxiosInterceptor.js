@@ -1,8 +1,6 @@
 import axios from 'axios';
-import API_BASE from '@/helpers/apiBase';
 
 const axiosInstance = axios.create({
-  baseURL: API_BASE,
   headers: {
     'Content-Type': 'application/json',
   },
