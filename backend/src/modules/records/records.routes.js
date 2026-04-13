@@ -11,6 +11,82 @@ import { TEMP_DOCS_DIR, getCaseTempDir, getMimeType } from '../../shared/runtime
 
 const router = Router();
 
+function toSafeCaseSegment(value, fallback, maxLength = null) {
+    const sanitized = String(value || fallback)
+        .replace(/[^a-zA-Z0-9_.-]/g, '_');
+    if (!maxLength) return sanitized;
+    return sanitized.substring(0, maxLength);
+}
+
+function normalizeCaseKey(value) {
+    return String(value || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '');
+}
+
+function getClientSegmentFromCaseDir(caseDirName) {
+    const value = String(caseDirName || '');
+    const separatorIndex = value.lastIndexOf('__');
+    if (separatorIndex < 0) return value;
+    return value.slice(0, separatorIndex);
+}
+
+function getCaseDirectoryCandidates(nombre, dol) {
+    const safeName = toSafeCaseSegment(nombre, 'UNKNOWN', 60);
+    const safeDol = toSafeCaseSegment(dol, 'NO-DOL');
+    const expectedDir = `${safeName}__${safeDol}`;
+    const basePath = path.join(TEMP_DOCS_DIR, expectedDir);
+    const candidates = [basePath];
+
+    if (!fs.existsSync(TEMP_DOCS_DIR)) {
+        return candidates;
+    }
+
+    const targetCaseKey = normalizeCaseKey(safeName);
+    const siblingDirs = fs
+        .readdirSync(TEMP_DOCS_DIR)
+        .filter((entry) => {
+            const entryPath = path.join(TEMP_DOCS_DIR, entry);
+            if (!fs.existsSync(entryPath) || !fs.statSync(entryPath).isDirectory()) return false;
+
+            if (entry === expectedDir) return false;
+
+            const entryCaseKey = normalizeCaseKey(getClientSegmentFromCaseDir(entry));
+            if (!entryCaseKey || !targetCaseKey) return false;
+
+            return entryCaseKey === targetCaseKey
+                || entryCaseKey.includes(targetCaseKey)
+                || targetCaseKey.includes(entryCaseKey);
+        })
+        .map((entry) => path.join(TEMP_DOCS_DIR, entry));
+
+    return [...candidates, ...siblingDirs];
+}
+
+function resolveDocumentFilePath(nombre, dol, archivoOrigen) {
+    const fileName = String(archivoOrigen || '').trim();
+    if (!fileName) return null;
+
+    const candidateDirs = getCaseDirectoryCandidates(nombre, dol);
+    for (const dirPath of candidateDirs) {
+        if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) continue;
+
+        const exactPath = path.join(dirPath, fileName);
+        if (fs.existsSync(exactPath)) return exactPath;
+
+        const lowerFileName = fileName.toLowerCase();
+        const matched = fs
+            .readdirSync(dirPath)
+            .find((entry) => String(entry).toLowerCase() === lowerFileName);
+
+        if (matched) {
+            return path.join(dirPath, matched);
+        }
+    }
+
+    return null;
+}
+
 router.get('/api/profiles', async (req, res) => {
     try {
         const profiles = await MasterService.getUniqueProfiles();
@@ -39,10 +115,9 @@ router.get('/api/document-file', async (req, res) => {
             return res.status(400).json({ error: 'Missing nombre, dol or archivoOrigen' });
         }
 
-        const caseTempDir = getCaseTempDir(nombre, dol);
-        const filePath = path.join(caseTempDir, archivoOrigen);
+        const filePath = resolveDocumentFilePath(nombre, dol, archivoOrigen);
 
-        if (!fs.existsSync(filePath)) {
+        if (!filePath || !fs.existsSync(filePath)) {
             return res.status(404).json({ error: 'Document file is not available in temporary storage.' });
         }
 

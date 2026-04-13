@@ -100,19 +100,85 @@ export class ValidationService {
         return data;
     }
 
+    static normalizeDateString(dateStr) {
+        if (!dateStr || typeof dateStr !== 'string') return null;
+        dateStr = dateStr.trim();
+        
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+
+        const monthMap = {
+            jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+            jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
+            ene: '01', abr: '04', ago: '08', dic: '12'
+        };
+
+        let match = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+        if (match) {
+            let [_, m, d, y] = match;
+            return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        }
+
+        match = dateStr.match(/^([a-zA-Z]{3,})\s+(\d{1,2})[\s,]+(\d{4})$/);
+        if (match) {
+            let [_, m, d, y] = match;
+            const mo = monthMap[m.toLowerCase().substring(0,3)];
+            if(mo) {
+                return `${y}-${mo}-${d.padStart(2, '0')}`;
+            }
+        }
+        
+        const parsed = new Date(dateStr);
+        if (!Number.isNaN(parsed.getTime())) {
+            const y = parsed.getFullYear();
+            const m = String(parsed.getMonth() + 1).padStart(2, '0');
+            const d = String(parsed.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        return dateStr;
+    }
+
     static validateDates(data, flags) {
         if (!data.lineItems || !Array.isArray(data.lineItems)) return data;
 
+        let dolDateObj = null;
+        if (data.dol && data.dol !== 'Sin Fecha' && data.dol.toLowerCase() !== 'sin fecha') {
+            const originalDol = data.dol;
+            data.dol = this.normalizeDateString(data.dol);
+            if (originalDol !== data.dol && data.dol) {
+                flags.push(`Auto-fix: DOL formato corregido de "${originalDol}" a "${data.dol}"`);
+            }
+            dolDateObj = new Date(`${data.dol}T00:00:00`);
+        }
+
         const now = new Date();
-        const maxFutureDate = new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
+        now.setHours(23, 59, 59, 999);
 
         data.lineItems.forEach((item, idx) => {
             if (item.fecha) {
-                const date = new Date(`${item.fecha}T00:00:00`);
-                if (Number.isNaN(date.getTime())) {
-                    flags.push(`Fecha invalida en lineItem[${idx}]: "${item.fecha}"`);
-                } else if (date > maxFutureDate) {
-                    flags.push(`Fecha futura sospechosa en lineItem[${idx}]: "${item.fecha}"`);
+                const originalF = item.fecha;
+                item.fecha = this.normalizeDateString(item.fecha);
+
+                if (originalF !== item.fecha) {
+                    flags.push(`Auto-fix: Formato de fecha de servicio corregido: "${originalF}" -> "${item.fecha}"`);
+                }
+
+                const dateObj = new Date(`${item.fecha}T00:00:00`);
+                if (Number.isNaN(dateObj.getTime())) {
+                    flags.push(`Fecha invalida o incomprensible en lineItem[${idx}]: "${item.fecha}"`);
+                } else {
+                    const year = dateObj.getFullYear();
+                    if (year < 1950) {
+                        flags.push(`Fecha hist\u00f3rica il\u00f3gica en lineItem[${idx}]: "${item.fecha}" (\u00bfsigo pasado?).`);
+                    } else if (dateObj > now) {
+                        flags.push(`Fecha futura en lineItem[${idx}]: "${item.fecha}". El servicio m\u00e9dico no puede ser posterior a hoy.`);
+                    }
+
+                    if (dolDateObj && !Number.isNaN(dolDateObj.getTime())) {
+                        if (dateObj < dolDateObj) {
+                            flags.push(`\u26a0\ufe0f Sospecha en lineItem[${idx}]: Fecha de servicio (${item.fecha}) es ANTERIOR a la Fecha de Accidente/DOL (${data.dol}).`);
+                        }
+                    }
                 }
             }
         });

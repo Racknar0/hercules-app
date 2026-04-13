@@ -251,6 +251,11 @@ export class GeminiService {
 
         DOL:
         - If none of the DOL-related labels are found anywhere, return "Sin Fecha".
+
+        CRITICAL DATE FORMATTING RULES:
+        - EVERY single date you extract (DOL and lineItem.fecha) MUST be strictly in YYYY-MM-DD format.
+        - Even if the document says "Oct 12, 2023" or "10/12/23", you MUST output "2023-10-12".
+        - Do NOT include time. Do NOT include text. JUST "YYYY-MM-DD" or "Sin Fecha".
       `;
 
             const MAX_RETRIES = 50;
