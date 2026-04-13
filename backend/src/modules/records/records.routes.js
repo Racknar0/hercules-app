@@ -7,7 +7,12 @@ import { GeminiService } from '../../infrastructure/ai/gemini.service.js';
 import { ValidationService } from '../../shared/validators/validation.service.js';
 import { MasterService } from './services/master.service.js';
 import { ExcelService } from '../../infrastructure/export/excel.service.js';
-import { TEMP_DOCS_DIR, getCaseTempDir, getMimeType } from '../../shared/runtime/files.js';
+import {
+    TEMP_APPROVED_SUBDIR,
+    TEMP_DOCS_DIR,
+    TEMP_PENDING_SUBDIR,
+    getMimeType,
+} from '../../shared/runtime/files.js';
 
 const router = Router();
 
@@ -63,28 +68,119 @@ function getCaseDirectoryCandidates(nombre, dol) {
     return [...candidates, ...siblingDirs];
 }
 
+function getStorageDirectoryCandidates(caseDirPath) {
+    return [
+        path.join(caseDirPath, TEMP_APPROVED_SUBDIR),
+        path.join(caseDirPath, TEMP_PENDING_SUBDIR),
+        caseDirPath,
+    ];
+}
+
 function resolveDocumentFilePath(nombre, dol, archivoOrigen) {
     const fileName = String(archivoOrigen || '').trim();
     if (!fileName) return null;
 
-    const candidateDirs = getCaseDirectoryCandidates(nombre, dol);
-    for (const dirPath of candidateDirs) {
-        if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) continue;
+    const candidateCaseDirs = getCaseDirectoryCandidates(nombre, dol);
+    for (const caseDirPath of candidateCaseDirs) {
+        if (!fs.existsSync(caseDirPath) || !fs.statSync(caseDirPath).isDirectory()) continue;
 
-        const exactPath = path.join(dirPath, fileName);
-        if (fs.existsSync(exactPath)) return exactPath;
+        const storageDirs = getStorageDirectoryCandidates(caseDirPath);
+        for (const dirPath of storageDirs) {
+            if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) continue;
 
-        const lowerFileName = fileName.toLowerCase();
-        const matched = fs
-            .readdirSync(dirPath)
-            .find((entry) => String(entry).toLowerCase() === lowerFileName);
+            const exactPath = path.join(dirPath, fileName);
+            if (fs.existsSync(exactPath)) return exactPath;
 
-        if (matched) {
-            return path.join(dirPath, matched);
+            const lowerFileName = fileName.toLowerCase();
+            const matched = fs
+                .readdirSync(dirPath)
+                .find((entry) => String(entry).toLowerCase() === lowerFileName);
+
+            if (matched) {
+                return path.join(dirPath, matched);
+            }
         }
     }
 
     return null;
+}
+
+function resolveDocumentFilePathByScopes(nombre, dol, archivoOrigen, scopes = []) {
+    const fileName = String(archivoOrigen || '').trim();
+    if (!fileName) return null;
+
+    const candidateCaseDirs = getCaseDirectoryCandidates(nombre, dol);
+    for (const caseDirPath of candidateCaseDirs) {
+        if (!fs.existsSync(caseDirPath) || !fs.statSync(caseDirPath).isDirectory()) continue;
+
+        const storageDirs = scopes
+            .map((scope) => (scope ? path.join(caseDirPath, scope) : caseDirPath))
+            .filter((dirPath) => fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory());
+
+        for (const dirPath of storageDirs) {
+            const exactPath = path.join(dirPath, fileName);
+            if (fs.existsSync(exactPath)) return exactPath;
+
+            const lowerFileName = fileName.toLowerCase();
+            const matched = fs
+                .readdirSync(dirPath)
+                .find((entry) => String(entry).toLowerCase() === lowerFileName);
+
+            if (matched) {
+                return path.join(dirPath, matched);
+            }
+        }
+    }
+
+    return null;
+}
+
+function deleteStaticDocumentForRecord(nombre, dol, archivoOrigen) {
+    const filePath = resolveDocumentFilePathByScopes(nombre, dol, archivoOrigen, [TEMP_APPROVED_SUBDIR, null]);
+    if (!filePath || !fs.existsSync(filePath)) return false;
+
+    fs.unlinkSync(filePath);
+    return true;
+}
+
+function deleteStaticDocumentForPending(nombre, dol, archivoOrigen) {
+    const filePath = resolveDocumentFilePathByScopes(nombre, dol, archivoOrigen, [TEMP_PENDING_SUBDIR, null]);
+    if (!filePath || !fs.existsSync(filePath)) return false;
+
+    fs.unlinkSync(filePath);
+    return true;
+}
+
+function deleteAllCaseStaticArtifacts(nombre, dol) {
+    const caseDirs = getCaseDirectoryCandidates(nombre, dol)
+        .filter((dirPath) => fs.existsSync(dirPath) && fs.statSync(dirPath).isDirectory());
+
+    let removedFiles = 0;
+    caseDirs.forEach((dirPath) => {
+        removedFiles += countFilesRecursively(dirPath);
+        fs.rmSync(dirPath, { recursive: true, force: true });
+    });
+
+    return removedFiles;
+}
+
+function countFilesRecursively(dirPath) {
+    if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) return 0;
+
+    let count = 0;
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    entries.forEach((entry) => {
+        const entryPath = path.join(dirPath, entry.name);
+        if (entry.isFile()) {
+            count += 1;
+            return;
+        }
+        if (entry.isDirectory()) {
+            count += countFilesRecursively(entryPath);
+        }
+    });
+
+    return count;
 }
 
 router.get('/api/profiles', async (req, res) => {
@@ -189,7 +285,12 @@ router.delete('/api/pendiente', async (req, res) => {
             return res.status(400).json({ error: 'Faltan parametros (index, nombre, dol)' });
         }
         const removed = await MasterService.deletePendiente(nombre, dol, idx);
-        res.json({ success: !!removed });
+        const archivoOrigen = String(removed?.archivoOrigen || '').trim();
+        let fileDeleted = false;
+        if (archivoOrigen) {
+            fileDeleted = deleteStaticDocumentForPending(nombre, dol, archivoOrigen);
+        }
+        res.json({ success: !!removed, fileDeleted });
     } catch (error) {
         res.status(500).json({ error: 'Error eliminando pendiente' });
     }
@@ -213,9 +314,8 @@ router.post('/api/rescan-document', async (req, res) => {
             return res.status(400).json({ error: 'Faltan parametros' });
         }
 
-        const caseTempDir = getCaseTempDir(nombre, dol);
-        const filePath = path.join(caseTempDir, archivoOrigen);
-        if (!fs.existsSync(filePath)) {
+        const filePath = resolveDocumentFilePath(nombre, dol, archivoOrigen);
+        if (!filePath || !fs.existsSync(filePath)) {
             return res.status(404).json({ error: 'Archivo no disponible en cache (expiro despues de 72h). Re-sube el documento.' });
         }
 
@@ -383,8 +483,10 @@ router.delete('/api/records', async (req, res) => {
             return res.status(404).json({ error: 'Documento no encontrado en lote' });
         }
 
+        const fileDeleted = deleteStaticDocumentForRecord(nombre, dol, archivoOrigen);
+
         await MasterService.sendToTrash(archivoOrigen, { ...removed, _fromLote: nombre, _fromDol: dol });
-        res.json({ success: true });
+        res.json({ success: true, fileDeleted });
     } catch (error) {
         console.error('Error deleting record:', error);
         res.status(500).json({ error: 'Server err deleting record' });
@@ -450,7 +552,6 @@ router.get('/api/download-normalized', async (req, res) => {
             return res.status(404).json({ error: 'No hay documentos en este lote' });
         }
 
-        const caseTempDir = getCaseTempDir(nombre, dol);
         const safeName = (nombre || 'Case').replace(/[^a-zA-Z0-9 _.-]/g, '_').substring(0, 50);
         const safeDol = (dol || 'NO-DOL').replace(/\//g, '-');
         const zipFilename = `${safeName} - ${safeDol}.zip`;
@@ -464,8 +565,8 @@ router.get('/api/download-normalized', async (req, res) => {
 
         const usedNames = new Set();
         for (const doc of docs) {
-            const filePath = path.join(caseTempDir, doc.archivoOrigen);
-            if (!fs.existsSync(filePath)) continue;
+            const filePath = resolveDocumentFilePath(nombre, dol, doc.archivoOrigen);
+            if (!filePath || !fs.existsSync(filePath)) continue;
 
             const firstDate = (doc.lineItems && doc.lineItems.length > 0) ? doc.lineItems[0].fecha : 'Sin-Fecha';
             const provider = doc.quienEnvia || doc.lineItems?.[0]?.nombreDoctor || 'Unknown Provider';
@@ -524,14 +625,7 @@ router.delete('/api/lote', async (req, res) => {
             return res.status(404).json({ error: result.reason });
         }
 
-        let tempFilesRemoved = 0;
-        const caseTempDir = getCaseTempDir(nombre, dol);
-        if (fs.existsSync(caseTempDir)) {
-            const files = fs.readdirSync(caseTempDir);
-            files.forEach((f) => fs.unlinkSync(path.join(caseTempDir, f)));
-            tempFilesRemoved = files.length;
-            fs.rmdirSync(caseTempDir);
-        }
+        const tempFilesRemoved = deleteAllCaseStaticArtifacts(nombre, dol);
 
         res.json({ success: true, ...result, tempFilesRemoved });
     } catch (error) {

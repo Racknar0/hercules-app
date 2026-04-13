@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { GeminiService } from '../../infrastructure/ai/gemini.service.js';
 import { MasterService } from '../records/services/master.service.js';
-import { getCaseTempDir, getMimeType } from '../../infrastructure/storage/temp-docs.runtime.js';
+import { getMimeType, resolveCaseTempFilePath } from '../../infrastructure/storage/temp-docs.runtime.js';
 import { isCancelRequested, resetCancel } from '../system/services/cancel.service.js';
 
 function getSampleIndices(total) {
@@ -107,13 +107,16 @@ export async function checkFiles(req, res) {
         let available = 0;
         let unavailable = 0;
         let medicalCount = 0;
-        const caseTempDir = getCaseTempDir(nombre, dol);
 
         docs.forEach((doc) => {
             const isMedical = doc.tipoDocumento && doc.tipoDocumento.toLowerCase().includes('medical');
             if (isMedical) medicalCount++;
 
-            const inCase = fs.existsSync(path.join(caseTempDir, doc.archivoOrigen));
+            const inCase = !!resolveCaseTempFilePath(nombre, dol, doc.archivoOrigen, {
+                includeApproved: true,
+                includePending: true,
+                includeLegacy: true,
+            });
             if (inCase) available++;
             else unavailable++;
         });
@@ -190,10 +193,13 @@ export async function runQa(req, res) {
 
             const doc = toProcess[i];
             const filename = doc.archivoOrigen;
-            const caseTempDir = getCaseTempDir(nombre, dol);
-            const filePath = path.join(caseTempDir, filename);
+            const filePath = resolveCaseTempFilePath(nombre, dol, filename, {
+                includeApproved: true,
+                includePending: false,
+                includeLegacy: true,
+            });
 
-            if (!fs.existsSync(filePath)) {
+            if (!filePath || !fs.existsSync(filePath)) {
                 sendProgress(`⚠️ No en cache: ${filename}`);
                 fail++;
                 continue;

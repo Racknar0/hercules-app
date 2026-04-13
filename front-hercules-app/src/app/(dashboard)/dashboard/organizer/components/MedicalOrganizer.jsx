@@ -37,6 +37,84 @@ function parseSelectedLoteValue(selectedLote) {
  }
 }
 
+function getFileExtension(fileName) {
+ const name = String(fileName || '');
+ const dotIndex = name.lastIndexOf('.');
+ if (dotIndex < 0) return '';
+ return name.slice(dotIndex + 1).toLowerCase();
+}
+
+function formatFileSize(sizeInBytes) {
+ const size = Number(sizeInBytes || 0);
+ if (!Number.isFinite(size) || size <= 0) return '0 B';
+ if (size < 1024) return `${size} B`;
+ if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+ if (size < 1024 * 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+ return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+function getQueuedFileTypeMeta(fileName) {
+ const ext = getFileExtension(fileName);
+
+ if (ext === 'pdf') {
+ return {
+ label: 'PDF',
+ compatible: true,
+ badgeStyle: {
+ background: 'rgba(239,68,68,0.2)',
+ color: '#fecaca',
+ border: '1px solid rgba(239,68,68,0.4)',
+ },
+ };
+ }
+
+ if (['xls', 'xlsx', 'csv'].includes(ext)) {
+ return {
+ label: 'EXCEL',
+ compatible: false,
+ badgeStyle: {
+ background: 'rgba(34,197,94,0.2)',
+ color: '#bbf7d0',
+ border: '1px solid rgba(34,197,94,0.4)',
+ },
+ };
+ }
+
+ if (['doc', 'docx', 'odt', 'rtf', 'txt'].includes(ext)) {
+ return {
+ label: 'WORD / TEXTO',
+ compatible: false,
+ badgeStyle: {
+ background: 'rgba(59,130,246,0.2)',
+ color: '#bfdbfe',
+ border: '1px solid rgba(59,130,246,0.4)',
+ },
+ };
+ }
+
+ if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'heic'].includes(ext)) {
+ return {
+ label: 'IMAGEN',
+ compatible: true,
+ badgeStyle: {
+ background: 'rgba(168,85,247,0.2)',
+ color: '#e9d5ff',
+ border: '1px solid rgba(168,85,247,0.4)',
+ },
+ };
+ }
+
+ return {
+ label: ext ? `INCOMPATIBLE (.${ext})` : 'INCOMPATIBLE',
+ compatible: false,
+ badgeStyle: {
+ background: 'rgba(251,146,60,0.2)',
+ color: '#fed7aa',
+ border: '1px solid rgba(251,146,60,0.45)',
+ },
+ };
+}
+
 const customSelectStyles = {
  control: (base, state) =>({
  ...base,
@@ -159,6 +237,17 @@ export default function MedicalOrganizer() {
  const duplicateQueueItems = queueReview.filter((entry) =>entry.isDuplicateCandidate);
  const approvedDuplicateItems = duplicateQueueItems.filter((entry) =>approvedDuplicateKeys[entry.key]);
  const selectedQueueItems = [...newQueueItems, ...approvedDuplicateItems];
+
+ const queuedFileRows = queuedFileEntries.map((entry) =>{
+ const typeMeta = getQueuedFileTypeMeta(entry.fileName);
+ return {
+ ...entry,
+ typeMeta,
+ fileSizeLabel: formatFileSize(entry.file?.size),
+ };
+ });
+
+ const compatibleQueuedFiles = queuedFileRows.filter((row) =>row.typeMeta.compatible).length;
 
  useEffect(() =>{
  setApprovedDuplicateKeys((previous) =>{
@@ -382,6 +471,20 @@ export default function MedicalOrganizer() {
  if (e.target.files && e.target.files.length >0) {
  setFiles((prev) =>[...prev, ...Array.from(e.target.files)]);
  }
+ };
+
+ const openQueuedFilePreview = (file) =>{
+ if (!file) return;
+
+ const localUrl = URL.createObjectURL(file);
+ const popup = window.open(localUrl, '_blank');
+ if (!popup) {
+ URL.revokeObjectURL(localUrl);
+ alert('No se pudo abrir la vista previa. Revisa si el navegador bloqueo la ventana emergente.');
+ return;
+ }
+
+ setTimeout(() =>URL.revokeObjectURL(localUrl), 60000);
  };
 
  // Autoscroll terminal (inside the container only, not the page)
@@ -1279,7 +1382,7 @@ export default function MedicalOrganizer() {
  webkitdirectory="true"
  ref={fileInputRef}
  onChange={handleFileSelect}
- accept=".png,.jpg,.jpeg,.pdf,.webp"
+ accept=".png,.jpg,.jpeg,.pdf,.webp,.gif,.bmp,.tif,.tiff,.heic,.xls,.xlsx,.csv,.doc,.docx,.odt,.rtf,.txt"
  />
  <div className="drop-icon"></div>
  {files.length >0 ? (
@@ -1317,6 +1420,135 @@ export default function MedicalOrganizer() {
  </div>
  )}
  </section>
+
+ {files.length >0 && (
+ <section
+ style={{
+ background: 'rgba(255,255,255,0.03)',
+ border: '1px solid rgba(255,255,255,0.08)',
+ borderRadius: '12px',
+ padding: '0.95rem 1rem',
+ marginTop: '0.85rem',
+ marginBottom: '1rem',
+ }}
+ >
+ <div
+ style={{
+ display: 'flex',
+ alignItems: 'center',
+ justifyContent: 'space-between',
+ gap: '0.8rem',
+ flexWrap: 'wrap',
+ marginBottom: '0.7rem',
+ }}
+ >
+ <strong style={{ color: 'white' }}>Attached files</strong>
+ <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+ <span
+ style={{
+ background: 'rgba(var(--h-primary-rgb),0.16)',
+ border: '1px solid rgba(var(--h-primary-rgb),0.3)',
+ color: 'var(--h-primary)',
+ borderRadius: '999px',
+ padding: '0.18rem 0.55rem',
+ fontSize: '0.76rem',
+ fontWeight: 700,
+ }}
+ >
+ Total: {queuedFileRows.length}
+ </span>
+ <span
+ style={{
+ background: 'rgba(34,197,94,0.15)',
+ border: '1px solid rgba(34,197,94,0.35)',
+ color: '#bbf7d0',
+ borderRadius: '999px',
+ padding: '0.18rem 0.55rem',
+ fontSize: '0.76rem',
+ fontWeight: 700,
+ }}
+ >
+ Compatibles IA: {compatibleQueuedFiles}
+ </span>
+ </div>
+ </div>
+
+ <div
+ style={{
+ maxHeight: '220px',
+ overflowY: 'auto',
+ border: '1px solid rgba(255,255,255,0.06)',
+ borderRadius: '10px',
+ }}
+ >
+ {queuedFileRows.map((row) =>(
+ <div
+ key={row.key}
+ style={{
+ display: 'grid',
+ gridTemplateColumns: 'minmax(220px, 1fr) auto auto auto',
+ gap: '0.55rem',
+ alignItems: 'center',
+ padding: '0.48rem 0.65rem',
+ borderBottom: '1px solid rgba(255,255,255,0.05)',
+ }}
+ >
+ <span
+ title={row.fileName}
+ style={{
+ color: 'white',
+ overflow: 'hidden',
+ textOverflow: 'ellipsis',
+ whiteSpace: 'nowrap',
+ }}
+ >
+ {row.fileName}
+ </span>
+
+ <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+ {row.fileSizeLabel}
+ </span>
+
+ <span
+ style={{
+ ...row.typeMeta.badgeStyle,
+ borderRadius: '999px',
+ fontSize: '0.72rem',
+ fontWeight: 700,
+ padding: '0.14rem 0.5rem',
+ textAlign: 'center',
+ }}
+ >
+ {row.typeMeta.label}
+ </span>
+
+ <button
+ type="button"
+ onClick={(event) =>{
+ event.stopPropagation();
+ openQueuedFilePreview(row.file);
+ }}
+ style={{
+ border: '1px solid rgba(var(--h-primary-rgb), 0.35)',
+ background: 'rgba(var(--h-primary-rgb), 0.12)',
+ color: 'var(--h-primary)',
+ borderRadius: '999px',
+ padding: '0.18rem 0.55rem',
+ fontSize: '0.74rem',
+ cursor: 'pointer',
+ display: 'inline-flex',
+ alignItems: 'center',
+ gap: '0.25rem',
+ }}
+ >
+ <Eye size={13} />
+ Abrir
+ </button>
+ </div>
+ ))}
+ </div>
+ </section>
+ )}
 
  {files.length >0 && !isUploading && (
  <section

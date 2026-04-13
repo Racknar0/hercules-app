@@ -8,13 +8,11 @@ import recordsRoutes from './src/modules/records/records.routes.js';
 import {
     TEMP_DOCS_DIR,
     ensureRuntimeDirectories,
-    startTempDocsCleanupCron,
 } from './src/shared/runtime/files.js';
 
 const app = express();
 
 ensureRuntimeDirectories();
-startTempDocsCleanupCron();
 
 app.use(cors());
 app.use(express.json({ limit: '200mb' }));

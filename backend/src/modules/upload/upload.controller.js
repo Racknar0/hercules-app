@@ -3,8 +3,34 @@ import path from 'path';
 import { GeminiService } from '../../infrastructure/ai/gemini.service.js';
 import { ValidationService } from '../records/services/validation.service.js';
 import { MasterService } from '../records/services/master.service.js';
-import { getCaseTempDir, getMimeType } from '../../infrastructure/storage/temp-docs.runtime.js';
+import {
+    getCaseApprovedTempDir,
+    getCasePendingTempDir,
+    getMimeType,
+} from '../../infrastructure/storage/temp-docs.runtime.js';
 import { isCancelRequested, resetCancel } from '../system/services/cancel.service.js';
+
+function moveFileSafely(sourcePath, targetPath) {
+    if (!sourcePath || !targetPath) return false;
+    if (!fs.existsSync(sourcePath)) return false;
+
+    const sourceResolved = path.resolve(sourcePath);
+    const targetResolved = path.resolve(targetPath);
+    if (sourceResolved === targetResolved) return true;
+
+    try {
+        fs.renameSync(sourcePath, targetPath);
+        return true;
+    } catch {
+        try {
+            fs.copyFileSync(sourcePath, targetPath);
+            fs.unlinkSync(sourcePath);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+}
 
 export async function uploadDocuments(req, res) {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -28,6 +54,8 @@ export async function uploadDocuments(req, res) {
         const { officialClientName, officialDol, aiModel, enableQC } = req.body;
         const targetModel = aiModel || 'gemini-3-flash-preview';
         const qcEnabled = enableQC === 'true' || enableQC === true;
+        const casePendingDir = getCasePendingTempDir(officialClientName, officialDol);
+        const caseApprovedDir = getCaseApprovedTempDir(officialClientName, officialDol);
 
         const extractedList = [];
         resetCancel();
@@ -48,8 +76,7 @@ export async function uploadDocuments(req, res) {
                 continue;
             }
 
-            const caseTempDir = getCaseTempDir(officialClientName, officialDol);
-            const savePath = path.join(caseTempDir, file.originalname);
+            const savePath = path.join(casePendingDir, file.originalname);
             fs.writeFileSync(savePath, file.buffer);
 
             sendProgress(`[IA] ${qcEnabled ? 'R1 - ' : ''}Analizando [${i + 1}/${req.files.length}]: ${file.originalname} ...`);
@@ -200,6 +227,23 @@ export async function uploadDocuments(req, res) {
             );
             if (isDuplicate) {
                 motivo = `Posible duplicado: ${doc.archivoOrigen} ya existe en el lote`;
+            }
+
+            if (!motivo) {
+                const approvedTargetPath = path.join(caseApprovedDir, doc.archivoOrigen);
+                if (fs.existsSync(approvedTargetPath)) {
+                    motivo = `Conflicto en cache: ${doc.archivoOrigen} ya existe en temporales aprobados`;
+                }
+            }
+
+            if (!motivo) {
+                const pendingSourcePath = path.join(casePendingDir, doc.archivoOrigen);
+                const approvedTargetPath = path.join(caseApprovedDir, doc.archivoOrigen);
+                const movedToApproved = moveFileSafely(pendingSourcePath, approvedTargetPath);
+
+                if (!movedToApproved && !fs.existsSync(approvedTargetPath)) {
+                    motivo = `No se pudo mover ${doc.archivoOrigen} a temporales aprobados`;
+                }
             }
 
             if (motivo) {
